@@ -59,11 +59,12 @@ func _apply_raycast_force(raycast: RayCast3D):
 		alignedCoef = _interpol_squared(alignedCoef)
 		
 		force_to_apply *= alignedCoef
-		
-		var final_force: Vector3 = force_direction * force_to_apply * SPRING_FORCE;
+		force_to_apply *= SPRING_FORCE
+		force_to_apply = min(force_to_apply, 1000) # cap force
+		var final_force: Vector3 = force_direction * force_to_apply;
 		
 		apply_force(final_force, raycast.global_position)
-		DebugDraw3D.draw_arrow(raycast.global_position, raycast.global_position + final_force*0.001, Color.BLUE, 0.1, true)
+		DebugDraw3D.draw_arrow(raycast.global_position, raycast.global_position + final_force*0.01, Color.BLUE, 0.1, true)
 	
 	
 func _physics_process(_delta: float) -> void:
@@ -91,7 +92,7 @@ func _physics_process(_delta: float) -> void:
 		apply_force(accel_brake * ENGINE_POWER)
 		
 		# friction
-		linear_velocity *= 0.8
+		# linear_velocity *= 0.8
 		MESH.material_override = MAT_GROUND
 	else:
 		MESH.material_override = MAT_AIR
