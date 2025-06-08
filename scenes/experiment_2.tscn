@@ -3,26 +3,26 @@
 [ext_resource type="Script" uid="uid://bcfqmg8h1ppo" path="res://scenes/car.gd" id="1_li6mi"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_chq71"]
-size = Vector3(100, 2, 100)
+size = Vector3(1000, 2, 1000)
 
-[sub_resource type="Gradient" id="Gradient_yaooi"]
+[sub_resource type="Gradient" id="Gradient_li6mi"]
 colors = PackedColorArray(0.851769, 0.851769, 0.851769, 1, 1, 1, 1, 1)
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_yaooi"]
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_kl8hj"]
 frequency = 0.092
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_li6mi"]
-color_ramp = SubResource("Gradient_yaooi")
-noise = SubResource("FastNoiseLite_yaooi")
+color_ramp = SubResource("Gradient_li6mi")
+noise = SubResource("FastNoiseLite_kl8hj")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_hq7ny"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bht1r"]
 albedo_color = Color(0.410039, 0.813847, 0.514979, 1)
 albedo_texture = SubResource("NoiseTexture2D_li6mi")
 albedo_texture_force_srgb = true
 
 [sub_resource type="BoxMesh" id="BoxMesh_kl8hj"]
-material = SubResource("StandardMaterial3D_hq7ny")
-size = Vector3(100, 2, 100)
+material = SubResource("StandardMaterial3D_bht1r")
+size = Vector3(1000, 2, 1000)
 
 [sub_resource type="Environment" id="Environment_bht1r"]
 

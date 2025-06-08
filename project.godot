@@ -11,7 +11,7 @@ config_version=5
 [application]
 
 config/name="Open Street Kart"
-run/main_scene="uid://cpupnq5qmhna6"
+run/main_scene="uid://ik0pi7mee17m"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 
@@ -40,4 +40,5 @@ right={
 
 [rendering]
 
-renderer/rendering_method="mobile"
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
