@@ -1,45 +1,100 @@
 extends RigidBody3D
 
-var raycast_fl: RayCast3D;
-var raycast_fr: RayCast3D;
-var raycast_bl: RayCast3D;
-var raycast_br: RayCast3D;
+var _raycast_fl: RayCast3D;
+var _raycast_fr: RayCast3D;
+var _raycast_bl: RayCast3D;
+var _raycast_br: RayCast3D;
+var _raycast_ground_f: RayCast3D;
+var _raycast_ground_b: RayCast3D;
+
+@export var MAT_GROUND: StandardMaterial3D
+@export var MAT_AIR: StandardMaterial3D
+@export var MESH: MeshInstance3D
 
 @export var MAX_STEER = 0.9;
-@export var ENGINE_POWER = 3000;
-@export var SPRING_FORCE = 3000;
+@export var ENGINE_POWER = 30000;
+@export var SPRING_FORCE = 2000;
 
 func _ready():
-	raycast_bl = get_node("RayCast3D BL")
-	raycast_br = get_node("RayCast3D BR")
-	raycast_fl = get_node("RayCast3D FL")
-	raycast_fr = get_node("RayCast3D FR")
+	_raycast_bl = get_node("RayCast3D BL")
+	_raycast_br = get_node("RayCast3D BR")
+	_raycast_fl = get_node("RayCast3D FL")
+	_raycast_fr = get_node("RayCast3D FR")
+	_raycast_ground_f = get_node("RayCast3DGroundFront")
+	_raycast_ground_b = get_node("RayCast3DGroundBack")
 	
 
 func _interpol_squared(x):
 	return x*x
+	
+func _interpol_sqrt(x):
+	return sqrt(x)
+	
+#func _get_ground_normal(x) -> Vector3:
+	#if (
+		#!_raycast_fl_4_ground.is_colliding() ||
+		#!_raycast_bl_4_ground.is_colliding() ||
+		#!_raycast_br_4_ground.is_colliding() ||
+		#!_raycast_fr_4_ground.is_colliding()
+	#):
+		#return Vector3(0,0,0)
+		#
+	#var cross_1: Vector3 = _raycast_fl_4_ground.get_collision_point() - _raycast_br_4_ground.get_col
 
 func _apply_raycast_force(raycast: RayCast3D):
 	if (raycast.is_colliding()):
 		var raycast_length = raycast.global_position.length()
 		var collision_point: Vector3 = raycast.get_collision_point()
 		var collision_distance: float = (raycast.global_position - collision_point).length()
-		var force_to_apply: float = 1 - collision_distance / raycast.target_position.length()
+		var force_to_apply: float = 1 - collision_distance / raycast_length
 		var force_direction: Vector3 = get_global_transform_interpolated().basis.y.normalized()
 		
-		# interpolate then apply
+		# interpolate force
 		force_to_apply = _interpol_squared(force_to_apply)
-		apply_force(force_direction * force_to_apply * SPRING_FORCE, raycast.global_position)
+		
+		# nerf based on normal to ground
+		var normal_to_ground = raycast.get_collision_normal().normalized()
+		var alignedCoef = max(normal_to_ground.dot(force_direction), 0)
+		# interpolate coef
+		alignedCoef = _interpol_squared(alignedCoef)
+		
+		force_to_apply *= alignedCoef
+		
+		var final_force: Vector3 = force_direction * force_to_apply * SPRING_FORCE;
+		
+		apply_force(final_force, raycast.global_position)
+		DebugDraw3D.draw_arrow(raycast.global_position, raycast.global_position + final_force*0.001, Color.BLUE, 0.1, true)
 	
-func _physics_process(delta: float) -> void:
-	_apply_raycast_force(raycast_fl)
-	_apply_raycast_force(raycast_fr)
-	_apply_raycast_force(raycast_bl)
-	_apply_raycast_force(raycast_br)
 	
-	var aim = get_global_transform_interpolated().basis
-	# move the car left/right
-	apply_torque(Vector3(0,1,0) * Input.get_axis("right", "left") * MAX_STEER)
-	# move the car forward
-	apply_force(-aim.z * Input.get_axis("forward", "backward") * ENGINE_POWER)
+func _physics_process(_delta: float) -> void:
+	# CAR WHEEL SPRINGS (just raycasts making the collider float)
+	# see: https://www.youtube.com/watch?v=LG1CtlFRmpU
+	# see: https://www.youtube.com/watch?v=CBgtU9FCEh8
+	_apply_raycast_force(_raycast_fl)
+	_apply_raycast_force(_raycast_fr)
+	_apply_raycast_force(_raycast_bl)
+	_apply_raycast_force(_raycast_br)
+	
+	# CAR MOVEMENT (if on ground)
+	if (_raycast_ground_b.is_colliding() && _raycast_ground_f.is_colliding()):
+		# var aim = get_global_transform_interpolated().basis
+		# var forward_force: Vector3 = -aim.z
+		# acceleration vector is projected to ground
+		var ground_forward: Vector3 = _raycast_ground_b.get_collision_point() - _raycast_ground_f.get_collision_point()
+		ground_forward = ground_forward.normalized()
+		var accel_brake = ground_forward * Input.get_axis("forward", "backward")
+		print(accel_brake, ground_forward, Input.get_axis("forward", "backward"))
+		
+		# move the car left/right
+		apply_torque(Vector3(0,1,0) * Input.get_axis("right", "left") * MAX_STEER)
+		# move the car forward
+		apply_force(accel_brake * ENGINE_POWER)
+		
+		# friction
+		linear_velocity *= 0.8
+		MESH.material_override = MAT_GROUND
+	else:
+		MESH.material_override = MAT_AIR
+		
+
 	
