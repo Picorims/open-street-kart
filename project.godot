@@ -11,9 +11,13 @@ config_version=5
 [application]
 
 config/name="Open Street Kart"
-run/main_scene="uid://ik0pi7mee17m"
+run/main_scene="uid://c0v4xq03qb8tm"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
+
+[debug_draw_3d]
+
+settings/addon_root_folder="res://addons/debug_draw_3d"
 
 [input]
 
