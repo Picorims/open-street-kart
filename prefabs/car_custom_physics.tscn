@@ -1,0 +1,100 @@
+[gd_scene load_steps=13 format=3 uid="uid://ybgidai64if4"]
+
+[ext_resource type="Material" uid="uid://b8etgnlf3hgoo" path="res://materials/car_ground.tres" id="1_61ckv"]
+[ext_resource type="Script" uid="uid://den3dhfefd5so" path="res://prefabs/car_custom_physics.gd" id="1_nblgo"]
+[ext_resource type="Material" uid="uid://x1nuxgawnulq" path="res://materials/wheel.tres" id="2_nblgo"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_nblgo"]
+friction = 0.0
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2wjoa"]
+radius = 0.25
+height = 1.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_n7qhw"]
+size = Vector3(1.6, 0.5, 1.2)
+
+[sub_resource type="BoxMesh" id="BoxMesh_wgmx5"]
+material = ExtResource("1_61ckv")
+size = Vector3(1.6, 0.5, 1.2)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_x4217"]
+material = ExtResource("2_nblgo")
+radius = 0.25
+height = 1.0
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3cavi"]
+albedo_color = Color(1, 0.2, 0.00784314, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_rtq4r"]
+material = SubResource("StandardMaterial3D_3cavi")
+size = Vector3(0.5, 0.1, 0.1)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0oafu"]
+albedo_color = Color(0.21445, 0.544734, 1, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_e45dh"]
+material = SubResource("StandardMaterial3D_0oafu")
+size = Vector3(0.1, 0.1, 0.5)
+
+[node name="CarCustomPhysics" type="Node3D"]
+
+[node name="CarRigidBody" type="RigidBody3D" parent="."]
+mass = 400.0
+physics_material_override = SubResource("PhysicsMaterial_nblgo")
+continuous_cd = true
+linear_damp = 0.3
+angular_damp = 2.0
+script = ExtResource("1_nblgo")
+
+[node name="WheelFR" type="CollisionShape3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, 0.6)
+shape = SubResource("CapsuleShape3D_2wjoa")
+
+[node name="WheelFL" type="CollisionShape3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, -0.6)
+shape = SubResource("CapsuleShape3D_2wjoa")
+
+[node name="WheelBR" type="CollisionShape3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, 0.6)
+shape = SubResource("CapsuleShape3D_2wjoa")
+
+[node name="WheelBL" type="CollisionShape3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, -0.6)
+shape = SubResource("CapsuleShape3D_2wjoa")
+
+[node name="Frame" type="CollisionShape3D" parent="CarRigidBody"]
+shape = SubResource("BoxShape3D_n7qhw")
+
+[node name="DebugFrame" type="MeshInstance3D" parent="CarRigidBody"]
+mesh = SubResource("BoxMesh_wgmx5")
+
+[node name="WheelFRFrame" type="MeshInstance3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, 0.6)
+mesh = SubResource("CapsuleMesh_x4217")
+
+[node name="WheelBRFrame" type="MeshInstance3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, 0.6)
+mesh = SubResource("CapsuleMesh_x4217")
+
+[node name="WheelBLFrame" type="MeshInstance3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, -0.6)
+mesh = SubResource("CapsuleMesh_x4217")
+
+[node name="WheelFLFrame" type="MeshInstance3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, -0.6)
+mesh = SubResource("CapsuleMesh_x4217")
+
+[node name="MarkerX" type="MeshInstance3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.25, 0)
+mesh = SubResource("BoxMesh_rtq4r")
+skeleton = NodePath("../WheelFLFrame")
+
+[node name="MarkerZ" type="MeshInstance3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0.3)
+mesh = SubResource("BoxMesh_e45dh")
+skeleton = NodePath("../WheelFLFrame")
+
+[node name="Camera3D" type="Camera3D" parent="CarRigidBody"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5.4, 1.6, 0)
+current = true

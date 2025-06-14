@@ -52,11 +52,13 @@ func _apply_raycast_force(raycast: RayCast3D, ground_normal: Vector3):
 		var raycast_length = raycast.global_position.length()
 		var collision_point: Vector3 = raycast.get_collision_point()
 		var collision_distance: float = (raycast.global_position - collision_point).length()
-		var compression_ratio: float = 1 - collision_distance / raycast_length
-		var force_direction: Vector3 = get_global_transform_interpolated().basis.y.normalized()
+		var distance_ratio: float = 1 - collision_distance / raycast_length
+		# var force_direction: Vector3 = get_global_transform_interpolated().basis.y.normalized()
+		var force_direction: Vector3 = ground_normal
 		
-		# interpolate force (here no interpolation)
-		var force_to_apply: float = compression_ratio
+		# interpolate force
+		var force_to_apply: float = _interpol_squared(distance_ratio)
+		var reverse_force_to_apply: float = - _interpol_squared(distance_ratio)
 		
 		# nerf based on normal to ground
 		var normal_to_ground = raycast.get_collision_normal().normalized()
@@ -64,13 +66,16 @@ func _apply_raycast_force(raycast: RayCast3D, ground_normal: Vector3):
 		# interpolate coef
 		alignedCoef = _interpol_squared(alignedCoef)
 		
-		# force_to_apply *= SPRING_FORCE
-		# force_to_apply *= alignedCoef
-		# var gravity_limit: float = get_gravity().length() * mass/4 # + distance_ratio
+		force_to_apply *= SPRING_FORCE
+		reverse_force_to_apply *= SPRING_FORCE
+		force_to_apply *= alignedCoef
+		reverse_force_to_apply *= alignedCoef
+		var gravity_limit: float = get_gravity().length() * mass/4 # + distance_ratio
 		# var velocity_limit: float = linear_velocity.length()
 		# var force_limit: float = max(velocity_limit, gravity_limit)
-		# force_to_apply = min(force_to_apply, gravity_limit) # cap force
-		var final_force: Vector3 = force_direction * (force_to_apply);
+		force_to_apply = min(force_to_apply, gravity_limit) # cap force
+		reverse_force_to_apply = max(reverse_force_to_apply, -gravity_limit)
+		var final_force: Vector3 = force_direction * (force_to_apply + reverse_force_to_apply);
 		
 		apply_force(final_force, raycast.global_position)
 		DebugDraw3D.draw_arrow(raycast.global_position, raycast.global_position + final_force*0.01, Color.BLUE, 0.1, true)
@@ -81,10 +86,10 @@ func _physics_process(_delta: float) -> void:
 	# see: https://www.youtube.com/watch?v=LG1CtlFRmpU
 	# see: https://www.youtube.com/watch?v=CBgtU9FCEh8
 	var ground_normal = _get_ground_normal()
-	#_apply_raycast_force(_raycast_fl, ground_normal)
-	#_apply_raycast_force(_raycast_fr, ground_normal)
-	#_apply_raycast_force(_raycast_bl, ground_normal)
-	#_apply_raycast_force(_raycast_br, ground_normal)
+	_apply_raycast_force(_raycast_fl, ground_normal)
+	_apply_raycast_force(_raycast_fr, ground_normal)
+	_apply_raycast_force(_raycast_bl, ground_normal)
+	_apply_raycast_force(_raycast_br, ground_normal)
 	
 	# CAR MOVEMENT (if on ground)
 	if (_raycast_ground_b.is_colliding() && _raycast_ground_f.is_colliding()):

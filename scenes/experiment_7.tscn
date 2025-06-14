@@ -1,0 +1,49 @@
+[gd_scene load_steps=6 format=3 uid="uid://6sws7ajaakrm"]
+
+[ext_resource type="PackedScene" uid="uid://b2qlev0kwljys" path="res://prefabs/car_gd_joints.tscn" id="1_1pkvq"]
+[ext_resource type="Environment" uid="uid://dyj70eprydpku" path="res://materials/world_environment.tres" id="1_ik71v"]
+[ext_resource type="PackedScene" uid="uid://cnrovu68idhgs" path="res://prefabs/ground.tscn" id="2_v2r8w"]
+[ext_resource type="PackedScene" uid="uid://dsj01gx1fn4s8" path="res://prefabs/collision_test_cube.tscn" id="3_83sl2"]
+
+[sub_resource type="CameraAttributesPractical" id="CameraAttributesPractical_83sl2"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("1_ik71v")
+camera_attributes = SubResource("CameraAttributesPractical_83sl2")
+
+[node name="Ground" parent="." instance=ExtResource("2_v2r8w")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.766358, -0.431946, 0.475518, 0, 7, 0)
+
+[node name="CarGDJoints" parent="." instance=ExtResource("1_1pkvq")]
+
+[node name="CollisionTestCube" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, 0.984411, 0.175882, 0, -0.175882, 0.984411, 8.93082, 0, 11.2874)
+
+[node name="CollisionTestCube2" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, 0.911317, 0.411705, 0, -0.411705, 0.911317, 8.93082, 1.93427, 18.5783)
+
+[node name="CollisionTestCube8" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, 0.984411, 0.175882, 0, -0.175882, 0.984411, 25.3307, 0, 11.2874)
+
+[node name="CollisionTestCube9" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, 0.911317, 0.411705, 0, -0.411705, 0.911317, 25.3307, 1.93427, 18.5783)
+
+[node name="CollisionTestCube3" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, 0.695587, 0.718442, 0, -0.718442, 0.695587, 8.93082, 4.78752, 23.4418)
+
+[node name="CollisionTestCube4" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, 0.448524, 0.893771, 0, -0.893771, 0.448524, 8.93082, 10.842, 27.7244)
+
+[node name="CollisionTestCube5" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, 0.177531, 0.984115, 0, -0.984115, 0.177531, 8.93082, 16.6586, 30.003)
+
+[node name="CollisionTestCube6" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, -0.0577035, 0.998334, 0, -0.998334, -0.0577035, 8.93082, 21.3014, 30.6927)
+
+[node name="CollisionTestCube7" parent="." instance=ExtResource("3_83sl2")]
+transform = Transform3D(1, 0, 0, 0, -0.25688, 0.966443, 0, -0.966443, -0.25688, 8.93082, 26.5799, 29.9336)

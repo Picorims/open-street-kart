@@ -1,0 +1,22 @@
+[gd_resource type="Environment" load_steps=3 format=3 uid="uid://dyj70eprydpku"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_mfh52"]
+sky_top_color = Color(0.135132, 0.760987, 1, 1)
+sky_horizon_color = Color(0.717963, 0.888338, 0.995393, 1)
+ground_bottom_color = Color(0.0875349, 0.185444, 0.2551, 1)
+ground_horizon_color = Color(0.584711, 0.911852, 0.948868, 1)
+sun_angle_max = 31.11
+sun_curve = 0.454715
+
+[sub_resource type="Sky" id="Sky_oucrw"]
+sky_material = SubResource("ProceduralSkyMaterial_mfh52")
+
+[resource]
+background_mode = 2
+sky = SubResource("Sky_oucrw")
+ambient_light_color = Color(0.0149981, 0.0754189, 0.221653, 1)
+fog_enabled = true
+fog_light_color = Color(0.242159, 0.594445, 0.746719, 1)
+fog_density = 0.005
+fog_sky_affect = 0.0
+adjustment_enabled = true

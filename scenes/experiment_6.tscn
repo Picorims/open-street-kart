@@ -1,29 +1,29 @@
-[gd_scene load_steps=15 format=3 uid="uid://c0v4xq03qb8tm"]
+[gd_scene load_steps=15 format=3 uid="uid://dnb6tvlwxc8e4"]
 
-[ext_resource type="Script" uid="uid://tuug6vi0yrof" path="res://scenes/car_raycast_2.gd" id="1_vr84i"]
-[ext_resource type="Material" uid="uid://b8etgnlf3hgoo" path="res://materials/car_ground.tres" id="2_e7kth"]
-[ext_resource type="Material" uid="uid://baikgd7nsxt8c" path="res://materials/car_air.tres" id="3_7dxcq"]
+[ext_resource type="Script" uid="uid://dg3h7ihb2o7nx" path="res://scenes/car_raycast_4.gd" id="1_3mvhk"]
+[ext_resource type="Material" uid="uid://b8etgnlf3hgoo" path="res://materials/car_ground.tres" id="2_orf5q"]
+[ext_resource type="Material" uid="uid://baikgd7nsxt8c" path="res://materials/car_air.tres" id="3_kyeii"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_obcdv"]
 size = Vector3(1000, 2, 1000)
 
-[sub_resource type="Gradient" id="Gradient_rhp6h"]
+[sub_resource type="Gradient" id="Gradient_3mvhk"]
 colors = PackedColorArray(0.851769, 0.851769, 0.851769, 1, 1, 1, 1, 1)
 
-[sub_resource type="FastNoiseLite" id="FastNoiseLite_dm5qr"]
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_orf5q"]
 frequency = 1.0
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_mj2ee"]
-color_ramp = SubResource("Gradient_rhp6h")
-noise = SubResource("FastNoiseLite_dm5qr")
+color_ramp = SubResource("Gradient_3mvhk")
+noise = SubResource("FastNoiseLite_orf5q")
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_7a6kl"]
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kyeii"]
 albedo_color = Color(0.410039, 0.813847, 0.514979, 1)
 albedo_texture = SubResource("NoiseTexture2D_mj2ee")
 albedo_texture_force_srgb = true
 
 [sub_resource type="BoxMesh" id="BoxMesh_ckg0c"]
-material = SubResource("StandardMaterial3D_7a6kl")
+material = SubResource("StandardMaterial3D_kyeii")
 size = Vector3(1000, 2, 1000)
 
 [sub_resource type="Environment" id="Environment_dwohh"]
@@ -57,48 +57,48 @@ camera_attributes = SubResource("CameraAttributesPractical_1mcop")
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.766358, -0.431946, 0.475518, 0, 7, 0)
 
-[node name="CarRaycast2" type="RigidBody3D" parent="." node_paths=PackedStringArray("MESH")]
+[node name="CarRaycast4" type="RigidBody3D" parent="." node_paths=PackedStringArray("MESH")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.559193, 0)
 axis_lock_angular_x = true
 axis_lock_angular_z = true
 mass = 500.0
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -1, 0)
-script = ExtResource("1_vr84i")
-MAT_GROUND = ExtResource("2_e7kth")
-MAT_AIR = ExtResource("3_7dxcq")
+script = ExtResource("1_3mvhk")
+MAT_GROUND = ExtResource("2_orf5q")
+MAT_AIR = ExtResource("3_kyeii")
 MESH = NodePath("MeshInstance3D")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CarRaycast2"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CarRaycast4"]
 shape = SubResource("BoxShape3D_uhq76")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CarRaycast2"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CarRaycast4"]
 mesh = SubResource("BoxMesh_gjcwd")
 skeleton = NodePath("../CollisionShape3D")
 
-[node name="Camera3D" type="Camera3D" parent="CarRaycast2"]
+[node name="Camera3D" type="Camera3D" parent="CarRaycast4"]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 2, -5)
 
-[node name="RayCast3DGroundBack" type="RayCast3D" parent="CarRaycast2"]
+[node name="RayCast3DGroundBack" type="RayCast3D" parent="CarRaycast4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -0.1)
 target_position = Vector3(0, -0.5, 0)
 
-[node name="RayCast3DGroundFront" type="RayCast3D" parent="CarRaycast2"]
+[node name="RayCast3DGroundFront" type="RayCast3D" parent="CarRaycast4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0.1)
 target_position = Vector3(0, -0.5, 0)
 
-[node name="RayCast3D FL" type="RayCast3D" parent="CarRaycast2"]
+[node name="RayCast3D FL" type="RayCast3D" parent="CarRaycast4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, -0.1, 1.5)
 target_position = Vector3(0, -0.25, 0)
 
-[node name="RayCast3D FR" type="RayCast3D" parent="CarRaycast2"]
+[node name="RayCast3D FR" type="RayCast3D" parent="CarRaycast4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, -0.1, 1.5)
 target_position = Vector3(0, -0.25, 0)
 
-[node name="RayCast3D BL" type="RayCast3D" parent="CarRaycast2"]
+[node name="RayCast3D BL" type="RayCast3D" parent="CarRaycast4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, -0.1, -1.5)
 target_position = Vector3(0, -0.25, 0)
 
-[node name="RayCast3D BR" type="RayCast3D" parent="CarRaycast2"]
+[node name="RayCast3D BR" type="RayCast3D" parent="CarRaycast4"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, -0.1, -1.5)
 target_position = Vector3(0, -0.25, 0)

@@ -1,0 +1,64 @@
+[gd_scene load_steps=6 format=3 uid="uid://b2qlev0kwljys"]
+
+[ext_resource type="Script" uid="uid://bkgvy4edsvxou" path="res://prefabs/car_gd_joints.gd" id="1_50qap"]
+[ext_resource type="PackedScene" uid="uid://j0nkedjdthc8" path="res://prefabs/wheel.tscn" id="2_ithnr"]
+[ext_resource type="PackedScene" uid="uid://d1ne8cjix17pv" path="res://prefabs/wheel_joint.tscn" id="3_08vga"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_canc8"]
+size = Vector3(1.6, 0.75, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_aakba"]
+size = Vector3(1.6, 0.75, 1)
+
+[node name="CarGDJoints" type="Node3D"]
+script = ExtResource("1_50qap")
+
+[node name="CarFrame" type="RigidBody3D" parent="."]
+mass = 400.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -1, 0)
+linear_velocity = Vector3(30, 6, 0)
+
+[node name="Camera3D" type="Camera3D" parent="CarFrame"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5, 3, 0)
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CarFrame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("BoxMesh_canc8")
+skeleton = NodePath("../..")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CarFrame"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+shape = SubResource("BoxShape3D_aakba")
+
+[node name="WheelTR" parent="." instance=ExtResource("2_ithnr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.5, 0.6)
+
+[node name="WheelJointTR" parent="." instance=ExtResource("3_08vga")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.5, 0.6)
+node_a = NodePath("../CarFrame")
+node_b = NodePath("../WheelTR")
+
+[node name="WheelTL" parent="." instance=ExtResource("2_ithnr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.5, -0.6)
+
+[node name="WheelJointTL" parent="." instance=ExtResource("3_08vga")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.6, 0.5, -0.6)
+node_a = NodePath("../CarFrame")
+node_b = NodePath("../WheelTL")
+
+[node name="WheelBR" parent="." instance=ExtResource("2_ithnr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.5, 0.6)
+
+[node name="WheelJointBR" parent="." instance=ExtResource("3_08vga")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.5, 0.6)
+node_a = NodePath("../CarFrame")
+node_b = NodePath("../WheelBR")
+
+[node name="WheelBL" parent="." instance=ExtResource("2_ithnr")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.5, -0.6)
+
+[node name="WheelJointBL" parent="." instance=ExtResource("3_08vga")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.6, 0.5, -0.6)
+node_a = NodePath("../CarFrame")
+node_b = NodePath("../WheelBL")

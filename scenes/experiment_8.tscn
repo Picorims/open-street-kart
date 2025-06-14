@@ -1,0 +1,26 @@
+[gd_scene load_steps=5 format=3 uid="uid://b8oyi6totocxs"]
+
+[ext_resource type="PackedScene" uid="uid://cnrovu68idhgs" path="res://prefabs/ground.tscn" id="1_1vh5q"]
+[ext_resource type="Environment" uid="uid://dyj70eprydpku" path="res://materials/world_environment.tres" id="2_5c4fi"]
+[ext_resource type="PackedScene" uid="uid://ybgidai64if4" path="res://prefabs/car_custom_physics.tscn" id="3_5c4fi"]
+[ext_resource type="PackedScene" uid="uid://dsj01gx1fn4s8" path="res://prefabs/collision_test_cube.tscn" id="4_kag6f"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Ground" parent="." instance=ExtResource("1_1vh5q")]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("2_5c4fi")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.766358, -0.431946, 0.475518, 0, 7, 0)
+shadow_enabled = true
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.61366, 0)
+
+[node name="CarCustomPhysics" parent="." instance=ExtResource("3_5c4fi")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.29918, 0)
+
+[node name="CollisionTestCube" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(0.99471, -0.101705, -0.0144241, 0.102723, 0.984855, 0.139675, 0, -0.140417, 0.990092, 0, 0.891067, 0)
