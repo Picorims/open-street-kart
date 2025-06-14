@@ -17,10 +17,38 @@ transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.7
 shadow_enabled = true
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 8.61366, 0)
+transform = Transform3D(1, 0, 0, 0, -4.37114e-08, 1, 0, -1, -4.37114e-08, 0, 100, 0)
+current = true
 
 [node name="CarCustomPhysics" parent="." instance=ExtResource("3_5c4fi")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.29918, 0)
 
 [node name="CollisionTestCube" parent="." instance=ExtResource("4_kag6f")]
-transform = Transform3D(0.99471, -0.101705, -0.0144241, 0.102723, 0.984855, 0.139675, 0, -0.140417, 0.990092, 0, 0.891067, 0)
+transform = Transform3D(0.99471, -0.101705, -0.0144241, 0.0985076, 0.984252, -0.146778, 0.0291251, 0.144581, 0.989064, 0, 0.891067, 0)
+
+[node name="CollisionTestCube2" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, 0.984411, 0.175882, 0, -0.175882, 0.984411, 8.93082, 0.962339, 11.2874)
+
+[node name="CollisionTestCube3" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, 0.911317, 0.411705, 0, -0.411705, 0.911317, 8.93082, 2.89661, 18.5783)
+
+[node name="CollisionTestCube8" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, 0.984411, 0.175882, 0, -0.175882, 0.984411, 25.3307, 0.962339, 11.2874)
+
+[node name="CollisionTestCube9" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, 0.911317, 0.411705, 0, -0.411705, 0.911317, 25.3307, 2.89661, 18.5783)
+
+[node name="CollisionTestCube4" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, 0.695587, 0.718442, 0, -0.718442, 0.695587, 8.93082, 5.74986, 23.4418)
+
+[node name="CollisionTestCube5" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, 0.448524, 0.893771, 0, -0.893771, 0.448524, 8.93082, 11.8043, 27.7244)
+
+[node name="CollisionTestCube6" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, 0.177531, 0.984115, 0, -0.984115, 0.177531, 8.93082, 17.6209, 30.003)
+
+[node name="CollisionTestCube7" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, -0.0577035, 0.998334, 0, -0.998334, -0.0577035, 8.93082, 22.2637, 30.6927)
+
+[node name="CollisionTestCube10" parent="." instance=ExtResource("4_kag6f")]
+transform = Transform3D(1, 0, 0, 0, -0.25688, 0.966443, 0, -0.966443, -0.25688, 8.93082, 27.5422, 29.9336)

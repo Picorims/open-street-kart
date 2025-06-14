@@ -42,6 +42,8 @@ size = Vector3(0.1, 0.1, 0.5)
 [node name="CarRigidBody" type="RigidBody3D" parent="."]
 mass = 400.0
 physics_material_override = SubResource("PhysicsMaterial_nblgo")
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -1, 0)
 continuous_cd = true
 linear_damp = 0.3
 angular_damp = 2.0
@@ -97,4 +99,21 @@ skeleton = NodePath("../WheelFLFrame")
 
 [node name="Camera3D" type="Camera3D" parent="CarRigidBody"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5.4, 1.6, 0)
-current = true
+
+[node name="GroundRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+
+[node name="WheelFRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, 0.6)
+target_position = Vector3(0, -0.6, 0)
+
+[node name="WheelFLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, -0.6)
+target_position = Vector3(0, -0.6, 0)
+
+[node name="WheelBLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, -0.6)
+target_position = Vector3(0, -0.6, 0)
+
+[node name="WheelBRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, 0.6)
+target_position = Vector3(0, -0.6, 0)
