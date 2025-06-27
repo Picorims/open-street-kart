@@ -16,7 +16,18 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 	state.apply_central_force((forwardBackward * accelerationForce * speedMultiplier * basis.x))
 	state.apply_torque(leftRight * rotationForce * Vector3(0,-1,0))
-
+	#if ($GroundRayCast3D.is_colliding()): # try pseudo suspension
+		#state.apply_central_force(get_gravity() * -400)
+	#var counterForce = (get_gravity() * -300).length() # try pseudo suspension differently
+	#if ($WheelFRRayCast3D.is_colliding()):
+		#state.apply_force(counterForce*0.25 * global_basis.y, $WheelFR.global_position - self.global_position) #, Vector3(1,0,1))
+	#if ($WheelBLRayCast3D.is_colliding()):
+		#state.apply_force(counterForce*0.25 * global_basis.y, $WheelFR.global_position - self.global_position) #, Vector3(-1,0,-1))
+	#if ($WheelBRRayCast3D.is_colliding()):
+		#state.apply_force(counterForce*0.25 * global_basis.y, $WheelFR.global_position - self.global_position) #, Vector3(-1,0,1))
+	#if ($WheelFLRayCast3D.is_colliding()):
+		#state.apply_force(counterForce*0.25 * global_basis.y, $WheelFR.global_position - self.global_position) #, Vector3(1,0,-1))
+# CHECK THIS FOR SUSPENSION: https://www.youtube.com/watch?v=9MqmFSn1Rlw
 # applied on x,z plan
 func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var radius: float = _get_radius_of_rotation(state)

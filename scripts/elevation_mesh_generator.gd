@@ -11,6 +11,7 @@ var is_dirty: bool
 		
 func _ready() -> void:
 	is_dirty = true
+	_material = loader.floorMaterial
 
 func reload_action(mat: Material) -> void:
 	assert(!(mat == null), "MapDataLoader: Missing material for elevation surface.")
@@ -119,7 +120,7 @@ func _regenerate_mesh() -> void:
 	print("assigning material...")
 	var surfacesCount = mesh.get_surface_count()
 	for i in surfacesCount:
-		mesh.surface_set_material(i, _material)
+		self.set_surface_override_material(i, _material)
 	print("assigning collision shape...")
 	if collisionShape:
 		collisionShape.shape = self.mesh.create_trimesh_shape()

@@ -27,4 +27,4 @@ collisionShape = NodePath("../SurfaceCollider/SurfaceColliderShape")
 [node name="SurfaceCollider" type="StaticBody3D" parent="."]
 
 [node name="SurfaceColliderShape" type="CollisionShape3D" parent="SurfaceCollider"]
-debug_fill = false
+debug_color = Color(0, 0.6, 0.701961, 0)
