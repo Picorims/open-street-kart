@@ -1,0 +1,21 @@
+[gd_scene load_steps=5 format=3 uid="uid://snxec2n3dvd1"]
+
+[ext_resource type="Environment" uid="uid://dyj70eprydpku" path="res://materials/world_environment.tres" id="1_jcgum"]
+[ext_resource type="PackedScene" uid="uid://ybgidai64if4" path="res://prefabs/car_custom_physics.tscn" id="2_iklud"]
+[ext_resource type="PackedScene" uid="uid://b4tvjt47re5eq" path="res://prefabs/map_data_loader.tscn" id="3_iklud"]
+[ext_resource type="Material" uid="uid://bkxkj3ary5fe6" path="res://materials/ground.tres" id="4_nvff5"]
+
+[node name="Node3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("1_jcgum")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.766358, -0.431946, 0.475518, 0, 7, 0)
+shadow_enabled = true
+
+[node name="CarCustomPhysics" parent="." instance=ExtResource("2_iklud")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.29918, 0)
+
+[node name="MapDataLoader" parent="." instance=ExtResource("3_iklud")]
+floorMaterial = ExtResource("4_nvff5")
