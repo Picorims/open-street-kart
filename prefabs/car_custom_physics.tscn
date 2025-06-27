@@ -1,5 +1,6 @@
-[gd_scene load_steps=13 format=3 uid="uid://ybgidai64if4"]
+[gd_scene load_steps=14 format=3 uid="uid://ybgidai64if4"]
 
+[ext_resource type="Script" uid="uid://bc47rq7fi4uun" path="res://prefabs/car_custom_physics_interface.gd" id="1_2wjoa"]
 [ext_resource type="Material" uid="uid://b8etgnlf3hgoo" path="res://materials/car_ground.tres" id="1_61ckv"]
 [ext_resource type="Script" uid="uid://den3dhfefd5so" path="res://prefabs/car_custom_physics.gd" id="1_nblgo"]
 [ext_resource type="Material" uid="uid://x1nuxgawnulq" path="res://materials/wheel.tres" id="2_nblgo"]
@@ -38,10 +39,12 @@ material = SubResource("StandardMaterial3D_0oafu")
 size = Vector3(0.1, 0.1, 0.5)
 
 [node name="CarCustomPhysics" type="Node3D"]
+script = ExtResource("1_2wjoa")
 
 [node name="CarRigidBody" type="RigidBody3D" parent="."]
 mass = 400.0
 physics_material_override = SubResource("PhysicsMaterial_nblgo")
+gravity_scale = 3.0
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -1, 0)
 continuous_cd = true

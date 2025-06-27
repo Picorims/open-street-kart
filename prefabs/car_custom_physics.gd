@@ -2,6 +2,7 @@ extends RigidBody3D
 var currentDirection: Vector3 = Vector3(1,0,0)
 @export var accelerationForce: float = 3000
 @export var rotationForce: float = 300
+@export var speedMultiplier: float = 1.0
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
@@ -13,7 +14,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	_cancel_inertia(state)
 	_apply_wheel_adherence(state)
 
-	state.apply_central_force((forwardBackward * accelerationForce * basis.x))
+	state.apply_central_force((forwardBackward * accelerationForce * speedMultiplier * basis.x))
 	state.apply_torque(leftRight * rotationForce * Vector3(0,-1,0))
 
 # applied on x,z plan
@@ -38,12 +39,13 @@ func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
 	var radius = circumference / (2*PI)
 	return radius
 
+# FIXME broken!!!
 func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
 	if (_wheels_on_ground() < 2):
 		_debugSlidingForce = Vector3(0,0,0)
 		return
 	var normalToGround: Vector3 = basis.y.normalized()
-	var groundCounterForce: Vector3 = normalToGround * get_gravity().length()
+	var groundCounterForce: Vector3 = normalToGround * (get_gravity() * self.gravity_scale).length()
 	var slidingForce: Vector3 = (get_gravity() + groundCounterForce) * mass
 	_debugSlidingForce = slidingForce
 	var z: Vector3 = basis.z.normalized()
@@ -68,7 +70,7 @@ func _input(event):
 
 func _process(_delta: float) -> void:
 	# debug
-	var debugPos = position + Vector3(0,3,0)
+	var debugPos = global_position + Vector3(0,3,0)
 	DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
 	DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
 	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)

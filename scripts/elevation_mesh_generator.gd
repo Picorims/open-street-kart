@@ -84,8 +84,8 @@ func _regenerate_mesh() -> void:
 	var scaleTransform: Vector3 = Vector3(loader.latitudeScale, 1, loader.longitudeScale)
 	var origin: Vector3 = _data[0]
 	print("origin: ", origin)
-	for latIdx in range(_rows-1 -150):
-		for lonIdx in range(_cols-1 - 370):
+	for latIdx in range(_rows-1):
+		for lonIdx in range(_cols-1):
 			# build square using 2 mesh triangles and four positions
 			# i.e. linear interpolation between elevation points in the grid
 			var bottomL = (_read_data(latIdx, lonIdx) - origin) * scaleTransform
@@ -93,7 +93,7 @@ func _regenerate_mesh() -> void:
 			var topL = (_read_data(latIdx+1, lonIdx) - origin) * scaleTransform
 			var topR = (_read_data(latIdx+1, lonIdx+1) - origin) * scaleTransform
 
-			print("making square with points: ", bottomL, ", ", bottomR, ", ", topL, ", ", topR)
+			# print("making square with points: ", bottomL, ", ", bottomR, ", ", topL, ", ", topR)
 			
 			# first triangle
 			surfaceTool.add_vertex(topL)

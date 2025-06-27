@@ -16,6 +16,7 @@ shadow_enabled = true
 
 [node name="CarCustomPhysics" parent="." instance=ExtResource("2_iklud")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 16.9278, 3.47983, 19.846)
+speedMultiplier = 2.0
 
 [node name="MapDataLoader" parent="." instance=ExtResource("3_iklud")]
 floorMaterial = ExtResource("4_nvff5")
