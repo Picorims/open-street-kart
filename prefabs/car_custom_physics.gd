@@ -73,5 +73,6 @@ func _process(_delta: float) -> void:
 	var debugPos = global_position + Vector3(0,3,0)
 	DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
 	DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
+	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
 	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
 	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
