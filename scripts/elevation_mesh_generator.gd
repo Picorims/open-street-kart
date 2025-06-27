@@ -2,6 +2,7 @@
 extends MeshInstance3D
 
 @export var loader: MapDataLoader
+@export var collisionShape: CollisionShape3D
 
 var _material: Material
 
@@ -119,4 +120,7 @@ func _regenerate_mesh() -> void:
 	var surfacesCount = mesh.get_surface_count()
 	for i in surfacesCount:
 		mesh.surface_set_material(i, _material)
+	print("assigning collision shape...")
+	if collisionShape:
+		collisionShape.shape = self.mesh.create_trimesh_shape()
 	print("done")

@@ -18,7 +18,12 @@ script = ExtResource("1_gur84")
 topoDataPath = "res://maps/orsay/orsay_aster30m.tsv"
 osmDataPath = "res://maps/orsay/export_orsay.geojson"
 
-[node name="Surface" type="MeshInstance3D" parent="." node_paths=PackedStringArray("loader")]
+[node name="Surface" type="MeshInstance3D" parent="." node_paths=PackedStringArray("loader", "collisionShape")]
 mesh = SubResource("ArrayMesh_ypkk7")
 script = ExtResource("2_ypkk7")
 loader = NodePath("..")
+collisionShape = NodePath("../SurfaceCollider/SurfaceColliderShape")
+
+[node name="SurfaceCollider" type="StaticBody3D" parent="."]
+
+[node name="SurfaceColliderShape" type="CollisionShape3D" parent="SurfaceCollider"]
