@@ -45,7 +45,7 @@ func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
 		_debugSlidingForce = Vector3(0,0,0)
 		return
 	var normalToGround: Vector3 = basis.y.normalized()
-	var groundCounterForce: Vector3 = normalToGround * (get_gravity() * self.gravity_scale).length()
+	var groundCounterForce: Vector3 = normalToGround * (get_gravity()).length()
 	var slidingForce: Vector3 = (get_gravity() + groundCounterForce) * mass
 	_debugSlidingForce = slidingForce
 	var z: Vector3 = basis.z.normalized()
