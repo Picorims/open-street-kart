@@ -1,0 +1,124 @@
+extends RigidBody3D
+var currentDirection: Vector3 = Vector3(1,0,0)
+@export var accelerationForce: float = 3000
+@export var rotationForce: float = 300
+@export var speedMultiplier: float = 1.0
+@export var springStrength: float = 100000
+@export var springDamping: float = 12000 # coefficient
+@export var restDistance: float = 0.5
+
+var _debugCentrifugusForce: Vector3
+var _debugSlidingForce: Vector3
+var wheelRayCasts: Array[RayCast3D]
+
+func _ready() -> void:
+	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
+	# actual damping / critical damping (critical = best)
+	var dampingRatio: float = springDamping / (2 * sqrt(mass * springStrength))
+	print("current vehicle damping ratio (1 is best/critical damping, <1 is underdamped, >1 is overdamped): ", dampingRatio)
+
+func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	var forwardBackward: float = Input.get_axis("backward", "forward")
+	var leftRight: float = Input.get_axis("left", "right")
+
+	_cancel_inertia(state)
+	_apply_wheel_adherence(state)
+
+	state.apply_central_force((forwardBackward * accelerationForce * speedMultiplier * basis.x))
+	state.apply_torque(leftRight * rotationForce * Vector3(0,-1,0))
+	
+	for wheelRayCast in wheelRayCasts:
+		_apply_single_wheel_suspension(wheelRayCast)
+
+
+
+
+
+
+func _get_point_velocity(point: Vector3) -> Vector3:
+	# physics formula
+	return linear_velocity + angular_velocity.cross(point - global_position)
+
+# CHECK THIS FOR SUSPENSION: https://www.youtube.com/watch?v=9MqmFSn1Rlw
+func _apply_single_wheel_suspension(suspensionRay: RayCast3D) -> void:
+	if suspensionRay.is_colliding():
+		var contactPoint: Vector3 = suspensionRay.get_collision_point()
+		var springUpDirection: Vector3 = suspensionRay.global_transform.basis.y # from wheel perspective, not world
+		var springCurrentLength: float = suspensionRay.global_position.distance_to(contactPoint)
+		var offset: float = restDistance - springCurrentLength
+		
+		# push if compressed, pull if extended and within ray range
+		var springForce: float = springStrength * offset
+		
+		# damping force = damping * relative velocity
+		var worldVelocity: Vector3 = _get_point_velocity(contactPoint)
+		var relativeVelocity: float = springUpDirection.dot(worldVelocity)
+		var springDampingForce: float = springDamping * relativeVelocity
+		
+		# convert to 3d directional vector (align force along the push/pull axis of the spring/raycast
+		var springForceVector: Vector3 = (springForce - springDampingForce) * springUpDirection
+		
+		var forcePositionOffset = contactPoint - global_position # at raycast collision point
+		apply_force(springForceVector, forcePositionOffset)
+
+
+
+# applied on x,z plan
+func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
+	var radius: float = _get_radius_of_rotation(state)
+	var centrifugusDirection: Vector3 = basis.z.normalized() * sign(state.angular_velocity.y)
+	if (centrifugusDirection.length() < 0.01):
+		return
+	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / radius)
+	state.apply_central_force(-centrifugusForce)
+	_debugCentrifugusForce = centrifugusForce
+
+# applied on x,z plan
+func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
+	# assuming a circle arc of length <previous pos to current pos>,
+	# of angle length equal to previous angular velocity,
+	# we compute the circumference of the entire circle,
+	# and deduct a radius from there
+	var length = (state.linear_velocity * Vector3(1,0,1)).length()
+	var angle = abs(state.angular_velocity.y)
+	var circumference = (2*PI / angle) * length
+	var radius = circumference / (2*PI)
+	return radius
+
+# FIXME broken!!!
+func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
+	if (_wheels_on_ground() < 2):
+		_debugSlidingForce = Vector3(0,0,0)
+		return
+	var normalToGround: Vector3 = basis.y.normalized()
+	var groundCounterForce: Vector3 = normalToGround * (get_gravity()).length()
+	var slidingForce: Vector3 = (get_gravity() + groundCounterForce) * mass
+	_debugSlidingForce = slidingForce
+	var z: Vector3 = basis.z.normalized()
+	state.apply_central_force(z * -slidingForce.dot(z))
+
+func _wheels_on_ground() -> int:
+	var wheelsOnGround: int = 0
+	if ($WheelFRRayCast3D.is_colliding()):
+		wheelsOnGround += 1
+	if ($WheelBLRayCast3D.is_colliding()):
+		wheelsOnGround += 1
+	if ($WheelBRRayCast3D.is_colliding()):
+		wheelsOnGround += 1
+	if ($WheelFLRayCast3D.is_colliding()):
+		wheelsOnGround += 1
+		
+	return wheelsOnGround
+
+func _input(event):
+	if (event.is_action_pressed("toggle_cam")):
+		$Camera3D.current = !$Camera3D.current
+
+func _process(_delta: float) -> void:
+	# debug
+	var debugPos = global_position + Vector3(0,3,0)
+	DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
+	DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
+	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
+	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
+	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
