@@ -10,6 +10,7 @@ var is_dirty: bool
 		
 		
 func _ready() -> void:
+	assert(loader != null)
 	is_dirty = true
 	_material = loader.floorMaterial
 

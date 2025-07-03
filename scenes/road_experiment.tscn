@@ -1,0 +1,29 @@
+[gd_scene load_steps=2 format=3 uid="uid://cwdmteiujsx10"]
+
+[sub_resource type="Curve3D" id="Curve3D_ogkg3"]
+_data = {
+"points": PackedVector3Array(0, 0, 0, 0, 0, 0, 0.623051, -0.17122, -2.18306, 0, 0, 0, 0, 0, 0, 3.79062, 0, -0.908418, 0, 0, 0, 0, 0, 0, 2.53501, 0.209269, 0.680124, 0.681597, 0.0148039, -0.302523, -0.681597, -0.0148039, 0.302523, 2.15452, 0, 2.23062, 0, 0, 0, 0, 0, 0, -1.80257, 0.17122, 1.6694, -0.339002, 0.0012424, 0.965349, 0.339002, -0.0012424, -0.965349, -2.15452, 0, -0.57549, 0, 0, 0, 0, 0, 0, -0.689636, -0.199757, -2.4494),
+"tilts": PackedFloat32Array(0, 0, 0, 0, 0, 0, 0)
+}
+point_count = 7
+
+[node name="Node3D" type="Node3D"]
+
+[node name="Path3D" type="Path3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.46661, 0, -4.26387)
+curve = SubResource("Curve3D_ogkg3")
+
+[node name="CSGPolygon3D" type="CSGPolygon3D" parent="Path3D"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.142311, 0, 0)
+polygon = PackedVector2Array(-0.403887, 0.00151926, -0.344218, 0.0459352, 0.281239, 0.0501961, 0.361774, 0.00133592)
+mode = 2
+path_node = NodePath("..")
+path_interval_type = 0
+path_interval = 0.14
+path_simplify_angle = 0.0
+path_rotation = 2
+path_rotation_accurate = false
+path_local = true
+path_continuous_u = true
+path_u_distance = 1.0
+path_joined = false

@@ -16,7 +16,12 @@ shadow_enabled = true
 
 [node name="CarCustomPhysics2" parent="." instance=ExtResource("2_nvff5")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 789.266, 0, 377.9)
-speedMultiplier = 2.0
+speedMultiplier = 4.0
 
 [node name="MapDataLoader" parent="." instance=ExtResource("3_iklud")]
+topoDataPath = "res://maps/orsay/orsay_aster30m.tsv"
+osmDataPath = "res://maps/orsay/export_orsay.geojson"
+latitudeOrigin = "2.13401"
+longitudeOrigin = "48.67906"
+elevationOrigin = "153.0"
 floorMaterial = ExtResource("4_nvff5")

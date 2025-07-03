@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://blf71oxwenbw0"]
+
+[ext_resource type="Script" uid="uid://dg3mgu5mg1imk" path="res://scenes/experiment_csg_polygon_path_script.gd" id="1_lvntc"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_lvntc")

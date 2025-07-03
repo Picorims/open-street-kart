@@ -44,7 +44,7 @@ script = ExtResource("1_2glma")
 [node name="CarRigidBody" type="RigidBody3D" parent="."]
 mass = 400.0
 physics_material_override = SubResource("PhysicsMaterial_nblgo")
-gravity_scale = 3.0
+gravity_scale = 2.0
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -1, 0)
 continuous_cd = true
@@ -107,16 +107,16 @@ transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5.4, 
 
 [node name="WheelFRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, 0.6)
-target_position = Vector3(0, -0.5, 0)
+target_position = Vector3(0, -0.7, 0)
 
 [node name="WheelFLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, -0.6)
-target_position = Vector3(0, -0.5, 0)
+target_position = Vector3(0, -0.7, 0)
 
 [node name="WheelBLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, -0.6)
-target_position = Vector3(0, -0.5, 0)
+target_position = Vector3(0, -0.7, 0)
 
 [node name="WheelBRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, 0.6)
-target_position = Vector3(0, -0.5, 0)
+target_position = Vector3(0, -0.7, 0)

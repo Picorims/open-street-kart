@@ -3,9 +3,9 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 @export var accelerationForce: float = 3000
 @export var rotationForce: float = 300
 @export var speedMultiplier: float = 1.0
-@export var springStrength: float = 100000
-@export var springDamping: float = 12000 # coefficient
-@export var restDistance: float = 0.5
+@export var springStrength: float = 150000 # 100000
+@export var springDamping: float = 15000 # 12000 # coefficient
+@export var restDistance: float = 0.7
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
