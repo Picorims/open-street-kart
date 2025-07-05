@@ -27,7 +27,7 @@ What happened instead?
 If applicable, add screenshots to help explain your problem.
 
 **Environment (please complete the following information):**
-- Device: [eg PC, IPhone 14, etc.] 
+- Device: [eg PC, iPhone 14, etc.] 
 - OS and version: [e.g. iOS 18, Android 14, Windows 11, Ubuntu 24.04, etc.]
 
 **Affected versions**
