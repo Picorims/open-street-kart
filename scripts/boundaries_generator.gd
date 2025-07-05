@@ -55,7 +55,7 @@ func _build_area(kind: String, coords: Array[Array]) -> bool:
 	var surfaceTool = SurfaceTool.new()
 	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
-	var coordsMeters: Array[Vector3]
+	var coordsMeters: Array[Vector3] = []
 	for c in coords:
 		coordsMeters.append(loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 0.0, c[1])))
 	
