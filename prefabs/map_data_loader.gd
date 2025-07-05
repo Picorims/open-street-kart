@@ -11,6 +11,7 @@ class_name MapDataLoader extends Node3D
 
 @export var topoDataPath: String
 @export var osmDataPath: String
+@export var boundariesDataPath: String
 @export var latitudeScale = 111320
 @export var longitudeScale = 111320
 @export var latitudeOrigin: String = "0.0"
@@ -19,6 +20,7 @@ class_name MapDataLoader extends Node3D
 # icons: Godot EditorIcons; https://godot-editor-icons.github.io/
 @export_tool_button("Reload surface", "ImageTexture3D") var reload_surface_action = Callable(self, "_reload_surface_action")
 @export_tool_button("Reload OSM Data", "Path3D") var reload_osm_action = Callable(self, "_reload_osm_action")
+@export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
 @export var floorMaterial: Material
 
 var _origin: Vector3
@@ -29,7 +31,7 @@ func _ready() -> void:
 func get_origin() -> Vector3:
 	return _origin
 
-func lat_alt_lon_to_world_global_pos(latAltLon: Vector3, verbose = false):
+func lat_alt_lon_to_world_global_pos(latAltLon: Vector3, verbose = false) -> Vector3:
 	var scaleTransform: Vector3 = Vector3(latitudeScale, 1, longitudeScale)
 	if verbose:
 		print("doing (", latAltLon, " - ", _origin, ') * ', scaleTransform)
@@ -44,3 +46,8 @@ func _reload_osm_action():
 	print("=== reloading roads ===")
 	$OSMDataGenerator.reload_action()
 	print ("=== reloading roads done ===")
+	
+func _reload_boundaries_action():
+	print("=== reloading boundaries ===")
+	$BoundariesGenerator.reload_action()
+	print ("=== reloading boundaries done ===")
