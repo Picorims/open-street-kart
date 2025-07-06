@@ -161,6 +161,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	var prevExists: bool = false
 	var metersCoords: Array[Vector3] = []
 	for c in coordinates:
+		# high altitude to be able to snap no matter how sloppy the land is.
 		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 1000, c[1]))
 		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
 			#var elevation = elevationGenerator.get_elevation(Vector2(cMeters.x, cMeters.z))
