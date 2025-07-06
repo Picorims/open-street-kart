@@ -9,34 +9,34 @@
 friction = 0.0
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2wjoa"]
-radius = 0.25
-height = 0.7
+radius = 0.1
+height = 0.4
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_n7qhw"]
-size = Vector3(1.6, 0.5, 1.2)
+size = Vector3(1, 0.2, 0.6)
 
 [sub_resource type="BoxMesh" id="BoxMesh_wgmx5"]
 material = ExtResource("3_ydtal")
-size = Vector3(1.6, 0.5, 1.2)
+size = Vector3(1, 0.2, 0.6)
 
 [sub_resource type="CapsuleMesh" id="CapsuleMesh_x4217"]
 material = ExtResource("4_y3777")
-radius = 0.25
-height = 0.7
+radius = 0.1
+height = 0.4
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_3cavi"]
 albedo_color = Color(1, 0.2, 0.00784314, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_rtq4r"]
 material = SubResource("StandardMaterial3D_3cavi")
-size = Vector3(0.5, 0.1, 0.1)
+size = Vector3(0.3, 0.1, 0.1)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_0oafu"]
 albedo_color = Color(0.21445, 0.544734, 1, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_e45dh"]
 material = SubResource("StandardMaterial3D_0oafu")
-size = Vector3(0.1, 0.1, 0.5)
+size = Vector3(0.1, 0.1, 0.3)
 
 [node name="CarCustomPhysics2" type="Node3D"]
 script = ExtResource("1_2glma")
@@ -51,21 +51,22 @@ continuous_cd = true
 linear_damp = 0.3
 angular_damp = 2.0
 script = ExtResource("2_pkjqb")
+restDistance = 0.35
 
 [node name="WheelFR" type="CollisionShape3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.25)
 shape = SubResource("CapsuleShape3D_2wjoa")
 
 [node name="WheelFL" type="CollisionShape3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0, -0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, -0.25)
 shape = SubResource("CapsuleShape3D_2wjoa")
 
 [node name="WheelBR" type="CollisionShape3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, 0.25)
 shape = SubResource("CapsuleShape3D_2wjoa")
 
 [node name="WheelBL" type="CollisionShape3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0, -0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, -0.25)
 shape = SubResource("CapsuleShape3D_2wjoa")
 
 [node name="Frame" type="CollisionShape3D" parent="CarRigidBody"]
@@ -75,28 +76,28 @@ shape = SubResource("BoxShape3D_n7qhw")
 mesh = SubResource("BoxMesh_wgmx5")
 
 [node name="WheelFRFrame" type="MeshInstance3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.25)
 mesh = SubResource("CapsuleMesh_x4217")
 
 [node name="WheelBRFrame" type="MeshInstance3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0, 0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, 0.25)
 mesh = SubResource("CapsuleMesh_x4217")
 
 [node name="WheelBLFrame" type="MeshInstance3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.7, 0, -0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, -0.25)
 mesh = SubResource("CapsuleMesh_x4217")
 
 [node name="WheelFLFrame" type="MeshInstance3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.7, 0, -0.5)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, -0.25)
 mesh = SubResource("CapsuleMesh_x4217")
 
 [node name="MarkerX" type="MeshInstance3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.25, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.1, 0)
 mesh = SubResource("BoxMesh_rtq4r")
 skeleton = NodePath("../WheelFLFrame")
 
 [node name="MarkerZ" type="MeshInstance3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25, 0.3)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.1)
 mesh = SubResource("BoxMesh_e45dh")
 skeleton = NodePath("../WheelFLFrame")
 
@@ -104,19 +105,20 @@ skeleton = NodePath("../WheelFLFrame")
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5.4, 1.6, 0)
 
 [node name="GroundRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+target_position = Vector3(0, -0.8, 0)
 
 [node name="WheelFRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, 0.6)
-target_position = Vector3(0, -0.7, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.1, 0.3)
+target_position = Vector3(0, -0.4, 0)
 
 [node name="WheelFLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, 0, -0.6)
-target_position = Vector3(0, -0.7, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.1, -0.3)
+target_position = Vector3(0, -0.4, 0)
 
 [node name="WheelBLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, -0.6)
-target_position = Vector3(0, -0.7, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.1, -0.3)
+target_position = Vector3(0, -0.4, 0)
 
 [node name="WheelBRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, 0, 0.6)
-target_position = Vector3(0, -0.7, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.1, 0.3)
+target_position = Vector3(0, -0.4, 0)
