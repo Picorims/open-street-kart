@@ -126,6 +126,7 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 
 func _setup_snapping(target: RoadPoint, roadContainer: RoadContainer):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
+	snapRayCast.offset = 0.2
 	target.add_child(snapRayCast)
 	snapRayCast.target = target
 	snapsLeft += 1
@@ -158,8 +159,8 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	roadManager.add_child(roadContainer)
 	
 	var initPoint = RoadPoint.new()
-	initPoint.lane_width = 3.5
-	initPoint.gutter_profile = Vector2(2,-1)
+	initPoint.lane_width = 3
+	initPoint.gutter_profile = Vector2(2.5,-0.5)
 	var trafficDir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
 	initPoint.traffic_dir = trafficDir
 	initPoint.position = metersCoords[0]

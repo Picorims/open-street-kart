@@ -10,6 +10,7 @@
 class_name SnapToGroundRayCast3D extends RayCast3D
 
 @export var target: Node3D
+@export var offset: float = 0
 ## when snapped happened
 signal snapped_target
 
@@ -22,7 +23,13 @@ func _physics_process(delta: float) -> void:
 	if (is_colliding()):
 		if (Engine.is_editor_hint()): DebugDraw3D.draw_line(self.global_position, self.get_collision_point(), Color(1,0,0,1))
 		var distance = self.get_collision_point().distance_to(self.global_position)
-		target.global_position.y -= distance
+		target.global_position.y -= (distance - offset)
+		var normal = get_collision_normal()
+		# align to normal, see: https://kidscancode.org/godot_recipes/4.x/3d/3d_align_surface/index.html
+		# and: https://forum.godotengine.org/t/need-help-with-aligning-player-rotation-to-ground-normal/49907
+		target.basis.y = normal
+		target.basis.x = -target.basis.z.cross(normal)
+		target.basis = target.basis.orthonormalized()
 		snapped_target.emit()
 		self.enabled = false
 		self.queue_free()
