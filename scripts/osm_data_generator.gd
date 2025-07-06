@@ -18,6 +18,7 @@ var isDirty: bool
 var _roadKinds: Array[String]
 var snapsLeft: int = 0
 static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
+const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
 
 func _ready() -> void:
 	assert(loader != null)
@@ -84,15 +85,16 @@ func reload_action() -> void:
 
 var _lastLog: float = 0
 func _process(delta: float):
-	_lastLog += delta
 	# need to wait for boundaries or no road will be kept!
 	if isDirty && boundariesGenerator.is_loaded && elevationGenerator.is_loaded:
 		isDirty = false
 		snapsLeft = 0
 		_regenerate_data()
-	elif snapsLeft > 0 && _lastLog > 1:
-		print("snaps left for roads: ", snapsLeft)
-		_lastLog = 0
+	elif snapsLeft > 0 && !Engine.is_editor_hint():
+		_lastLog += delta
+		if  _lastLog > 10:
+			print("snaps left for roads: ", snapsLeft)
+			_lastLog = 0
 
 
 
@@ -126,7 +128,7 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 
 func _setup_snapping(target: RoadPoint, roadContainer: RoadContainer):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
-	snapRayCast.offset = 0.2
+	snapRayCast.offset = 0.4
 	target.add_child(snapRayCast)
 	snapRayCast.target = target
 	snapsLeft += 1
@@ -135,6 +137,19 @@ func _setup_snapping(target: RoadPoint, roadContainer: RoadContainer):
 		snapsLeft -= 1
 	)
 
+## inserts at the end of the array interpolated values between from and to
+## so that the length between each of them is below max length between points (constant)
+func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector3]):
+	var maxLen: float = _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS
+	var len: float = from.distance_to(to)
+	var pointsTotal: int = ceil(len / maxLen) 
+	var pointsToAdd: int = pointsTotal - 2 # exclude start and end
+	var step: float = len / pointsTotal
+	var stepRatio: float = step / len
+	# add points at equal distance
+	for i in range (0, pointsToAdd):
+		array.append(lerp(from, to, (i+1)*stepRatio))
+
 func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = false) -> bool:
 	if (!feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
@@ -142,13 +157,21 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	var coordinates: Array = geometry.get("coordinates")
 	if (coordinates.size() < 2): return false
 	
+	var prevMeters: Vector3
+	var prevExists: bool = false
 	var metersCoords: Array[Vector3] = []
 	for c in coordinates:
 		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 1000, c[1]))
 		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
 			#var elevation = elevationGenerator.get_elevation(Vector2(cMeters.x, cMeters.z))
 			#cMeters.y += elevation
+			if (prevExists):
+				var distance: float = prevMeters.distance_to(cMeters)
+				if (distance > _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS):
+					_append_interpolated_points(prevMeters, cMeters, metersCoords)
 			metersCoords.append(cMeters)
+			prevMeters = cMeters
+			prevExists = true
 	
 	if (metersCoords.size() < 2):
 		return false
@@ -160,7 +183,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	
 	var initPoint = RoadPoint.new()
 	initPoint.lane_width = 3
-	initPoint.gutter_profile = Vector2(2.5,-0.5)
+	initPoint.gutter_profile = Vector2(3,-0.5)
 	var trafficDir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
 	initPoint.traffic_dir = trafficDir
 	initPoint.position = metersCoords[0]
