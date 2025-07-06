@@ -48,6 +48,10 @@ toggle_cam={
 ]
 }
 
+[layer_names]
+
+3d_physics/layer_2="Cast To Ground (Layer 2)"
+
 [physics]
 
 common/physics_ticks_per_second=240
