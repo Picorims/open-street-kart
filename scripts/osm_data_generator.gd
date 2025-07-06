@@ -73,9 +73,9 @@ func _load_data() -> void:
 
 func reload_action() -> void:
 	if !boundariesGenerator.is_loaded:
-		is_dirty = true
-	else:
 		print("Cannot continue, boundaries not loaded.")
+	else:
+		is_dirty = true
 
 func _process(delta):
 	# need to wait for boundaries or no road will be kept!
