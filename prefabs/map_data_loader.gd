@@ -24,18 +24,25 @@ class_name MapDataLoader extends Node3D
 @export var floorMaterial: Material
 
 var _origin: Vector3
+var _scaleTransform: Vector3
+
 func _ready() -> void:
 	_origin = Vector3(float(latitudeOrigin), float(elevationOrigin), float(longitudeOrigin))
+	_scaleTransform = Vector3(latitudeScale, 1, longitudeScale)
 	print("world origin: ", _origin)
 
 func get_origin() -> Vector3:
 	return _origin
+	
+func get_origin_meters() -> Vector3:
+	_scaleTransform = Vector3(latitudeScale, 1, longitudeScale)
+	return _origin * _scaleTransform
 
 func lat_alt_lon_to_world_global_pos(latAltLon: Vector3, verbose = false) -> Vector3:
-	var scaleTransform: Vector3 = Vector3(latitudeScale, 1, longitudeScale)
+	_scaleTransform = Vector3(latitudeScale, 1, longitudeScale)
 	if verbose:
-		print("doing (", latAltLon, " - ", _origin, ') * ', scaleTransform)
-	return (latAltLon - _origin) * scaleTransform
+		print("doing (", latAltLon, " - ", _origin, ') * ', _scaleTransform)
+	return (latAltLon - _origin) * _scaleTransform
 
 func _reload_surface_action():
 	print("=== reloading surface elevation ===")

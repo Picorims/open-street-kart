@@ -13,6 +13,7 @@ class_name ElevationMeshGenerator extends MeshInstance3D
 @export var collisionShape: CollisionShape3D
 
 var _material: Material
+const METERS_STEP: float = 30
 
 var is_dirty: bool
 var _is_loaded: bool = false
@@ -139,3 +140,42 @@ func _regenerate_mesh() -> void:
 	if collisionShape:
 		collisionShape.shape = self.mesh.create_trimesh_shape()
 	print("done")
+
+## Returns the interpolated generation based on nearest points known
+func get_elevation(posMetersFromOrigin: Vector2) -> float:
+	return 200
+	# see: https://www.youtube.com/watch?v=BFld4EBO2RE (Painting a Landscape with Mathematics by Inigo Quilez)
+	#var originMeters3D: Vector3 = loader.get_origin_meters()
+	#var originMeters: Vector2 = Vector2(originMeters3D.x, originMeters3D.z)
+	var tileFloor: Vector2 = floor(posMetersFromOrigin / METERS_STEP) * METERS_STEP
+	var tileCeil: Vector2 = ceil(posMetersFromOrigin / METERS_STEP) * METERS_STEP
+	
+	var aMeters: Vector2 = tileFloor
+	var bMeters: Vector2 = Vector2(tileCeil.x, tileFloor.y)
+	var cMeters: Vector2 = Vector2(tileFloor.x, tileCeil.y)
+	var dMeters: Vector2 = tileCeil
+	#print("a: ", aMeters, "; b: ", bMeters, "; c: ", cMeters, "; d: ", dMeters)
+	
+	var aIndexRelative: Vector2 = aMeters / METERS_STEP
+	var bIndexRelative: Vector2 = bMeters / METERS_STEP
+	var cIndexRelative: Vector2 = cMeters / METERS_STEP
+	var dIndexRelative: Vector2 = dMeters / METERS_STEP
+	var posIndexRelative: Vector2 = posMetersFromOrigin / METERS_STEP
+	
+	var aIndex: Vector2 = round(aIndexRelative)
+	var bIndex: Vector2 = round(bIndexRelative)
+	var cIndex: Vector2 = round(cIndexRelative)
+	var dIndex: Vector2 = round(dIndexRelative)
+	
+	var a: float = _read_data(aIndex.x, aIndex.y).y
+	var b: float = _read_data(bIndex.x, bIndex.y).y
+	var c: float = _read_data(cIndex.x, cIndex.y).y
+	var d: float = _read_data(dIndex.x, dIndex.y).y
+	var x: float = posIndexRelative.x
+	var z: float = posIndexRelative.y
+	var i: float = tileFloor.x
+	var j: float = tileFloor.y
+	
+	var result: float = a + (b-a)*(x-i) + (c-a)*(z-j) + (a-b-c+d)*(x-i)*(z-j)
+	# print("at: ", posIndexRelative, "got: ", result)
+	return result

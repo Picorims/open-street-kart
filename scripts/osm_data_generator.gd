@@ -127,8 +127,10 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	
 	var metersCoords: Array[Vector3] = []
 	for c in coordinates:
-		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 200, c[1]))
+		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 0, c[1]))
 		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
+			var elevation = elevationGenerator.get_elevation(Vector2(cMeters.x, cMeters.z))
+			cMeters.y += elevation
 			metersCoords.append(cMeters)
 	
 	if (metersCoords.size() < 2):
