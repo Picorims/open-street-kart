@@ -7,16 +7,28 @@
 
 
 @tool
-extends Node3D
+class_name BoundariesGenerator extends Node3D
 
 @export var loader: MapDataLoader
 
-var is_dirty: bool
 
+var is_dirty: bool
+var _race2DPolygon: Array[Vector2] = []
+var _is_loaded: bool = false
+@export var is_loaded: bool:
+	get: return _is_loaded
 
 func _ready() -> void:
 	assert(loader != null)
 	is_dirty = true
+
+## For a given point in meters, says if it is in the race area.
+func is_point_within_race_area(p: Vector2) -> bool:
+	# see: https://forum.godotengine.org/t/how-to-check-if-a-point-is-in-a-polygon2d/9651/2
+	if (_race2DPolygon.size() == 0):
+		return false
+	else:
+		return Geometry2D.is_point_in_polygon(p, _race2DPolygon)
 
 var _data
 
@@ -34,13 +46,14 @@ func _load_data() -> void:
 
 
 func reload_action() -> void:
+	_is_loaded = false
 	is_dirty = true
 
 func _process(delta):
 	if is_dirty:
 		is_dirty = false
 		_regenerate_data()
-		
+		_is_loaded = true
 
 func _build_area(kind: String, coords: Array[Array]) -> bool:
 	print("boundary data:")
@@ -56,8 +69,11 @@ func _build_area(kind: String, coords: Array[Array]) -> bool:
 	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
 	var coordsMeters: Array[Vector3] = []
+	_race2DPolygon = []
 	for c in coords:
-		coordsMeters.append(loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 0.0, c[1])))
+		var metersC = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 0.0, c[1]))
+		coordsMeters.append(metersC)
+		_race2DPolygon.append(Vector2(metersC.x, metersC.z))
 	
 	print("converted boundary data:")
 	print(coordsMeters)

@@ -10,6 +10,7 @@
 extends Node3D
 
 @export var loader: MapDataLoader
+@export var boundariesGenerator: BoundariesGenerator
 @export var roadMaterial: Material
 
 var is_dirty: bool
@@ -18,41 +19,42 @@ var _roadKinds: Array[String]
 
 func _ready() -> void:
 	assert(loader != null)
+	assert(boundariesGenerator != null)
 	assert(roadMaterial != null)
 	_roadKinds = [
-	"motorway",
-	"trunk",
-	"primary",
-	"secondary",
-	"tertiary",
-	"unclassified",
-	"residential",
-	"motrway_link",
-	"trunk_link",
-	"primary_link",
-	"secondary_link",
-	"tertiary_link",
-	"living_street",
-	"service",
-	#"pedestrian",
-	#"track",
-	"bus_guideway",
-	#"escape",
-	"raceway",
-	"road",
-	#"busway",
-	#"footway",
-	#"bridleway",
-	#"steps",
-	#"corridor",
-	#"path",
-	#"cycleway",
-	#"construction",
-	#"emergency_bay",
-	#"platform",
-]
-	#is_dirty = true
-	is_dirty = false
+		"motorway",
+		"trunk",
+		"primary",
+		"secondary",
+		"tertiary",
+		"unclassified",
+		"residential",
+		"motrway_link",
+		"trunk_link",
+		"primary_link",
+		"secondary_link",
+		"tertiary_link",
+		"living_street",
+		"service",
+		#"pedestrian",
+		#"track",
+		"bus_guideway",
+		#"escape",
+		"raceway",
+		"road",
+		#"busway",
+		#"footway",
+		#"bridleway",
+		#"steps",
+		#"corridor",
+		#"path",
+		#"cycleway",
+		#"construction",
+		#"emergency_bay",
+		#"platform",
+	]
+	
+	is_dirty = true
 
 var _data
 
@@ -70,10 +72,14 @@ func _load_data() -> void:
 
 
 func reload_action() -> void:
-	is_dirty = true
+	if !boundariesGenerator.is_loaded:
+		print("Cannot continue, boundaries not loaded.")
+	else:
+		is_dirty = true
 
 func _process(delta):
-	if is_dirty:
+	# need to wait for boundaries or no road will be kept!
+	if is_dirty && boundariesGenerator.is_loaded:
 		is_dirty = false
 		_regenerate_data()
 		
@@ -117,7 +123,12 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	
 	var metersCoords: Array[Vector3] = []
 	for c in coordinates:
-		metersCoords.append(loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 200, c[1])))
+		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 200, c[1]))
+		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
+			metersCoords.append(cMeters)
+	
+	if (metersCoords.size() < 2):
+		return false
 	
 	# see: https://github.com/TheDuckCow/godot-road-generator/blob/main/demo/procedural_generator/procedural_generator.gd
 	# see: https://github.com/TheDuckCow/godot-road-generator/wiki/Class:-RoadPoint
