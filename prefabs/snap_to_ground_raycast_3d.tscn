@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://bvobdqk33l05j"]
+
+[ext_resource type="Script" uid="uid://co42tvgh1jwoy" path="res://prefabs/snap_to_ground_raycast_3d.gd" id="1_o3mf7"]
+
+[node name="SnapToGroundRaycast3D" type="RayCast3D"]
+target_position = Vector3(0, -10000, 0)
+collision_mask = 2
+script = ExtResource("1_o3mf7")

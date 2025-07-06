@@ -11,16 +11,20 @@ extends Node3D
 
 @export var loader: MapDataLoader
 @export var boundariesGenerator: BoundariesGenerator
+@export var elevationGenerator: ElevationMeshGenerator
 @export var roadMaterial: Material
 
-var is_dirty: bool
+var isDirty: bool
 var _roadKinds: Array[String]
-
+var snapsLeft: int = 0
+static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
+const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
 
 func _ready() -> void:
 	assert(loader != null)
 	assert(boundariesGenerator != null)
 	assert(roadMaterial != null)
+	assert(elevationGenerator != null)
 	_roadKinds = [
 		"motorway",
 		"trunk",
@@ -54,7 +58,7 @@ func _ready() -> void:
 		#"platform",
 	]
 	
-	is_dirty = true
+	isDirty = true
 
 var _data
 
@@ -74,15 +78,23 @@ func _load_data() -> void:
 func reload_action() -> void:
 	if !boundariesGenerator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
+	elif !elevationGenerator.is_loaded:
+		print("Cannot continue, elevation not loaded.")
 	else:
-		is_dirty = true
+		isDirty = true
 
-func _process(delta):
+var _lastLog: float = 0
+func _process(delta: float):
 	# need to wait for boundaries or no road will be kept!
-	if is_dirty && boundariesGenerator.is_loaded:
-		is_dirty = false
+	if isDirty && boundariesGenerator.is_loaded && elevationGenerator.is_loaded:
+		isDirty = false
+		snapsLeft = 0
 		_regenerate_data()
-		
+	elif snapsLeft > 0 && !Engine.is_editor_hint():
+		_lastLog += delta
+		if  _lastLog > 10:
+			print("snaps left for roads: ", snapsLeft)
+			_lastLog = 0
 
 
 
@@ -114,6 +126,30 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 	var shouldLookAt = curr + (from - segmentMiddle) 
 	return transform.looking_at(shouldLookAt)
 
+func _setup_snapping(target: RoadPoint, roadContainer: RoadContainer):
+	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
+	snapRayCast.offset = 0.4
+	target.add_child(snapRayCast)
+	snapRayCast.target = target
+	snapsLeft += 1
+	snapRayCast.snapped_target.connect(func():
+		roadContainer.rebuild_segments()
+		snapsLeft -= 1
+	)
+
+## inserts at the end of the array interpolated values between from and to
+## so that the length between each of them is below max length between points (constant)
+func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector3]):
+	var maxLen: float = _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS
+	var len: float = from.distance_to(to)
+	var pointsTotal: int = ceil(len / maxLen) 
+	var pointsToAdd: int = pointsTotal - 2 # exclude start and end
+	var step: float = len / pointsTotal
+	var stepRatio: float = step / len
+	# add points at equal distance
+	for i in range (0, pointsToAdd):
+		array.append(lerp(from, to, (i+1)*stepRatio))
+
 func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = false) -> bool:
 	if (!feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
@@ -121,11 +157,22 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	var coordinates: Array = geometry.get("coordinates")
 	if (coordinates.size() < 2): return false
 	
+	var prevMeters: Vector3
+	var prevExists: bool = false
 	var metersCoords: Array[Vector3] = []
 	for c in coordinates:
-		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 200, c[1]))
+		# high altitude to be able to snap no matter how sloppy the land is.
+		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 1000, c[1]))
 		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
+			#var elevation = elevationGenerator.get_elevation(Vector2(cMeters.x, cMeters.z))
+			#cMeters.y += elevation
+			if (prevExists):
+				var distance: float = prevMeters.distance_to(cMeters)
+				if (distance > _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS):
+					_append_interpolated_points(prevMeters, cMeters, metersCoords)
 			metersCoords.append(cMeters)
+			prevMeters = cMeters
+			prevExists = true
 	
 	if (metersCoords.size() < 2):
 		return false
@@ -136,10 +183,12 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	roadManager.add_child(roadContainer)
 	
 	var initPoint = RoadPoint.new()
-	initPoint.lane_width = 3.5
+	initPoint.lane_width = 3
+	initPoint.gutter_profile = Vector2(3,-0.5)
 	var trafficDir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
 	initPoint.traffic_dir = trafficDir
 	initPoint.position = metersCoords[0]
+	_setup_snapping(initPoint, roadContainer)
 	
 	# we need to do a 180 turn, to face opposite direction
 	# we do not use rotated because it does it around the origin, not itself
@@ -157,6 +206,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 		roadContainer.add_child(nextRP)
 		nextRP.copy_settings_from(initPoint)
 		nextRP.position = curr
+		_setup_snapping(nextRP, roadContainer)
 		if (i == metersCoords.size() - 1):
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
@@ -174,6 +224,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 		nextRP.connect_roadpoint(thisDir, previousRP, targetDir)
 		previousRP = nextRP
 		
+	roadContainer.rebuild_segments()
 	return true
 	
 	#var path3D: Path3D = Path3D.new()
@@ -234,7 +285,7 @@ func _regenerate_data() -> void:
 	
 	print("Setup road generator...")
 	var roadManager = RoadManager.new()
-	roadManager.auto_refresh = true
+	roadManager.auto_refresh = false
 	roadManager.material_resource = roadMaterial
 	roadManager.density = 8
 	self.add_child(roadManager)
@@ -259,4 +310,4 @@ func _regenerate_data() -> void:
 	print("Created ", roadsCountSuccess, " roads. Tried: ", roadsCount)
 	print("Nodes: ", self.get_child_count())
 	
-	print("Done.")
+	print("Done, snapping excluded.")
