@@ -11,9 +11,10 @@ extends Node3D
 
 @export var loader: MapDataLoader
 @export var boundariesGenerator: BoundariesGenerator
+@export var elevationGenerator: ElevationMeshGenerator
 @export var roadMaterial: Material
 
-var is_dirty: bool
+var isDirty: bool
 var _roadKinds: Array[String]
 
 
@@ -21,6 +22,7 @@ func _ready() -> void:
 	assert(loader != null)
 	assert(boundariesGenerator != null)
 	assert(roadMaterial != null)
+	assert(elevationGenerator != null)
 	_roadKinds = [
 		"motorway",
 		"trunk",
@@ -54,7 +56,7 @@ func _ready() -> void:
 		#"platform",
 	]
 	
-	is_dirty = true
+	isDirty = true
 
 var _data
 
@@ -74,13 +76,15 @@ func _load_data() -> void:
 func reload_action() -> void:
 	if !boundariesGenerator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
+	elif !elevationGenerator.is_loaded:
+		print("Cannot continue, elevation not loaded.")
 	else:
-		is_dirty = true
+		isDirty = true
 
 func _process(delta):
 	# need to wait for boundaries or no road will be kept!
-	if is_dirty && boundariesGenerator.is_loaded:
-		is_dirty = false
+	if isDirty && boundariesGenerator.is_loaded && elevationGenerator.is_loaded:
+		isDirty = false
 		_regenerate_data()
 		
 

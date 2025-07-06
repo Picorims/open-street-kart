@@ -7,7 +7,7 @@
 
 
 @tool
-extends MeshInstance3D
+class_name ElevationMeshGenerator extends MeshInstance3D
 
 @export var loader: MapDataLoader
 @export var collisionShape: CollisionShape3D
@@ -15,6 +15,9 @@ extends MeshInstance3D
 var _material: Material
 
 var is_dirty: bool
+var _is_loaded: bool = false
+@export var is_loaded: bool:
+	get: return _is_loaded
 		
 		
 func _ready() -> void:
@@ -25,12 +28,14 @@ func _ready() -> void:
 func reload_action(mat: Material) -> void:
 	assert(!(mat == null), "MapDataLoader: Missing material for elevation surface.")
 	_material = mat
+	_is_loaded = false
 	is_dirty = true
 
 func _process(delta):
 	if is_dirty:
 		is_dirty = false
 		_regenerate_mesh()
+		_is_loaded = true
 
 # see https://forum.godotengine.org/t/how-to-declare-2d-arrays-matrices-in-gdscript/38638/5
 var _data: Array[Vector3] = []
