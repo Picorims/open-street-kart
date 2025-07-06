@@ -141,9 +141,10 @@ func _regenerate_mesh() -> void:
 		collisionShape.shape = self.mesh.create_trimesh_shape()
 	print("done")
 
-## Returns the interpolated generation based on nearest points known
+## Returns the interpolated generation based on nearest points known.
+##
+## WARNING: This is resource intensive!
 func get_elevation(posMetersFromOrigin: Vector2) -> float:
-	return 200
 	# see: https://www.youtube.com/watch?v=BFld4EBO2RE (Painting a Landscape with Mathematics by Inigo Quilez)
 	#var originMeters3D: Vector3 = loader.get_origin_meters()
 	#var originMeters: Vector2 = Vector2(originMeters3D.x, originMeters3D.z)
