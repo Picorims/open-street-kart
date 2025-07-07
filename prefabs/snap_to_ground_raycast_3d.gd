@@ -34,4 +34,4 @@ func _physics_process(delta: float) -> void:
 		self.enabled = false
 		self.queue_free()
 	else:
-		if (Engine.is_editor_hint()): DebugDraw3D.draw_line(self.global_position, self.global_position + self.target_position, Color(1,0,1,1))
+		# if (Engine.is_editor_hint()): DebugDraw3D.draw_line(self.global_position, self.global_position + self.target_position, Color(1,0,1,1))

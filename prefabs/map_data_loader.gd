@@ -39,7 +39,9 @@ func get_origin_meters() -> Vector3:
 	return _origin * _scaleTransform
 
 func lat_alt_lon_to_world_global_pos(latAltLon: Vector3, verbose = false) -> Vector3:
-	_scaleTransform = Vector3(latitudeScale, 1, longitudeScale)
+	# assuming x is latitude and z longitude, x is inverted in Godot (goes left)
+	# compared to on a world map (goes right). So a minus is needed on X/latitude
+	_scaleTransform = Vector3(-latitudeScale, 1, longitudeScale)
 	if verbose:
 		print("doing (", latAltLon, " - ", _origin, ') * ', _scaleTransform)
 	return (latAltLon - _origin) * _scaleTransform

@@ -11,6 +11,7 @@ class_name ElevationMeshGenerator extends MeshInstance3D
 
 @export var loader: MapDataLoader
 @export var collisionShape: CollisionShape3D
+@export var enableDebugPoints: bool = false
 
 var _material: Material
 const METERS_STEP: float = 30
@@ -37,6 +38,14 @@ func _process(delta):
 		is_dirty = false
 		_regenerate_mesh()
 		_is_loaded = true
+	if (is_loaded && enableDebugPoints):
+		# draw debug points
+		for i in _data:
+			# assuming x is latitude and z longitude, x is inverted in Godot (goes left)
+			# compared to on a world map (goes right). So a minus is needed on X/latitude
+			var point = (i - loader.get_origin()) * Vector3(-loader.latitudeScale, 1, loader.longitudeScale)
+			#DebugDraw3D.draw_sphere(point, 15, Color(1,((point.y+150)/200),0,1))
+			DebugDraw3D.draw_points([point], 0, 30, Color(1,((point.y+150)/200),0,1))
 
 # see https://forum.godotengine.org/t/how-to-declare-2d-arrays-matrices-in-gdscript/38638/5
 var _data: Array[Vector3] = []
@@ -44,8 +53,8 @@ var _rows: int = 0
 var _cols: int = 0
 
 func _read_data(latIdx: int, lonIdx: int) -> Vector3:
-	assert(latIdx >= 0 && lonIdx >= 0 && latIdx < _rows && lonIdx < _cols, "_read_data: illegal indexes: " + str(latIdx) + ", " + str(lonIdx))
-	return _data[latIdx * _cols + lonIdx]
+	assert(latIdx >= 0 && lonIdx >= 0 && latIdx < _cols && lonIdx < _rows, "_read_data: illegal indexes: " + str(latIdx) + ", " + str(lonIdx))
+	return _data[lonIdx * _cols + latIdx]
 	
 func _str_to_float(s: String) -> float:
 	var dot_pos = s.find(".")
@@ -63,7 +72,7 @@ func _load_data() -> void:
 	# see https://docs.godotengine.org/en/stable/classes/class_fileaccess.html
 
 	var file = FileAccess.open(loader.topoDataPath, FileAccess.READ)
-	var oldLon: float = -1000000.0
+	var oldLat: float = -1000000.0
 	_rows = 1
 	_cols = 0
 	_data = []
@@ -71,18 +80,18 @@ func _load_data() -> void:
 		var csv: PackedStringArray = file.get_csv_line("\t")
 		if (csv.size() < 3):
 			continue
-		var lat: float = float(csv[0]) # _str_to_float(csv[0]) # float(csv[0])
-		var lon: float = float(csv[1]) # _str_to_float(csv[1]) # float(csv[1])
-		var elev: float = float(csv[2]) # _str_to_float(csv[2]) # float(csv[2])
+		var lat: float = float(csv[1])
+		var lon: float = float(csv[0])
+		var elev: float = float(csv[2])
 		
-		if (oldLon < lon && _rows == 1):
+		if (oldLat < lat && _rows == 1):
 			_cols += 1
-		if (oldLon > lon):
+		if (oldLat > lat):
 			_rows += 1
 		
 		_data.append(Vector3(lat,elev,lon))
 
-		oldLon = float(lon)
+		oldLat = float(lat)
 	file.close()
 
 func _regenerate_mesh() -> void:
@@ -97,11 +106,13 @@ func _regenerate_mesh() -> void:
 	var surfaceTool = SurfaceTool.new()
 	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
-	var scaleTransform: Vector3 = Vector3(loader.latitudeScale, 1, loader.longitudeScale)
+	# assuming x is latitude and z longitude, x is inverted in Godot (goes left)
+	# compared to on a world map (goes right). So a minus is needed on X/latitude
+	var scaleTransform: Vector3 = Vector3(-loader.latitudeScale, 1, loader.longitudeScale)
 	var origin: Vector3 = _data[0]
 	print("origin: ", origin)
-	for latIdx in range(_rows-1):
-		for lonIdx in range(_cols-1):
+	for lonIdx in range(_rows-1):
+		for latIdx in range(_cols-1):
 			# build square using 2 mesh triangles and four positions
 			# i.e. linear interpolation between elevation points in the grid
 			var bottomL = (_read_data(latIdx, lonIdx) - origin) * scaleTransform
@@ -112,14 +123,14 @@ func _regenerate_mesh() -> void:
 			# print("making square with points: ", bottomL, ", ", bottomR, ", ", topL, ", ", topR)
 			
 			# first triangle
-			surfaceTool.add_vertex(topL)
-			surfaceTool.add_vertex(bottomR)
 			surfaceTool.add_vertex(bottomL)
+			surfaceTool.add_vertex(bottomR)
+			surfaceTool.add_vertex(topL)
 			
 			# second triangle
-			surfaceTool.add_vertex(topR)
-			surfaceTool.add_vertex(bottomR)
 			surfaceTool.add_vertex(topL)
+			surfaceTool.add_vertex(bottomR)
+			surfaceTool.add_vertex(topR)
 
 	# DEBUG TRIANGLE ===
 	# surfaceTool.add_vertex(Vector3(0, 0, 0))
