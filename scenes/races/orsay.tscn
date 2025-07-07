@@ -15,7 +15,7 @@ transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.7
 shadow_enabled = true
 
 [node name="CarCustomPhysics2" parent="." instance=ExtResource("2_nvff5")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4414.45, 14.2925, 1719.74)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2582, 14.2925, 1719.74)
 speedMultiplier = 1.5
 
 [node name="MapDataLoader" parent="." instance=ExtResource("3_iklud")]

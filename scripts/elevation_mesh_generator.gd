@@ -41,9 +41,7 @@ func _process(delta):
 	if (is_loaded && enableDebugPoints):
 		# draw debug points
 		for i in _data:
-			# assuming x is latitude and z longitude, x is inverted in Godot (goes left)
-			# compared to on a world map (goes right). So a minus is needed on X/latitude
-			var point = (i - loader.get_origin()) * Vector3(-loader.latitudeScale, 1, loader.longitudeScale)
+			var point = loader.lat_alt_lon_to_world_global_pos(i)
 			#DebugDraw3D.draw_sphere(point, 15, Color(1,((point.y+150)/200),0,1))
 			DebugDraw3D.draw_points([point], 0, 30, Color(1,((point.y+150)/200),0,1))
 
@@ -106,19 +104,16 @@ func _regenerate_mesh() -> void:
 	var surfaceTool = SurfaceTool.new()
 	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
-	# assuming x is latitude and z longitude, x is inverted in Godot (goes left)
-	# compared to on a world map (goes right). So a minus is needed on X/latitude
-	var scaleTransform: Vector3 = Vector3(-loader.latitudeScale, 1, loader.longitudeScale)
 	var origin: Vector3 = _data[0]
 	print("origin: ", origin)
 	for lonIdx in range(_rows-1):
 		for latIdx in range(_cols-1):
 			# build square using 2 mesh triangles and four positions
 			# i.e. linear interpolation between elevation points in the grid
-			var bottomL = (_read_data(latIdx, lonIdx) - origin) * scaleTransform
-			var bottomR = (_read_data(latIdx, lonIdx+1) - origin) * scaleTransform
-			var topL = (_read_data(latIdx+1, lonIdx) - origin) * scaleTransform
-			var topR = (_read_data(latIdx+1, lonIdx+1) - origin) * scaleTransform
+			var bottomL = loader.lat_alt_lon_to_world_global_pos(_read_data(latIdx, lonIdx))
+			var bottomR = loader.lat_alt_lon_to_world_global_pos(_read_data(latIdx, lonIdx+1))
+			var topL = loader.lat_alt_lon_to_world_global_pos(_read_data(latIdx+1, lonIdx))
+			var topR = loader.lat_alt_lon_to_world_global_pos(_read_data(latIdx+1, lonIdx+1))
 
 			# print("making square with points: ", bottomL, ", ", bottomR, ", ", topL, ", ", topR)
 			
