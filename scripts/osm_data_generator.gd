@@ -16,6 +16,8 @@ extends Node3D
 
 var isDirty: bool
 var _roadKinds: Array[String]
+var _buildingKinds: Array[String]
+var snapsLeftRoad: int = 0
 var snapsLeft: int = 0
 static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
 const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
@@ -58,6 +60,121 @@ func _ready() -> void:
 		#"platform",
 	]
 	
+	# https://wiki.openstreetmap.org/wiki/Key:building
+	_buildingKinds = [
+		"yes",
+		"apartments",
+		"barracks",
+		"bungalow",
+		"cabin",
+		"detached",
+		"annexe",
+		"dormitory",
+		"farm",
+		"ger",
+		"hotel",
+		"house",
+		"houseboat",
+		"residential",
+		"semidetached_house",
+		"static_caravan",
+		"stilt_house",
+		"terrace",
+		"tree_house",
+		"trullo",
+		
+		"commercial",
+		"industrial",
+		"kiosk",
+		"office",
+		"retail",
+		"supermarket",
+		"warehouse",
+		
+		"religious",
+		"cathedral",
+		"chapel",
+		"church",
+		"kingdom_hall",
+		"monastery",
+		"mosque",
+		"presbytery",
+		"shrine",
+		"synagogue",
+		"temple",
+		
+		"bakehouse",
+		"bridge",
+		"civic",
+		"college",
+		"fire_station",
+		"government",
+		"gatehouse",
+		"hospital",
+		"kindergarten",
+		"museum",
+		"public",
+		"school",
+		"toilets",
+		"train_station",
+		"transportation",
+		"university",
+		
+		"barn",
+		"conservatory",
+		"cowshed",
+		"farm_auxiliary",
+		"greenhouse",
+		"slurry_tank",
+		"stable",
+		"sty",
+		"livestock",
+		
+		"grandstand",
+		"pavilion",
+		"riding_hall",
+		"sports_hall",
+		"sports_centre",
+		"stadium",
+		
+		"allotment_house",
+		"boathouse",
+		"hangar",
+		"hut",
+		"shed",
+		
+		"carport",
+		"garage",
+		"garages",
+		"parking",
+		
+		"digester",
+		"service",
+		"tech_cab",
+		"transformer_tower",
+		"water_tower",
+		"storage_tank",
+		"silo",
+		
+		"beach_hut",
+		"bunker",
+		"castle",
+		"construction",
+		"container",
+		"guardhouse",
+		#"military",
+		"outbuilding",
+		"pagoda",
+		"quonset_hut",
+		"roof",
+		"ruins",
+		"ship",
+		"tent",
+		"tower",
+		"triumphal_arch",
+		"windmill",
+	]
+	
 	isDirty = true
 
 var _data
@@ -88,12 +205,14 @@ func _process(delta: float):
 	# need to wait for boundaries or no road will be kept!
 	if isDirty && boundariesGenerator.is_loaded && elevationGenerator.is_loaded:
 		isDirty = false
+		snapsLeftRoad = 0
 		snapsLeft = 0
 		_regenerate_data()
-	elif snapsLeft > 0 && !Engine.is_editor_hint():
+	elif (snapsLeftRoad > 0 || snapsLeft > 0) && !Engine.is_editor_hint():
 		_lastLog += delta
 		if  _lastLog > 10:
-			print("snaps left for roads: ", snapsLeft)
+			print("snaps left for roads: ", snapsLeftRoad)
+			print("snaps left for other things: ", snapsLeft)
 			_lastLog = 0
 
 
@@ -108,6 +227,17 @@ func _is_road(properties: Dictionary) -> bool:
 	var kind: String = properties.get("highway")
 	if _roadKinds.has(kind): return true
 	return false
+	
+func _is_building(properties: Dictionary) -> bool:
+	if (!properties.has("building")): return false
+	
+	var id: String = properties.get("@id")
+	if (!id.begins_with("way")): return false
+	
+	var kind: String = properties.get("building")
+	if _buildingKinds.has(kind): return true
+	return false
+	
 
 func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Vector3) -> Transform3D:
 	# given this:
@@ -126,14 +256,35 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 	var shouldLookAt = curr + (from - segmentMiddle) 
 	return transform.looking_at(shouldLookAt)
 
-func _setup_snapping(target: RoadPoint, roadContainer: RoadContainer):
+## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
+## and move at the collision point the target. It then deletes itself.
+## The collision layers must match.
+##
+## This variant is designed to account for road processing requirements
+func _setup_snapping_road(target: RoadPoint, roadContainer: RoadContainer):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = 0.4
 	target.add_child(snapRayCast)
 	snapRayCast.target = target
-	snapsLeft += 1
+	snapsLeftRoad += 1
 	snapRayCast.snapped_target.connect(func():
 		roadContainer.rebuild_segments()
+		snapsLeftRoad -= 1
+	)
+	
+## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
+## and move at the collision point the target. It then deletes itself.
+## The collision layers must match.
+func _setup_snapping(target: Node3D, at: Vector3, alignToNormal: bool = false, offset: float = 0.4):
+	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
+	snapRayCast.offset = offset
+	snapRayCast.alignToNormal = alignToNormal
+	target.add_child(snapRayCast)
+	snapRayCast.target = target
+	snapRayCast.global_position = at
+	snapRayCast.rotation -= target.rotation # ignore rotation
+	snapsLeft += 1
+	snapRayCast.snapped_target.connect(func():
 		snapsLeft -= 1
 	)
 
@@ -188,7 +339,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	var trafficDir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
 	initPoint.traffic_dir = trafficDir
 	initPoint.position = metersCoords[0]
-	_setup_snapping(initPoint, roadContainer)
+	_setup_snapping_road(initPoint, roadContainer)
 	
 	# we need to do a 180 turn, to face opposite direction
 	# we do not use rotated because it does it around the origin, not itself
@@ -206,7 +357,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 		roadContainer.add_child(nextRP)
 		nextRP.copy_settings_from(initPoint)
 		nextRP.position = curr
-		_setup_snapping(nextRP, roadContainer)
+		_setup_snapping_road(nextRP, roadContainer)
 		if (i == metersCoords.size() - 1):
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
@@ -274,6 +425,67 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	## DebugDraw3D.draw_point_path(curve3D.get_baked_points(), DebugDraw3D.POINT_TYPE_SQUARE, 0.25, Color(1,0,0,1), Color(0,0,1,1), 500)
 	#return true
 
+func _xz(v: Vector3) -> Vector2:
+	return Vector2(v[0], v[2])
+	
+func _array_xz(a: Array[Vector3]) -> Array[Vector2]:
+	var arr: Array[Vector2] = []
+	for v in a:
+		arr.append(_xz(v))
+	return arr
+
+func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: bool = false) -> bool:
+	if (verbose): print("_build_building: inspecting building data...")
+	
+	if (!feature.has("geometry")):
+		if (verbose): print("building has no geometry, cancel.")
+		return false
+	var geometry: Dictionary = feature.get("geometry")
+	if (!geometry.has("coordinates")):
+		if (verbose): print("building has no coordinates, cancel.")
+		return false
+	var coordinates: Array = geometry.get("coordinates")
+	# TODO: handle multi polygon
+	if (coordinates.size() == 0):
+		if (verbose): print("No building coordinates data, cancel.")
+		return false
+	if (coordinates.size() > 1):
+		if (verbose): print("multi polygon not supported, only loading the first one.")
+	coordinates = coordinates[0]
+	if (coordinates.size() < 3):
+		if (verbose): print("building has not enough nodes (", coordinates.size(), "), cancel.")
+		return false
+	
+	if (verbose): print("building accepted.")
+	
+	var prevMeters: Vector3
+	var prevExists: bool = false
+	var metersCoords: Array[Vector3] = []
+	for c in coordinates:
+		# high altitude to be able to snap no matter how sloppy the land is.
+		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 1000, c[1]))
+		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
+			metersCoords.append(cMeters)
+			prevMeters = cMeters
+			prevExists = true
+	
+	if (metersCoords.size() < 3):
+		if (verbose): print("building has too few points (",metersCoords.size(),").")
+		return false
+
+	var csgPoly = CSGPolygon3D.new()
+	csgPoly.transform.basis = csgPoly.transform.basis.rotated(Vector3.LEFT, -PI/2).orthonormalized()
+	csgPoly.position += Vector3(0,1000,0) # far up to then snap to ground
+	csgPoly.use_collision = true
+	csgPoly.polygon = _array_xz(metersCoords)
+	csgPoly.depth = 15
+	#csgPoly.visibility_range_end = 5000
+	csgPoly.bake_static_mesh()
+	buildingsContainer.add_child(csgPoly)
+	
+	_setup_snapping(csgPoly, metersCoords[0]) #, -5) # FIXME chaos if negative offset
+	
+	return true
 
 func _regenerate_data() -> void:
 	print("OSM data generation started. Removing existing data...")
@@ -290,6 +502,9 @@ func _regenerate_data() -> void:
 	roadManager.density = 8
 	self.add_child(roadManager)
 	
+	var buildingsContainer = Node3D.new()
+	self.add_child(buildingsContainer)
+	
 	print("Creating structures")
 	assert(_data.features != null)
 	var features: Array = _data.features
@@ -297,6 +512,9 @@ func _regenerate_data() -> void:
 	
 	var roadsCount: int = 0
 	var roadsCountSuccess: int = 0
+	
+	var buildsCount: int = 0
+	var buildsCountSuccess: int = 0
 	for f: Dictionary in features:
 		if (f.has("properties")): #&& roadsCount < 1000):
 			var properties: Dictionary = f.get("properties")
@@ -306,8 +524,15 @@ func _regenerate_data() -> void:
 				roadsCount += 1
 				if success:
 					roadsCountSuccess += 1
+			elif _is_building(properties):
+				var success: bool = _build_building(f, buildingsContainer, buildsCount < 50)
+				buildsCount += 1
+				if success:
+					buildsCountSuccess += 1
 	
 	print("Created ", roadsCountSuccess, " roads. Tried: ", roadsCount)
+	print("Created ", buildsCountSuccess, " buildings. Tried: ", buildsCount)
+	
 	print("Nodes: ", self.get_child_count())
 	
 	print("Done, snapping excluded.")

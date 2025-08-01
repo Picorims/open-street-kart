@@ -113,7 +113,7 @@ func _build_area(kind: String, coords: Array[Array]) -> bool:
 	collider.make_convex_from_siblings() #i.e. from mesh
 	# var debug = Engine.is_editor_hint()
 	
-	var debug = true
+	var debug = false
 	if debug:
 		var mat: StandardMaterial3D = StandardMaterial3D.new()
 		mat.albedo_color = Color(1,0,1,0.3)

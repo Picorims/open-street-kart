@@ -23,16 +23,16 @@ func reload_mesh():
 	var csgPoly = CSGPolygon3D.new()
 	csgPoly.use_collision = true
 	curve.add_point(Vector3(1,2,3))
-	curve.add_point(Vector3(4,5,6))
-	curve. add_point(Vector3(7,8,9))
+	curve.add_point(Vector3(4,2,6))
+	curve. add_point(Vector3(7,2,9))
 	path.curve = curve
 	csgPoly.add_child(path)
 	self.add_child(csgPoly)
 	# stops rendering as soon as the following two lines are enabled
-	csgPoly.mode = CSGPolygon3D.MODE_PATH
-	csgPoly.path_node = ^"Path3D"
+	#csgPoly.mode = CSGPolygon3D.MODE_PATH
+	#csgPoly.path_node = ^"Path3D"
 	# failed fix attempts
-	print("bake collision")
-	csgPoly.bake_collision_shape()
-	print("bake mesh")
-	csgPoly.bake_static_mesh()
+	#print("bake collision")
+	#csgPoly.bake_collision_shape()
+	#print("bake mesh")
+	#csgPoly.bake_static_mesh()
