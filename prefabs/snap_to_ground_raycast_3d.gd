@@ -27,7 +27,6 @@ func _physics_process(delta: float) -> void:
 	if (is_colliding()):
 		if (Engine.is_editor_hint()): DebugDraw3D.draw_line(self.global_position, self.get_collision_point(), Color(1,0,0,1))
 		var distance = self.get_collision_point().distance_to(self.global_position)
-		#target.global_position.y -= (distance - offset)
 		target.global_position.y = self.get_collision_point().y + offset
 		
 		if (alignToNormal):

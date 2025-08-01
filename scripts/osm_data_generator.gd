@@ -280,7 +280,6 @@ func _setup_snapping(target: Node3D, at: Vector3, alignToNormal: bool = false, o
 	snapRayCast.offset = offset
 	snapRayCast.alignToNormal = alignToNormal
 	target.add_child(snapRayCast)
-	#self.add_child(snapRayCast)
 	snapRayCast.target = target
 	snapRayCast.global_position = at
 	snapRayCast.rotation -= target.rotation # ignore rotation
@@ -449,6 +448,7 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	# TODO: handle multi polygon
 	if (coordinates.size() == 0):
 		if (verbose): print("No building coordinates data, cancel.")
+		return false
 	if (coordinates.size() > 1):
 		if (verbose): print("multi polygon not supported, only loading the first one.")
 	coordinates = coordinates[0]
