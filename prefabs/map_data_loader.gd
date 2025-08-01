@@ -22,6 +22,7 @@ class_name MapDataLoader extends Node3D
 @export_tool_button("Reload OSM Data", "Path3D") var reload_osm_action = Callable(self, "_reload_osm_action")
 @export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
 @export var floorMaterial: Material
+@export var player: Node3D
 
 var _origin: Vector3
 var _scaleTransform: Vector3

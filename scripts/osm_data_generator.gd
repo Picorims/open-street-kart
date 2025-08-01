@@ -9,10 +9,13 @@
 @tool
 extends Node3D
 
+const BuildingHolder = preload("res://prefabs/building_holder.gd")
+
 @export var loader: MapDataLoader
 @export var boundariesGenerator: BoundariesGenerator
 @export var elevationGenerator: ElevationMeshGenerator
 @export var roadMaterial: Material
+@export var buildingMaterial: Material
 
 var isDirty: bool
 var _roadKinds: Array[String]
@@ -473,17 +476,103 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 		if (verbose): print("building has too few points (",metersCoords.size(),").")
 		return false
 
-	var csgPoly = CSGPolygon3D.new()
-	csgPoly.transform.basis = csgPoly.transform.basis.rotated(Vector3.LEFT, -PI/2).orthonormalized()
-	csgPoly.position += Vector3(0,1000,0) # far up to then snap to ground
-	csgPoly.use_collision = true
-	csgPoly.polygon = _array_xz(metersCoords)
-	csgPoly.depth = 15
-	#csgPoly.visibility_range_end = 5000
-	csgPoly.bake_static_mesh()
-	buildingsContainer.add_child(csgPoly)
+	var inGroundHeight: float = 5
+	var aboveGroundHeight: float = 10
+	var origin: Vector3 = Vector3(1000000, 1000, 1000000)
+	# find smallest x and z to define the origin (the corner of the building bounding box)
+	for c in metersCoords:
+		origin.x = min(origin.x, c.x)
+		origin.z = min(origin.z, c.z)
+
+	# translate all points to origin
+	for i in range(metersCoords.size()):
+		metersCoords[i] -= origin
+
+	# build mesh
+	var surfaceTool = SurfaceTool.new()
+	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
+
+	# we create an extruded polygon, with only the wall and ceiling
+
+	# walls
+	for i in range(metersCoords.size()):
+		var nextIdx = (i + 1) % metersCoords.size()
+		var bottomL = metersCoords[i]
+		var bottomR = metersCoords[nextIdx]
+		var topL = bottomL + Vector3(0, inGroundHeight + aboveGroundHeight, 0)
+		var topR = bottomR + Vector3(0, inGroundHeight + aboveGroundHeight, 0)
+
+		# first triangle
+		surfaceTool.add_vertex(topL)
+		surfaceTool.add_vertex(bottomR)
+		surfaceTool.add_vertex(bottomL)
+
+		# second triangle
+		surfaceTool.add_vertex(topR)
+		surfaceTool.add_vertex(bottomR)
+		surfaceTool.add_vertex(topL)
 	
-	_setup_snapping(csgPoly, metersCoords[0]) #, -5) # FIXME chaos if negative offset
+	surfaceTool.generate_normals()
+	var mesh: Mesh = surfaceTool.commit()
+	if (mesh == null):
+		if (verbose): print("Failed to create mesh for building, cancel.")
+		return false
+	
+	var meshNode: MeshInstance3D = MeshInstance3D.new()
+	meshNode.mesh = mesh
+	var surfacesCount = meshNode.mesh.get_surface_count()
+	for i in surfacesCount:
+		meshNode.set_surface_override_material(i, buildingMaterial)
+
+	var meshCollisionNode: CollisionShape3D = CollisionShape3D.new()
+	meshCollisionNode.shape = mesh.create_trimesh_shape()
+
+	var staticBody: StaticBody3D = StaticBody3D.new()
+	staticBody.add_child(meshNode)
+	staticBody.add_child(meshCollisionNode)
+	staticBody.global_position = origin
+
+	# var holder: BuildingHolder = BuildingHolder.new()
+	# holder.collider = meshCollisionNode
+	# holder.player = loader.player
+	
+	# buildingsContainer.add_child(holder)
+	buildingsContainer.add_child(staticBody)
+	_setup_snapping(staticBody, origin, false, float(loader.elevationOrigin) - inGroundHeight)
+	
+	
+
+	# =====
+	# var csgPoly = CSGPolygon3D.new()
+	# csgPoly.transform.basis = csgPoly.transform.basis.rotated(Vector3.LEFT, -PI/2).orthonormalized()
+	# csgPoly.position += Vector3(0,1000,0) # far up to then snap to ground
+	# csgPoly.use_collision = true
+	# csgPoly.polygon = _array_xz(metersCoords)
+	# csgPoly.depth = 15
+	# #csgPoly.visibility_range_end = 5000
+	# csgPoly.material = buildingMaterial
+
+	# var meshRenderingNode: MeshInstance3D = MeshInstance3D.new()
+	# meshRenderingNode.mesh = csgPoly.bake_static_mesh()
+	
+
+	# var staticBody: StaticBody3D = StaticBody3D.new()
+	# staticBody.add_child(meshRenderingNode)
+	# var meshCollisionNode: CollisionShape3D = CollisionShape3D.new()
+	# meshCollisionNode.shape = csgPoly.bake_collision_shape()
+	# staticBody.add_child(meshCollisionNode)
+	# staticBody.global_position = csgPoly.global_position
+	# staticBody.global_rotation = csgPoly.global_rotation
+
+	# buildingsContainer.add_child(staticBody)
+	# csgPoly.queue_free()
+	
+	## buildingsContainer.add_child(csgPoly)
+
+	## _setup_snapping(csgPoly, metersCoords[0]) #, -5) # FIXME chaos if negative offset
+	# =====
+
+	
 	
 	return true
 
