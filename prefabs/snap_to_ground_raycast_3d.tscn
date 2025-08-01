@@ -6,4 +6,3 @@
 target_position = Vector3(0, -10000, 0)
 collision_mask = 2
 script = ExtResource("1_o3mf7")
-alignToNormal = null

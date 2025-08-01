@@ -261,16 +261,16 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 ## The collision layers must match.
 ##
 ## This variant is designed to account for road processing requirements
-func _setup_snapping_road(target: RoadPoint, roadContainer: RoadContainer):
+func _setup_snapping_road(target: RoadPoint):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = 0.4
 	target.add_child(snapRayCast)
 	snapRayCast.target = target
 	snapsLeftRoad += 1
 	snapRayCast.snapped_target.connect(func():
-		roadContainer.rebuild_segments()
 		snapsLeftRoad -= 1
 	)
+	snapRayCast.force_raycast_update()
 	
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
 ## and move at the collision point the target. It then deletes itself.
@@ -287,6 +287,7 @@ func _setup_snapping(target: Node3D, at: Vector3, alignToNormal: bool = false, o
 	snapRayCast.snapped_target.connect(func():
 		snapsLeft -= 1
 	)
+	snapRayCast.force_raycast_update()
 
 ## inserts at the end of the array interpolated values between from and to
 ## so that the length between each of them is below max length between points (constant)
@@ -301,7 +302,7 @@ func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector
 	for i in range (0, pointsToAdd):
 		array.append(lerp(from, to, (i+1)*stepRatio))
 
-func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = false) -> bool:
+func _build_road(feature: Dictionary, roadManager: RoadManager, roadContainers: Array[RoadContainer], verbose: bool = false) -> bool:
 	if (!feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
 	if (!geometry.has("coordinates")): return false
@@ -339,7 +340,6 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	var trafficDir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
 	initPoint.traffic_dir = trafficDir
 	initPoint.position = metersCoords[0]
-	_setup_snapping_road(initPoint, roadContainer)
 	
 	# we need to do a 180 turn, to face opposite direction
 	# we do not use rotated because it does it around the origin, not itself
@@ -348,6 +348,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 	initPoint.transform = _rotated_point(initPoint.transform, toMirrored, metersCoords[0], metersCoords[1])
 	
 	roadContainer.add_child(initPoint)
+	_setup_snapping_road(initPoint)
 	
 	var previousRP = initPoint
 	for i in range(1, metersCoords.size()):
@@ -357,7 +358,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 		roadContainer.add_child(nextRP)
 		nextRP.copy_settings_from(initPoint)
 		nextRP.position = curr
-		_setup_snapping_road(nextRP, roadContainer)
+		_setup_snapping_road(nextRP)
 		if (i == metersCoords.size() - 1):
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
@@ -375,7 +376,6 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, verbose: bool = 
 		nextRP.connect_roadpoint(thisDir, previousRP, targetDir)
 		previousRP = nextRP
 		
-	roadContainer.rebuild_segments()
 	return true
 	
 	#var path3D: Path3D = Path3D.new()
@@ -501,6 +501,7 @@ func _regenerate_data() -> void:
 	roadManager.material_resource = roadMaterial
 	roadManager.density = 8
 	self.add_child(roadManager)
+	var roadContainers: Array[RoadContainer] = []
 	
 	var buildingsContainer = Node3D.new()
 	self.add_child(buildingsContainer)
@@ -520,7 +521,7 @@ func _regenerate_data() -> void:
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
 			if _is_road(properties):
-				var success: bool = _build_road(f, roadManager, roadsCount == 0)
+				var success: bool = _build_road(f, roadManager, roadContainers, roadsCount == 0)
 				roadsCount += 1
 				if success:
 					roadsCountSuccess += 1
@@ -529,6 +530,10 @@ func _regenerate_data() -> void:
 				buildsCount += 1
 				if success:
 					buildsCountSuccess += 1
+	
+	print("Refreshing road segments...")
+	for r in roadContainers:
+		r.rebuild_segments()
 	
 	print("Created ", roadsCountSuccess, " roads. Tried: ", roadsCount)
 	print("Created ", buildsCountSuccess, " buildings. Tried: ", buildsCount)
