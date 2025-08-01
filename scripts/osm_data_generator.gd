@@ -302,7 +302,7 @@ func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector
 	for i in range (0, pointsToAdd):
 		array.append(lerp(from, to, (i+1)*stepRatio))
 
-func _build_road(feature: Dictionary, roadManager: RoadManager, roadContainers: Array[RoadContainer], verbose: bool = false) -> bool:
+func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	if (!feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
 	if (!geometry.has("coordinates")): return false
@@ -501,7 +501,6 @@ func _regenerate_data() -> void:
 	roadManager.material_resource = roadMaterial
 	roadManager.density = 8
 	self.add_child(roadManager)
-	var roadContainers: Array[RoadContainer] = []
 	
 	var buildingsContainer = Node3D.new()
 	self.add_child(buildingsContainer)
@@ -521,7 +520,7 @@ func _regenerate_data() -> void:
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
 			if _is_road(properties):
-				var success: bool = _build_road(f, roadManager, roadContainers, roadsCount == 0)
+				var success: bool = _build_road(f, roadManager)
 				roadsCount += 1
 				if success:
 					roadsCountSuccess += 1
@@ -532,8 +531,6 @@ func _regenerate_data() -> void:
 					buildsCountSuccess += 1
 	
 	print("Refreshing road segments...")
-	for r in roadContainers:
-		r.rebuild_segments()
 	
 	print("Created ", roadsCountSuccess, " roads. Tried: ", roadsCount)
 	print("Created ", buildsCountSuccess, " buildings. Tried: ", buildsCount)
