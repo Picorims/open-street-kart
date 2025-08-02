@@ -438,6 +438,7 @@ func _array_xz(a: Array[Vector3]) -> Array[Vector2]:
 	return arr
 
 func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: bool = false) -> bool:
+	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
 	if (verbose): print("_build_building: inspecting building data...")
 	
 	if (!feature.has("geometry")):
@@ -466,7 +467,7 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	var metersCoords: Array[Vector3] = []
 	for c in coordinates:
 		# high altitude to be able to snap no matter how sloppy the land is.
-		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 1000, c[1]))
+		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], INIT_HEIGHT, c[1]))
 		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
 			metersCoords.append(cMeters)
 			prevMeters = cMeters
@@ -478,7 +479,8 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 
 	var inGroundHeight: float = 5
 	var aboveGroundHeight: float = 10
-	var origin: Vector3 = Vector3(1000000, 1000, 1000000)
+	const MAX_VALUE: float = 1000000
+	var origin: Vector3 = Vector3(MAX_VALUE, INIT_HEIGHT, MAX_VALUE)
 	# find smallest x and z to define the origin (the corner of the building bounding box)
 	for c in metersCoords:
 		origin.x = min(origin.x, c.x)
