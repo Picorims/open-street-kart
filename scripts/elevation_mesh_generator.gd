@@ -143,7 +143,10 @@ func _regenerate_mesh() -> void:
 	
 	var root: StaticBody3D = StaticBody3D.new()
 	root.name = ROOT_NODE_NAME
-	root.collision_layer += 2 # bit 1
+	root.set_collision_layer_value(2, true)
+	# layer above not saved for some reason, dirty fix
+	# in _process() of map_data_loader.gd
+	print(root.collision_layer)
 	scene.add_child(root)
 	root.owner = scene
 	

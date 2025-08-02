@@ -50,6 +50,13 @@ func _ready() -> void:
 	#_scaleTransform = Vector3(latitudeScale, 1, longitudeScale)
 	print("world origin: ", _origin)
 
+func _process(delta: float) -> void:
+	# for some reason the collision layer changes are not saved. So we force it here.
+	if proceduralDataHolder:
+		var node: StaticBody3D = self.get_parent_node_3d().get_node("ProceduralDataHolder/ElevationStaticBody")
+		if node && node.get_collision_layer_value(2) == false:
+			node.set_collision_layer_value(2, true)
+
 func get_origin() -> Vector3:
 	return _origin
 	
