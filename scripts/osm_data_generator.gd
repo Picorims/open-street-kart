@@ -10,6 +10,7 @@
 extends Node3D
 
 const BuildingHolder = preload("res://prefabs/building_holder.gd")
+const ROOT_NODE_NAME: String = "OSMData"
 
 @export var loader: MapDataLoader
 @export var boundariesGenerator: BoundariesGenerator
@@ -17,7 +18,6 @@ const BuildingHolder = preload("res://prefabs/building_holder.gd")
 @export var roadMaterial: Material
 @export var buildingMaterial: Material
 
-var isDirty: bool
 var _roadKinds: Array[String]
 var _buildingKinds: Array[String]
 var snapsLeftRoad: int = 0
@@ -177,8 +177,6 @@ func _ready() -> void:
 		"triumphal_arch",
 		"windmill",
 	]
-	
-	isDirty = true
 
 var _data
 
@@ -201,7 +199,6 @@ func reload_action() -> void:
 	elif !elevationGenerator.is_loaded:
 		print("Cannot continue, elevation not loaded.")
 	else:
-		#isDirty = true
 		snapsLeftRoad = 0
 		snapsLeft = 0
 		_regenerate_data()
@@ -267,7 +264,7 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 ## The collision layers must match.
 ##
 ## This variant is designed to account for road processing requirements
-func _setup_snapping_road(target: RoadPoint):
+func _setup_snapping_road(target: RoadPoint, needsOwner: Array[Node3D]):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = 0.4
 	target.add_child(snapRayCast)
@@ -277,23 +274,24 @@ func _setup_snapping_road(target: RoadPoint):
 		snapsLeftRoad -= 1
 	)
 	snapRayCast.force_raycast_update()
+	needsOwner.append(snapRayCast)
 	
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
 ## and move at the collision point the target. It then deletes itself.
 ## The collision layers must match.
-func _setup_snapping(target: Node3D, at: Vector3, alignToNormal: bool = false, offset: float = 0.4):
+func _setup_snapping(target: Node3D, needsOwner: Array[Node3D], alignToNormal: bool = false, offset: float = 0.4):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = offset
 	snapRayCast.alignToNormal = alignToNormal
 	target.add_child(snapRayCast)
-	snapRayCast.target = target
-	snapRayCast.global_position = at
-	snapRayCast.rotation -= target.rotation # ignore rotation
-	snapsLeft += 1
-	snapRayCast.snapped_target.connect(func():
-		snapsLeft -= 1
-	)
-	snapRayCast.force_raycast_update()
+	# snapRayCast.target = target
+	# # snapRayCast.rotation -= target.rotation # ignore rotation
+	# snapsLeft += 1
+	# snapRayCast.snapped_target.connect(func():
+	# 	snapsLeft -= 1
+	# )
+	# snapRayCast.force_raycast_update()
+	needsOwner.append(snapRayCast)
 
 ## inserts at the end of the array interpolated values between from and to
 ## so that the length between each of them is below max length between points (constant)
@@ -308,7 +306,7 @@ func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector
 	for i in range (0, pointsToAdd):
 		array.append(lerp(from, to, (i+1)*stepRatio))
 
-func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
+func _build_road(feature: Dictionary, roadManager: RoadManager, needsOwner: Array[Node3D]) -> bool:
 	if (!feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
 	if (!geometry.has("coordinates")): return false
@@ -339,6 +337,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	# see: https://github.com/TheDuckCow/godot-road-generator/wiki/Class:-RoadPoint
 	var roadContainer = RoadContainer.new()
 	roadManager.add_child(roadContainer)
+	needsOwner.append(roadContainer)
 	
 	var initPoint = RoadPoint.new()
 	initPoint.lane_width = 3
@@ -354,7 +353,8 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	initPoint.transform = _rotated_point(initPoint.transform, toMirrored, metersCoords[0], metersCoords[1])
 	
 	roadContainer.add_child(initPoint)
-	_setup_snapping_road(initPoint)
+	needsOwner.append(initPoint)
+	_setup_snapping_road(initPoint, needsOwner)
 	
 	var previousRP = initPoint
 	for i in range(1, metersCoords.size()):
@@ -362,9 +362,10 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 		var prev = metersCoords[i-1]
 		var curr = metersCoords[i]
 		roadContainer.add_child(nextRP)
+		needsOwner.append(nextRP)
 		nextRP.copy_settings_from(initPoint)
 		nextRP.position = curr
-		_setup_snapping_road(nextRP)
+		_setup_snapping_road(nextRP, needsOwner)
 		if (i == metersCoords.size() - 1):
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
@@ -383,53 +384,6 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 		previousRP = nextRP
 		
 	return true
-	
-	#var path3D: Path3D = Path3D.new()
-		#
-	#if verbose:
-		#print(coordinates)
-		#
-	#var root: Vector3 = Vector3(coordinates[0][0], 170, coordinates[0][1])
-	#root = loader.lat_alt_lon_to_world_global_pos(root, verbose)
-	#
-	#if verbose:
-		#print("root is: ", root)
-		#
-	#var curve3D: Curve3D = Curve3D.new()
-	## x is lat, z is lon
-	#for p: Array in coordinates:
-		#if p.size() == 2:
-			#var absPos: Vector3 = Vector3(p[0], 170, p[1])
-			#if verbose:
-				#print("next pos is made of latitude, elevation, longitude: ", absPos)
-			#absPos = loader.lat_alt_lon_to_world_global_pos(absPos, verbose)
-			## curve3D.add_point(absPos - root)
-			#curve3D.add_point(absPos)
-			#if verbose:
-				#print("added pos (abs, rel): ", absPos, " ", absPos - root)
-	#path3D.curve = curve3D
-	#
-	#var roadCSG: CSGPolygon3D = CSGPolygon3D.new()
-	##roadCSG.material = roadMaterial
-	#self.add_child(roadCSG)
-	#roadCSG.add_child(path3D)
-	#path3D.global_position = root
-	#roadCSG.mode = CSGPolygon3D.MODE_PATH
-	#roadCSG.depth = 1
-	#roadCSG.polygon = PackedVector2Array([0,0,0,1,1,1,1,0])
-	#roadCSG.path_local = true
-	#roadCSG.path_node = ^"Path3D" # parent
-	#
-	#var meshNode: MeshInstance3D = MeshInstance3D.new()
-	#self.add_child(meshNode)
-	#meshNode.mesh = roadCSG.bake_static_mesh()
-	#var surfacesCount = meshNode.mesh.get_surface_count()
-	#for i in surfacesCount:
-		#meshNode.set_surface_override_material(i, roadMaterial)
-	## DebugDraw3D.draw_line_path(curve3D.get_baked_points(), Color(1,0,0,1), 500)
-	## DebugDraw3D.draw_position(path3D.transform, Color(0,1,0,1), 500)
-	## DebugDraw3D.draw_point_path(curve3D.get_baked_points(), DebugDraw3D.POINT_TYPE_SQUARE, 0.25, Color(1,0,0,1), Color(0,0,1,1), 500)
-	#return true
 
 func _xz(v: Vector3) -> Vector2:
 	return Vector2(v[0], v[2])
@@ -440,7 +394,7 @@ func _array_xz(a: Array[Vector3]) -> Array[Vector2]:
 		arr.append(_xz(v))
 	return arr
 
-func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: bool = false) -> bool:
+func _build_building(feature: Dictionary, buildingsContainer: Node3D, needsOwner: Array[Node3D], verbose: bool = false) -> bool:
 	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
 	if (verbose): print("_build_building: inspecting building data...")
 	
@@ -483,7 +437,7 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	var inGroundHeight: float = 5
 	var aboveGroundHeight: float = 10
 	const MAX_VALUE: float = 1000000
-	var origin: Vector3 = Vector3(MAX_VALUE, INIT_HEIGHT, MAX_VALUE)
+	var origin: Vector3 = Vector3(MAX_VALUE, 0, MAX_VALUE)
 	# find smallest x and z to define the origin (the corner of the building bounding box)
 	for c in metersCoords:
 		origin.x = min(origin.x, c.x)
@@ -492,7 +446,8 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	# translate all points to origin
 	for i in range(metersCoords.size()):
 		metersCoords[i] -= origin
-
+		metersCoords[i].y = 0 # disable offset
+	print(metersCoords)
 	# build mesh
 	var surfaceTool = SurfaceTool.new()
 	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
@@ -533,52 +488,16 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	meshCollisionNode.shape = mesh.create_trimesh_shape()
 
 	var staticBody: StaticBody3D = StaticBody3D.new()
+	needsOwner.append(staticBody)
 	staticBody.add_child(meshNode)
+	needsOwner.append(meshNode)
 	staticBody.add_child(meshCollisionNode)
-	staticBody.global_position = origin
+	needsOwner.append(meshCollisionNode)
+	staticBody.position = origin
 
-	# var holder: BuildingHolder = BuildingHolder.new()
-	# holder.collider = meshCollisionNode
-	# holder.player = loader.player
-	
-	# buildingsContainer.add_child(holder)
 	buildingsContainer.add_child(staticBody)
-	_setup_snapping(staticBody, origin, false, float(loader.elevationOrigin) - inGroundHeight)
-	
-	
+	_setup_snapping(staticBody, needsOwner, false, float(loader.elevationOrigin) - inGroundHeight)
 
-	# =====
-	# var csgPoly = CSGPolygon3D.new()
-	# csgPoly.transform.basis = csgPoly.transform.basis.rotated(Vector3.LEFT, -PI/2).orthonormalized()
-	# csgPoly.position += Vector3(0,1000,0) # far up to then snap to ground
-	# csgPoly.use_collision = true
-	# csgPoly.polygon = _array_xz(metersCoords)
-	# csgPoly.depth = 15
-	# #csgPoly.visibility_range_end = 5000
-	# csgPoly.material = buildingMaterial
-
-	# var meshRenderingNode: MeshInstance3D = MeshInstance3D.new()
-	# meshRenderingNode.mesh = csgPoly.bake_static_mesh()
-	
-
-	# var staticBody: StaticBody3D = StaticBody3D.new()
-	# staticBody.add_child(meshRenderingNode)
-	# var meshCollisionNode: CollisionShape3D = CollisionShape3D.new()
-	# meshCollisionNode.shape = csgPoly.bake_collision_shape()
-	# staticBody.add_child(meshCollisionNode)
-	# staticBody.global_position = csgPoly.global_position
-	# staticBody.global_rotation = csgPoly.global_rotation
-
-	# buildingsContainer.add_child(staticBody)
-	# csgPoly.queue_free()
-	
-	## buildingsContainer.add_child(csgPoly)
-
-	## _setup_snapping(csgPoly, metersCoords[0]) #, -5) # FIXME chaos if negative offset
-	# =====
-
-	
-	
 	return true
 
 func _regenerate_data() -> void:
@@ -588,16 +507,23 @@ func _regenerate_data() -> void:
 		n.queue_free()
 	print("Loading OSM data for road generation...")
 	_load_data()
+
+	var rootNode: Node3D = Node3D.new()
+	var needsOwner: Array[Node3D] = []
+	rootNode.name = ROOT_NODE_NAME
 	
 	print("Setup road generator...")
 	var roadManager = RoadManager.new()
 	roadManager.auto_refresh = false
 	roadManager.material_resource = roadMaterial
 	roadManager.density = 8
-	self.add_child(roadManager)
+	rootNode.add_child(roadManager)
+	needsOwner.append(roadManager)
 	
 	var buildingsContainer = Node3D.new()
-	self.add_child(buildingsContainer)
+	rootNode.add_child(buildingsContainer)
+	buildingsContainer.name = "Buildings"
+	needsOwner.append(buildingsContainer)
 	
 	print("Creating structures")
 	assert(_data.features != null)
@@ -614,12 +540,13 @@ func _regenerate_data() -> void:
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
 			if _is_road(properties):
-				var success: bool = _build_road(f, roadManager)
-				roadsCount += 1
-				if success:
-					roadsCountSuccess += 1
+				pass
+				# var success: bool = _build_road(f, roadManager, needsOwner)
+				# roadsCount += 1
+				# if success:
+				# 	roadsCountSuccess += 1
 			elif _is_building(properties):
-				var success: bool = _build_building(f, buildingsContainer, buildsCount < 50)
+				var success: bool = _build_building(f, buildingsContainer, needsOwner)
 				buildsCount += 1
 				if success:
 					buildsCountSuccess += 1
@@ -631,4 +558,18 @@ func _regenerate_data() -> void:
 	
 	print("Nodes: ", self.get_child_count())
 	
+	print("Saving OSM data...")
+	var scene: Node3D = loader.proceduralDataHolder.instantiate()
+	
+	if (scene.has_node(ROOT_NODE_NAME)):
+		scene.get_node(ROOT_NODE_NAME).free()
+
+	scene.add_child(rootNode)
+	rootNode.owner = scene
+
+	for n in needsOwner:
+		n.owner = scene
+
+	loader.save_scene(scene)
+
 	print("Done, snapping excluded.")

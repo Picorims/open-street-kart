@@ -143,6 +143,7 @@ func _regenerate_mesh() -> void:
 	
 	var root: StaticBody3D = StaticBody3D.new()
 	root.name = ROOT_NODE_NAME
+	root.collision_layer += 2 # bit 1
 	scene.add_child(root)
 	root.owner = scene
 	
@@ -160,10 +161,8 @@ func _regenerate_mesh() -> void:
 	root.add_child(collisionNode)
 	collisionNode.owner = scene
 	var shape: Shape3D = displayNode.mesh.create_trimesh_shape()
-	#ResourceSaver.save(shape, "./surface_shape.tres", ResourceSaver.FLAG_RELATIVE_PATHS + ResourceSaver.FLAG_CHANGE_PATH)
-	#collisionNode.shape = ResourceLoader.load("./surface_shape.tres")
 	collisionNode.shape = shape
-	
+
 	loader.save_scene(scene)
 	print("done")
 
