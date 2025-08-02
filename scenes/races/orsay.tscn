@@ -27,3 +27,5 @@ longitudeOrigin = "48.66976838437996"
 elevationOrigin = "153.0"
 floorMaterial = ExtResource("4_nvff5")
 player = NodePath("../CarCustomPhysics2")
+
+[node name="OccluderInstance3D" type="OccluderInstance3D" parent="."]
