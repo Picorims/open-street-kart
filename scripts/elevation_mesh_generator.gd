@@ -164,13 +164,7 @@ func _regenerate_mesh() -> void:
 	#collisionNode.shape = ResourceLoader.load("./surface_shape.tres")
 	collisionNode.shape = shape
 	
-	var path = loader.proceduralDataHolder.resource_path
-	print("saving to " + path)
-	var editedPackedScene: PackedScene = PackedScene.new()
-	editedPackedScene.pack(scene)
-	var error = ResourceSaver.save(editedPackedScene, path)
-	if error != OK:
-		push_error("Failed to save changes to disk.")
+	loader.save_scene(scene)
 	print("done")
 
 ## Returns the interpolated generation based on nearest points known.

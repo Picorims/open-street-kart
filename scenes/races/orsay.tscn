@@ -31,3 +31,5 @@ player = NodePath("../CarCustomPhysics2")
 proceduralDataHolder = ExtResource("5_pn8re")
 
 [node name="ProceduralDataHolder" parent="." instance=ExtResource("5_pn8re")]
+
+[editable path="ProceduralDataHolder"]

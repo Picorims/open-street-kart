@@ -78,3 +78,13 @@ func _reload_boundaries_action():
 	print("=== reloading boundaries ===")
 	$BoundariesGenerator.reload_action()
 	print ("=== reloading boundaries done ===")
+
+func save_scene(scene: Node3D) -> void:
+	var path = proceduralDataHolder.resource_path
+	print("saving to " + path)
+	var editedPackedScene: PackedScene = PackedScene.new()
+	editedPackedScene.pack(scene)
+	var error = ResourceSaver.save(editedPackedScene, path)
+	if error != OK:
+		push_error("Failed to save changes to disk.")
+	print("done")

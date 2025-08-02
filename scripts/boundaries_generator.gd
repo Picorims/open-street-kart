@@ -9,10 +9,10 @@
 @tool
 class_name BoundariesGenerator extends Node3D
 
+const ROOT_NODE_NAME: String = "Boundaries"
+
 @export var loader: MapDataLoader
 
-
-var is_dirty: bool
 var _race2DPolygon: Array[Vector2] = []
 var _is_loaded: bool = false
 @export var is_loaded: bool:
@@ -20,7 +20,6 @@ var _is_loaded: bool = false
 
 func _ready() -> void:
 	assert(loader != null)
-	is_dirty = true
 
 ## For a given point in meters, says if it is in the race area.
 func is_point_within_race_area(p: Vector2) -> bool:
@@ -47,17 +46,10 @@ func _load_data() -> void:
 
 func reload_action() -> void:
 	_is_loaded = false
-	#is_dirty = true
 	_regenerate_data()
 	_is_loaded = true
 
-#func _process(delta):
-	#if is_dirty:
-		#is_dirty = false
-		#_regenerate_data()
-		#_is_loaded = true
-
-func _build_area(kind: String, coords: Array[Array]) -> bool:
+func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D, needsOwner: Array[Node3D]) -> bool:
 	print("boundary data:")
 	print(kind)
 	print(coords)
@@ -126,7 +118,13 @@ func _build_area(kind: String, coords: Array[Array]) -> bool:
 		area3D.remove_child(mesh)
 		mesh.queue_free()
 	area3D.name = kind.to_pascal_case()
-	self.add_child(area3D)
+	
+
+	
+	boundariesNode.add_child(area3D)
+	needsOwner.append(area3D)
+	needsOwner.append(collider)
+
 	return true
 
 func _regenerate_data() -> void:
@@ -141,6 +139,10 @@ func _regenerate_data() -> void:
 	assert(_data.has("features"))
 	var features: Array = _data.features
 	print("features: ", features.size())
+
+	var boundariesNode: Node3D = Node3D.new()
+	var needsOwner: Array[Node3D] = []
+	boundariesNode.name = ROOT_NODE_NAME
 	
 	var areasCount: int = 0
 	var areasCountSuccess: int = 0
@@ -153,7 +155,7 @@ func _regenerate_data() -> void:
 			if isTyped && hasCoords :
 				var coords: Array[Array]
 				coords.assign(f.geometry.coordinates[0])
-				var success: bool = _build_area(properties.osk_boundary_type, coords)
+				var success: bool = _build_area(properties.osk_boundary_type, coords, boundariesNode, needsOwner)
 				areasCount += 1
 				if success:
 					areasCountSuccess += 1
@@ -161,4 +163,17 @@ func _regenerate_data() -> void:
 	print("Created ", areasCountSuccess, " boundaries. Tried: ", areasCount)
 	print("Nodes: ", self.get_child_count())
 	
+	print("saving...")
+	var scene: Node3D = loader.proceduralDataHolder.instantiate()
+	
+	if (scene.has_node(ROOT_NODE_NAME)):
+		scene.get_node(ROOT_NODE_NAME).free()
+
+	scene.add_child(boundariesNode)
+	boundariesNode.owner = scene
+
+	for n in needsOwner:
+		n.owner = scene
+
+	loader.save_scene(scene)
 	print("Done.")
