@@ -103,7 +103,8 @@ func _regenerate_mesh() -> void:
 	# see https://www.youtube.com/watch?v=-5L0RK-9Wd4
 	var surfaceTool = SurfaceTool.new()
 	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
-	
+	var verticesArray: PackedVector3Array = PackedVector3Array()
+
 	var origin: Vector3 = _data[0]
 	print("origin: ", origin)
 	for lonIdx in range(_rows-1):
@@ -121,11 +122,18 @@ func _regenerate_mesh() -> void:
 			surfaceTool.add_vertex(bottomL)
 			surfaceTool.add_vertex(bottomR)
 			surfaceTool.add_vertex(topL)
-			
+			verticesArray.append(bottomL)
+			verticesArray.append(bottomR)
+			verticesArray.append(topL)
+
 			# second triangle
 			surfaceTool.add_vertex(topL)
 			surfaceTool.add_vertex(bottomR)
 			surfaceTool.add_vertex(topR)
+			verticesArray.append(topL)
+			verticesArray.append(bottomR)
+			verticesArray.append(topR)
+
 
 	# DEBUG TRIANGLE ===
 	# surfaceTool.add_vertex(Vector3(0, 0, 0))
@@ -136,6 +144,7 @@ func _regenerate_mesh() -> void:
 	print("triangles defined.")
 	print("calculate normals...")
 	surfaceTool.generate_normals()
+	surfaceTool.index()
 	print("commiting...")
 	self.mesh = surfaceTool.commit()
 	print("assigning material...")
@@ -145,6 +154,20 @@ func _regenerate_mesh() -> void:
 	print("assigning collision shape...")
 	if collisionShape:
 		collisionShape.shape = self.mesh.create_trimesh_shape()
+
+	print("assigning occluder...")
+	if loader.occluderInstance:
+		var occluderArray: ArrayOccluder3D = ArrayOccluder3D.new()
+		var meshImporter: ImporterMesh = ImporterMesh.new()
+		meshImporter.add_surface(Mesh.PrimitiveType.PRIMITIVE_TRIANGLES, surfaceTool.commit_to_arrays())
+		# see: Generate > LODs in https://docs.godotengine.org/en/stable/tutorials/assets_pipeline/importing_3d_scenes/import_configuration.html
+
+		# Quote: LODs > Normal Merge Angle: The minimum angle difference between two vertices required
+		# to preserve a geometry edge in mesh LOD generation. If running into visual issues
+		# with LOD generation, decreasing this value may help (at the cost of less efficient LOD generation).
+		meshImporter.generate_lods(0.1,0.1,[])
+		occluderArray.set_arrays(verticesArray, meshImporter.get_surface_lod_indices(0,0))
+		loader.occluderInstance.occluder = occluderArray
 	print("done")
 
 ## Returns the interpolated generation based on nearest points known.

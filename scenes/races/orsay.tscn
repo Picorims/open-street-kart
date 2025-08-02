@@ -18,7 +18,7 @@ shadow_enabled = true
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2582, 14.2925, 1719.74)
 speedMultiplier = 1.5
 
-[node name="MapDataLoader" parent="." node_paths=PackedStringArray("player") instance=ExtResource("3_iklud")]
+[node name="MapDataLoader" parent="." node_paths=PackedStringArray("player", "occluderInstance") instance=ExtResource("3_iklud")]
 topoDataPath = "res://maps/orsay/orsay_aster30m.tsv"
 osmDataPath = "res://maps/orsay/orsay_osm.geojson"
 boundariesDataPath = "res://maps/orsay/orsay_boundaries.geojson"
@@ -27,5 +27,6 @@ longitudeOrigin = "48.66976838437996"
 elevationOrigin = "153.0"
 floorMaterial = ExtResource("4_nvff5")
 player = NodePath("../CarCustomPhysics2")
+occluderInstance = NodePath("../OccluderInstance3D")
 
 [node name="OccluderInstance3D" type="OccluderInstance3D" parent="."]
