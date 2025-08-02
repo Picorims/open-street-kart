@@ -38,7 +38,7 @@ func _ready() -> void:
 		"tertiary",
 		"unclassified",
 		"residential",
-		"motrway_link",
+		"motorway_link",
 		"trunk_link",
 		"primary_link",
 		"secondary_link",
