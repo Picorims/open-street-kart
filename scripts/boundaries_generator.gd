@@ -47,13 +47,15 @@ func _load_data() -> void:
 
 func reload_action() -> void:
 	_is_loaded = false
-	is_dirty = true
+	#is_dirty = true
+	_regenerate_data()
+	_is_loaded = true
 
-func _process(delta):
-	if is_dirty:
-		is_dirty = false
-		_regenerate_data()
-		_is_loaded = true
+#func _process(delta):
+	#if is_dirty:
+		#is_dirty = false
+		#_regenerate_data()
+		#_is_loaded = true
 
 func _build_area(kind: String, coords: Array[Array]) -> bool:
 	print("boundary data:")

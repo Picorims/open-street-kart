@@ -7,37 +7,34 @@
 
 
 @tool
-class_name ElevationMeshGenerator extends MeshInstance3D
+class_name ElevationMeshGenerator extends Node3D
 
 @export var loader: MapDataLoader
-@export var collisionShape: CollisionShape3D
 @export var enableDebugPoints: bool = false
 
 var _material: Material
 const METERS_STEP: float = 30
 
-var is_dirty: bool
+const ROOT_NODE_NAME: String = "ElevationStaticBody"
+
 var _is_loaded: bool = false
 @export var is_loaded: bool:
 	get: return _is_loaded
 		
 		
 func _ready() -> void:
-	assert(loader != null)
-	is_dirty = true
+	assert(loader != null, "Loader not defined.")
 	_material = loader.floorMaterial
 
 func reload_action(mat: Material) -> void:
 	assert(!(mat == null), "MapDataLoader: Missing material for elevation surface.")
+	assert(loader.proceduralDataHolder != null, "No scene to save to specified.")
 	_material = mat
 	_is_loaded = false
-	is_dirty = true
+	_regenerate_mesh()
+	_is_loaded = true
 
 func _process(delta):
-	if is_dirty:
-		is_dirty = false
-		_regenerate_mesh()
-		_is_loaded = true
 	if (is_loaded && enableDebugPoints):
 		# draw debug points
 		for i in _data:
@@ -136,20 +133,49 @@ func _regenerate_mesh() -> void:
 	print("triangles defined.")
 	print("calculate normals...")
 	surfaceTool.generate_normals()
+	
 	print("commiting...")
-	self.mesh = surfaceTool.commit()
+	
+	var scene: Node3D = loader.proceduralDataHolder.instantiate()
+	
+	if (scene.has_node(ROOT_NODE_NAME)):
+		scene.get_node(ROOT_NODE_NAME).free()
+	
+	var root: StaticBody3D = StaticBody3D.new()
+	root.name = ROOT_NODE_NAME
+	scene.add_child(root)
+	root.owner = scene
+	
+	var displayNode: MeshInstance3D = MeshInstance3D.new()
+	root.add_child(displayNode)
+	displayNode.owner = scene
+	displayNode.mesh = surfaceTool.commit()
 	print("assigning material...")
-	var surfacesCount = mesh.get_surface_count()
+	var surfacesCount = displayNode.mesh.get_surface_count()
 	for i in surfacesCount:
-		self.set_surface_override_material(i, _material)
+		displayNode.set_surface_override_material(i, _material)
+	
 	print("assigning collision shape...")
-	if collisionShape:
-		collisionShape.shape = self.mesh.create_trimesh_shape()
+	var collisionNode: CollisionShape3D = CollisionShape3D.new()
+	root.add_child(collisionNode)
+	collisionNode.owner = scene
+	var shape: Shape3D = displayNode.mesh.create_trimesh_shape()
+	#ResourceSaver.save(shape, "./surface_shape.tres", ResourceSaver.FLAG_RELATIVE_PATHS + ResourceSaver.FLAG_CHANGE_PATH)
+	#collisionNode.shape = ResourceLoader.load("./surface_shape.tres")
+	collisionNode.shape = shape
+	
+	var path = loader.proceduralDataHolder.resource_path
+	print("saving to " + path)
+	var editedPackedScene: PackedScene = PackedScene.new()
+	editedPackedScene.pack(scene)
+	var error = ResourceSaver.save(editedPackedScene, path)
+	if error != OK:
+		push_error("Failed to save changes to disk.")
 	print("done")
 
 ## Returns the interpolated generation based on nearest points known.
-##
 ## WARNING: This is resource intensive!
+## @deprecated
 func get_elevation(posMetersFromOrigin: Vector2) -> float:
 	# see: https://www.youtube.com/watch?v=BFld4EBO2RE (Painting a Landscape with Mathematics by Inigo Quilez)
 	#var originMeters3D: Vector3 = loader.get_origin_meters()

@@ -23,6 +23,8 @@ class_name MapDataLoader extends Node3D
 @export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
 @export var floorMaterial: Material
 @export var player: Node3D
+## Used to persist data in the scene. Shall not be modified manually!
+@export var proceduralDataHolder: PackedScene
 
 var _origin: Vector3
 var _scaleTransform: Vector3

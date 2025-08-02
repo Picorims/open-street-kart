@@ -201,22 +201,25 @@ func reload_action() -> void:
 	elif !elevationGenerator.is_loaded:
 		print("Cannot continue, elevation not loaded.")
 	else:
-		isDirty = true
-
-var _lastLog: float = 0
-func _process(delta: float):
-	# need to wait for boundaries or no road will be kept!
-	if isDirty && boundariesGenerator.is_loaded && elevationGenerator.is_loaded:
-		isDirty = false
+		#isDirty = true
 		snapsLeftRoad = 0
 		snapsLeft = 0
 		_regenerate_data()
-	elif (snapsLeftRoad > 0 || snapsLeft > 0) && !Engine.is_editor_hint():
-		_lastLog += delta
-		if  _lastLog > 10:
-			print("snaps left for roads: ", snapsLeftRoad)
-			print("snaps left for other things: ", snapsLeft)
-			_lastLog = 0
+
+#var _lastLog: float = 0
+#func _process(delta: float):
+	## need to wait for boundaries or no road will be kept!
+	#if isDirty && boundariesGenerator.is_loaded && elevationGenerator.is_loaded:
+		#isDirty = false
+		#snapsLeftRoad = 0
+		#snapsLeft = 0
+		#_regenerate_data()
+	#elif (snapsLeftRoad > 0 || snapsLeft > 0) && !Engine.is_editor_hint():
+		#_lastLog += delta
+		#if  _lastLog > 10:
+			#print("snaps left for roads: ", snapsLeftRoad)
+			#print("snaps left for other things: ", snapsLeft)
+			#_lastLog = 0
 
 
 
