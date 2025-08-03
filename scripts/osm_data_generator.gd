@@ -21,7 +21,7 @@ const ROOT_NODE_NAME: String = "OSMData"
 var _roadKinds: Array[String]
 var _buildingKinds: Array[String]
 var _rootNode: Node3D
-var _defferedRaycasts: Array[SnapToGroundRayCast3D]
+var _deferredRaycasts: Array[SnapToGroundRayCast3D]
 var snapsLeftRoad: int = 0
 var snapsLeft: int = 0
 static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
@@ -215,10 +215,11 @@ func _physics_process(delta: float) -> void:
 			print("snaps left for roads: ", snapsLeftRoad)
 			print("snaps left for other things: ", snapsLeft)
 			_lastLog = 0
-		var raycast: SnapToGroundRayCast3D = _defferedRaycasts.back()
-		if (raycast != null):
-			raycast.force_raycast_update()
-			_defferedRaycasts.pop_back()
+		if (_deferredRaycasts.size() > 0):
+			var raycast: SnapToGroundRayCast3D = _deferredRaycasts.back()
+			if (raycast != null):
+				raycast.force_raycast_update()
+				_deferredRaycasts.pop_back()
 
 
 
@@ -279,7 +280,7 @@ func _setup_snapping_road(target: RoadPoint, roadContainer: RoadContainer):
 		#roadContainer.rebuild_segments()
 	)
 	#snapRayCast.force_raycast_update() # crashes Godot; road plugin interfering?
-	_defferedRaycasts.append(snapRayCast)
+	_deferredRaycasts.append(snapRayCast)
 	
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
 ## and move at the collision point the target. It then deletes itself.
