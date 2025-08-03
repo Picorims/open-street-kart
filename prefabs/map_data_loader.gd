@@ -48,6 +48,13 @@ func _ready() -> void:
 	#_scaleTransform = Vector3(latitudeScale, 1, longitudeScale)
 	print("world origin: ", _origin)
 
+#func _process(delta: float) -> void:
+	# for some reason the collision layer changes are not saved. So we force it here.
+	#if proceduralDataHolder:
+		#var node: StaticBody3D = self.get_parent_node_3d().get_node("ProceduralDataHolder/ElevationStaticBody")
+		#if node && node.get_collision_layer_value(2) == false:
+			#node.set_collision_layer_value(2, true) # also in osm_data_generator.gd
+
 func get_origin() -> Vector3:
 	return _origin
 	
@@ -62,17 +69,35 @@ func lat_alt_lon_to_world_global_pos(latAltLon: Vector3, verbose = false) -> Vec
 		print("doing (", latAltLon, " - ", _origin, ') * ', _scaleTransform)
 	return (latAltLon - _origin) * _scaleTransform
 
+func _get_root_of_current_scene(okCallback: Callable) -> void:
+	var rootNode: Node3D = get_tree().edited_scene_root.get_node("%ProceduralDataHolder")
+	if rootNode == null:
+		print("Missing %ProceduralDataHolder.")
+	else:
+		print("Using %ProceduralDataHolder of ", get_tree().edited_scene_root.name)
+		okCallback.call(rootNode)
+	
+
 func _reload_surface_action():
-	print("=== reloading surface elevation ===")
-	$Surface.reload_action(floorMaterial)
-	print ("=== reloading surface done ===")
+	_get_root_of_current_scene(func(rootNode: Node3D):
+		print("=== reloading surface elevation ===")
+		$Surface.reload_action(floorMaterial, rootNode)
+		print ("=== reloading surface done (DO NOT FORGET TO SAVE!!!) ===")
+	)
 
 func _reload_osm_action():
-	print("=== reloading roads ===")
-	$OSMDataGenerator.reload_action()
-	print ("=== reloading roads done ===")
-	
+	_get_root_of_current_scene(func(rootNode: Node3D):
+		print("=== reloading roads ===")
+		$OSMDataGenerator.reload_action(rootNode)
+		print ("=== reloading roads done (DO NOT FORGET TO SAVE!!!) ===")
+	)
+
 func _reload_boundaries_action():
-	print("=== reloading boundaries ===")
-	$BoundariesGenerator.reload_action()
-	print ("=== reloading boundaries done ===")
+	_get_root_of_current_scene(func(rootNode: Node3D):
+		print("=== reloading boundaries ===")
+		$BoundariesGenerator.reload_action(rootNode)
+		print ("=== reloading boundaries done (DO NOT FORGET TO SAVE!!!) ===")
+	)
+
+func persist_in_current_scene(node: Node3D) -> void:
+	node.owner = get_tree().edited_scene_root

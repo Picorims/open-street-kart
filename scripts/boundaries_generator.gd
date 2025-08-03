@@ -9,10 +9,10 @@
 @tool
 class_name BoundariesGenerator extends Node3D
 
+const ROOT_NODE_NAME: String = "Boundaries"
+
 @export var loader: MapDataLoader
 
-
-var is_dirty: bool
 var _race2DPolygon: Array[Vector2] = []
 var _is_loaded: bool = false
 @export var is_loaded: bool:
@@ -20,7 +20,6 @@ var _is_loaded: bool = false
 
 func _ready() -> void:
 	assert(loader != null)
-	is_dirty = true
 
 ## For a given point in meters, says if it is in the race area.
 func is_point_within_race_area(p: Vector2) -> bool:
@@ -45,17 +44,12 @@ func _load_data() -> void:
 
 
 
-func reload_action() -> void:
+func reload_action(dataHolder: Node3D) -> void:
 	_is_loaded = false
-	is_dirty = true
+	_regenerate_data(dataHolder)
+	_is_loaded = true
 
-func _process(delta):
-	if is_dirty:
-		is_dirty = false
-		_regenerate_data()
-		_is_loaded = true
-
-func _build_area(kind: String, coords: Array[Array]) -> bool:
+func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D) -> bool:
 	print("boundary data:")
 	print(kind)
 	print(coords)
@@ -124,14 +118,16 @@ func _build_area(kind: String, coords: Array[Array]) -> bool:
 		area3D.remove_child(mesh)
 		mesh.queue_free()
 	area3D.name = kind.to_pascal_case()
-	self.add_child(area3D)
+	
+
+	
+	boundariesNode.add_child(area3D)
+	loader.persist_in_current_scene(area3D)
+	loader.persist_in_current_scene(collider)
+
 	return true
 
-func _regenerate_data() -> void:
-	print("Boundaries data generation started. Removing existing data...")
-	for n in self.get_children():
-		self.remove_child(n)
-		n.queue_free()
+func _regenerate_data(dataHolder: Node3D) -> void:
 	print("Loading Boundaries data for road generation...")
 	_load_data()
 	
@@ -139,7 +135,15 @@ func _regenerate_data() -> void:
 	assert(_data.has("features"))
 	var features: Array = _data.features
 	print("features: ", features.size())
+
+	var boundariesNode: Node3D = Node3D.new()
+	boundariesNode.name = ROOT_NODE_NAME
 	
+	if (dataHolder.has_node(ROOT_NODE_NAME)):
+		dataHolder.get_node(ROOT_NODE_NAME).free()
+
+	dataHolder.add_child(boundariesNode)
+	loader.persist_in_current_scene(boundariesNode)
 	var areasCount: int = 0
 	var areasCountSuccess: int = 0
 	for f: Dictionary in features:
@@ -151,12 +155,12 @@ func _regenerate_data() -> void:
 			if isTyped && hasCoords :
 				var coords: Array[Array]
 				coords.assign(f.geometry.coordinates[0])
-				var success: bool = _build_area(properties.osk_boundary_type, coords)
+				var success: bool = _build_area(properties.osk_boundary_type, coords, boundariesNode)
 				areasCount += 1
 				if success:
 					areasCountSuccess += 1
 	
 	print("Created ", areasCountSuccess, " boundaries. Tried: ", areasCount)
-	print("Nodes: ", self.get_child_count())
+	print("Nodes: ", boundariesNode.get_child_count())
 	
 	print("Done.")

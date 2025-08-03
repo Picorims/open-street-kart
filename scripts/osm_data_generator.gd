@@ -10,6 +10,7 @@
 extends Node3D
 
 const BuildingHolder = preload("res://prefabs/building_holder.gd")
+const ROOT_NODE_NAME: String = "OSMData"
 
 @export var loader: MapDataLoader
 @export var boundariesGenerator: BoundariesGenerator
@@ -17,9 +18,10 @@ const BuildingHolder = preload("res://prefabs/building_holder.gd")
 @export var roadMaterial: Material
 @export var buildingMaterial: Material
 
-var isDirty: bool
 var _roadKinds: Array[String]
 var _buildingKinds: Array[String]
+var _rootNode: Node3D
+var _deferredRaycasts: Array[SnapToGroundRayCast3D]
 var snapsLeftRoad: int = 0
 var snapsLeft: int = 0
 static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
@@ -38,7 +40,7 @@ func _ready() -> void:
 		"tertiary",
 		"unclassified",
 		"residential",
-		"motrway_link",
+		"motorway_link",
 		"trunk_link",
 		"primary_link",
 		"secondary_link",
@@ -177,8 +179,6 @@ func _ready() -> void:
 		"triumphal_arch",
 		"windmill",
 	]
-	
-	isDirty = true
 
 var _data
 
@@ -195,28 +195,31 @@ func _load_data() -> void:
 
 
 
-func reload_action() -> void:
+func reload_action(dataHolder: Node3D) -> void:
 	if !boundariesGenerator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
 	elif !elevationGenerator.is_loaded:
 		print("Cannot continue, elevation not loaded.")
 	else:
-		isDirty = true
-
-var _lastLog: float = 0
-func _process(delta: float):
-	# need to wait for boundaries or no road will be kept!
-	if isDirty && boundariesGenerator.is_loaded && elevationGenerator.is_loaded:
-		isDirty = false
 		snapsLeftRoad = 0
 		snapsLeft = 0
-		_regenerate_data()
-	elif (snapsLeftRoad > 0 || snapsLeft > 0) && !Engine.is_editor_hint():
+		
+		_regenerate_data(dataHolder)
+
+var _lastLog: float = 0
+func _physics_process(delta: float) -> void:
+	# need to wait for boundaries or no road will be kept!
+	if (snapsLeftRoad > 0 || snapsLeft > 0):# && !Engine.is_editor_hint():
 		_lastLog += delta
 		if  _lastLog > 10:
 			print("snaps left for roads: ", snapsLeftRoad)
 			print("snaps left for other things: ", snapsLeft)
 			_lastLog = 0
+		if (_deferredRaycasts.size() > 0):
+			var raycast: SnapToGroundRayCast3D = _deferredRaycasts.back()
+			if (raycast != null):
+				raycast.force_raycast_update()
+				_deferredRaycasts.pop_back()
 
 
 
@@ -264,30 +267,34 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 ## The collision layers must match.
 ##
 ## This variant is designed to account for road processing requirements
-func _setup_snapping_road(target: RoadPoint):
+func _setup_snapping_road(target: RoadPoint, roadContainer: RoadContainer):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
-	snapRayCast.offset = 0.4
+	snapRayCast.offset = -0.4
 	target.add_child(snapRayCast)
+	loader.persist_in_current_scene(snapRayCast)
 	snapRayCast.target = target
 	snapsLeftRoad += 1
-	snapRayCast.snapped_target.connect(func():
+	snapRayCast.snapped_target.connect(func(): # not kept on scene save / reload
+		#print("snapped!")
 		snapsLeftRoad -= 1
+		#roadContainer.rebuild_segments()
 	)
-	snapRayCast.force_raycast_update()
+	#snapRayCast.force_raycast_update() # crashes Godot; road plugin interfering?
+	_deferredRaycasts.append(snapRayCast)
 	
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
 ## and move at the collision point the target. It then deletes itself.
 ## The collision layers must match.
-func _setup_snapping(target: Node3D, at: Vector3, alignToNormal: bool = false, offset: float = 0.4):
+func _setup_snapping(target: Node3D, alignToNormal: bool = false, offset: float = 0.4):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = offset
 	snapRayCast.alignToNormal = alignToNormal
 	target.add_child(snapRayCast)
+	loader.persist_in_current_scene(snapRayCast)
 	snapRayCast.target = target
-	snapRayCast.global_position = at
 	snapRayCast.rotation -= target.rotation # ignore rotation
 	snapsLeft += 1
-	snapRayCast.snapped_target.connect(func():
+	snapRayCast.snapped_target.connect(func(): # not kept on scene save / reload
 		snapsLeft -= 1
 	)
 	snapRayCast.force_raycast_update()
@@ -336,6 +343,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	# see: https://github.com/TheDuckCow/godot-road-generator/wiki/Class:-RoadPoint
 	var roadContainer = RoadContainer.new()
 	roadManager.add_child(roadContainer)
+	loader.persist_in_current_scene(roadContainer)
 	
 	var initPoint = RoadPoint.new()
 	initPoint.lane_width = 3
@@ -351,7 +359,8 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	initPoint.transform = _rotated_point(initPoint.transform, toMirrored, metersCoords[0], metersCoords[1])
 	
 	roadContainer.add_child(initPoint)
-	_setup_snapping_road(initPoint)
+	loader.persist_in_current_scene(initPoint)
+	_setup_snapping_road(initPoint, roadContainer)
 	
 	var previousRP = initPoint
 	for i in range(1, metersCoords.size()):
@@ -359,9 +368,10 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 		var prev = metersCoords[i-1]
 		var curr = metersCoords[i]
 		roadContainer.add_child(nextRP)
-		nextRP.copy_settings_from(initPoint)
+		loader.persist_in_current_scene(nextRP)
+		nextRP.copy_settings_from(initPoint) # issue here to copy transform
 		nextRP.position = curr
-		_setup_snapping_road(nextRP)
+		_setup_snapping_road(nextRP, roadContainer)
 		if (i == metersCoords.size() - 1):
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
@@ -376,57 +386,12 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 		
 		var thisDir = RoadPoint.PointInit.PRIOR
 		var targetDir = RoadPoint.PointInit.NEXT
+		previousRP.container = roadContainer
+		nextRP.container = roadContainer
 		nextRP.connect_roadpoint(thisDir, previousRP, targetDir)
 		previousRP = nextRP
 		
 	return true
-	
-	#var path3D: Path3D = Path3D.new()
-		#
-	#if verbose:
-		#print(coordinates)
-		#
-	#var root: Vector3 = Vector3(coordinates[0][0], 170, coordinates[0][1])
-	#root = loader.lat_alt_lon_to_world_global_pos(root, verbose)
-	#
-	#if verbose:
-		#print("root is: ", root)
-		#
-	#var curve3D: Curve3D = Curve3D.new()
-	## x is lat, z is lon
-	#for p: Array in coordinates:
-		#if p.size() == 2:
-			#var absPos: Vector3 = Vector3(p[0], 170, p[1])
-			#if verbose:
-				#print("next pos is made of latitude, elevation, longitude: ", absPos)
-			#absPos = loader.lat_alt_lon_to_world_global_pos(absPos, verbose)
-			## curve3D.add_point(absPos - root)
-			#curve3D.add_point(absPos)
-			#if verbose:
-				#print("added pos (abs, rel): ", absPos, " ", absPos - root)
-	#path3D.curve = curve3D
-	#
-	#var roadCSG: CSGPolygon3D = CSGPolygon3D.new()
-	##roadCSG.material = roadMaterial
-	#self.add_child(roadCSG)
-	#roadCSG.add_child(path3D)
-	#path3D.global_position = root
-	#roadCSG.mode = CSGPolygon3D.MODE_PATH
-	#roadCSG.depth = 1
-	#roadCSG.polygon = PackedVector2Array([0,0,0,1,1,1,1,0])
-	#roadCSG.path_local = true
-	#roadCSG.path_node = ^"Path3D" # parent
-	#
-	#var meshNode: MeshInstance3D = MeshInstance3D.new()
-	#self.add_child(meshNode)
-	#meshNode.mesh = roadCSG.bake_static_mesh()
-	#var surfacesCount = meshNode.mesh.get_surface_count()
-	#for i in surfacesCount:
-		#meshNode.set_surface_override_material(i, roadMaterial)
-	## DebugDraw3D.draw_line_path(curve3D.get_baked_points(), Color(1,0,0,1), 500)
-	## DebugDraw3D.draw_position(path3D.transform, Color(0,1,0,1), 500)
-	## DebugDraw3D.draw_point_path(curve3D.get_baked_points(), DebugDraw3D.POINT_TYPE_SQUARE, 0.25, Color(1,0,0,1), Color(0,0,1,1), 500)
-	#return true
 
 func _xz(v: Vector3) -> Vector2:
 	return Vector2(v[0], v[2])
@@ -480,7 +445,7 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	var inGroundHeight: float = 5
 	var aboveGroundHeight: float = 10
 	const MAX_VALUE: float = 1000000
-	var origin: Vector3 = Vector3(MAX_VALUE, INIT_HEIGHT, MAX_VALUE)
+	var origin: Vector3 = Vector3(MAX_VALUE, 0, MAX_VALUE)
 	# find smallest x and z to define the origin (the corner of the building bounding box)
 	for c in metersCoords:
 		origin.x = min(origin.x, c.x)
@@ -489,6 +454,7 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	# translate all points to origin
 	for i in range(metersCoords.size()):
 		metersCoords[i] -= origin
+		metersCoords[i].y = 0 # disable offset
 
 	# build mesh
 	var surfaceTool = SurfaceTool.new()
@@ -530,71 +496,43 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	meshCollisionNode.shape = mesh.create_trimesh_shape()
 
 	var staticBody: StaticBody3D = StaticBody3D.new()
-	staticBody.add_child(meshNode)
-	staticBody.add_child(meshCollisionNode)
-	staticBody.global_position = origin
-
-	# var holder: BuildingHolder = BuildingHolder.new()
-	# holder.collider = meshCollisionNode
-	# holder.player = loader.player
-	
-	# buildingsContainer.add_child(holder)
 	buildingsContainer.add_child(staticBody)
-	_setup_snapping(staticBody, origin, false, float(loader.elevationOrigin) - inGroundHeight)
-	
-	
+	loader.persist_in_current_scene(staticBody)
+	staticBody.add_child(meshNode)
+	loader.persist_in_current_scene(meshNode)
+	staticBody.add_child(meshCollisionNode)
+	loader.persist_in_current_scene(meshCollisionNode)
+	staticBody.position = origin + Vector3(0, INIT_HEIGHT, 0)
 
-	# =====
-	# var csgPoly = CSGPolygon3D.new()
-	# csgPoly.transform.basis = csgPoly.transform.basis.rotated(Vector3.LEFT, -PI/2).orthonormalized()
-	# csgPoly.position += Vector3(0,1000,0) # far up to then snap to ground
-	# csgPoly.use_collision = true
-	# csgPoly.polygon = _array_xz(metersCoords)
-	# csgPoly.depth = 15
-	# #csgPoly.visibility_range_end = 5000
-	# csgPoly.material = buildingMaterial
+	_setup_snapping(staticBody, false, inGroundHeight)
 
-	# var meshRenderingNode: MeshInstance3D = MeshInstance3D.new()
-	# meshRenderingNode.mesh = csgPoly.bake_static_mesh()
-	
-
-	# var staticBody: StaticBody3D = StaticBody3D.new()
-	# staticBody.add_child(meshRenderingNode)
-	# var meshCollisionNode: CollisionShape3D = CollisionShape3D.new()
-	# meshCollisionNode.shape = csgPoly.bake_collision_shape()
-	# staticBody.add_child(meshCollisionNode)
-	# staticBody.global_position = csgPoly.global_position
-	# staticBody.global_rotation = csgPoly.global_rotation
-
-	# buildingsContainer.add_child(staticBody)
-	# csgPoly.queue_free()
-	
-	## buildingsContainer.add_child(csgPoly)
-
-	## _setup_snapping(csgPoly, metersCoords[0]) #, -5) # FIXME chaos if negative offset
-	# =====
-
-	
-	
 	return true
 
-func _regenerate_data() -> void:
-	print("OSM data generation started. Removing existing data...")
-	for n in self.get_children():
-		self.remove_child(n)
-		n.queue_free()
+func _regenerate_data(dataHolder: Node3D) -> void:
 	print("Loading OSM data for road generation...")
 	_load_data()
+
+	_rootNode = Node3D.new()
+	_rootNode.name = ROOT_NODE_NAME
 	
+	if (dataHolder.has_node(ROOT_NODE_NAME)):
+		dataHolder.get_node(ROOT_NODE_NAME).free()
+	
+	dataHolder.add_child(_rootNode)
+	loader.persist_in_current_scene(_rootNode)
+		
 	print("Setup road generator...")
 	var roadManager = RoadManager.new()
 	roadManager.auto_refresh = false
 	roadManager.material_resource = roadMaterial
 	roadManager.density = 8
-	self.add_child(roadManager)
+	_rootNode.add_child(roadManager)
+	loader.persist_in_current_scene(roadManager)
 	
 	var buildingsContainer = Node3D.new()
-	self.add_child(buildingsContainer)
+	_rootNode.add_child(buildingsContainer)
+	buildingsContainer.name = "Buildings"
+	loader.persist_in_current_scene(buildingsContainer)
 	
 	print("Creating structures")
 	assert(_data.features != null)
@@ -616,7 +554,7 @@ func _regenerate_data() -> void:
 				if success:
 					roadsCountSuccess += 1
 			elif _is_building(properties):
-				var success: bool = _build_building(f, buildingsContainer, buildsCount < 50)
+				var success: bool = _build_building(f, buildingsContainer)
 				buildsCount += 1
 				if success:
 					buildsCountSuccess += 1
@@ -626,6 +564,6 @@ func _regenerate_data() -> void:
 	print("Created ", roadsCountSuccess, " roads. Tried: ", roadsCount)
 	print("Created ", buildsCountSuccess, " buildings. Tried: ", buildsCount)
 	
-	print("Nodes: ", self.get_child_count())
-	
+	print("Nodes: ", _rootNode.get_child_count())
+
 	print("Done, snapping excluded.")
