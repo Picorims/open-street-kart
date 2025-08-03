@@ -26,12 +26,11 @@ func _ready() -> void:
 	assert(loader != null, "Loader not defined.")
 	_material = loader.floorMaterial
 
-func reload_action(mat: Material) -> void:
+func reload_action(mat: Material, dataHolder: Node3D) -> void:
 	assert(!(mat == null), "MapDataLoader: Missing material for elevation surface.")
-	assert(loader.proceduralDataHolder != null, "No scene to save to specified.")
 	_material = mat
 	_is_loaded = false
-	_regenerate_mesh()
+	_regenerate_mesh(dataHolder)
 	_is_loaded = true
 
 func _process(delta):
@@ -89,7 +88,7 @@ func _load_data() -> void:
 		oldLat = float(lat)
 	file.close()
 
-func _regenerate_mesh() -> void:
+func _regenerate_mesh(dataHolder: Node3D) -> void:
 	print("Loading elevation data...")
 	_load_data()
 	
@@ -136,10 +135,9 @@ func _regenerate_mesh() -> void:
 	
 	print("commiting...")
 	
-	var scene: Node3D = loader.proceduralDataHolder.instantiate()
 	
-	if (scene.has_node(ROOT_NODE_NAME)):
-		scene.get_node(ROOT_NODE_NAME).free()
+	if (dataHolder.has_node(ROOT_NODE_NAME)):
+		dataHolder.get_node(ROOT_NODE_NAME).free()
 	
 	var root: StaticBody3D = StaticBody3D.new()
 	root.name = ROOT_NODE_NAME
@@ -147,12 +145,12 @@ func _regenerate_mesh() -> void:
 	# layer above not saved for some reason, dirty fix
 	# in _process() of map_data_loader.gd
 	print(root.collision_layer)
-	scene.add_child(root)
-	root.owner = scene
+	dataHolder.add_child(root)
+	loader.persist_in_current_scene(root)
 	
 	var displayNode: MeshInstance3D = MeshInstance3D.new()
 	root.add_child(displayNode)
-	displayNode.owner = scene
+	loader.persist_in_current_scene(displayNode)
 	displayNode.mesh = surfaceTool.commit()
 	print("assigning material...")
 	var surfacesCount = displayNode.mesh.get_surface_count()
@@ -162,11 +160,10 @@ func _regenerate_mesh() -> void:
 	print("assigning collision shape...")
 	var collisionNode: CollisionShape3D = CollisionShape3D.new()
 	root.add_child(collisionNode)
-	collisionNode.owner = scene
+	loader.persist_in_current_scene(collisionNode)
 	var shape: Shape3D = displayNode.mesh.create_trimesh_shape()
 	collisionNode.shape = shape
 
-	loader.save_scene(scene)
 	print("done")
 
 ## Returns the interpolated generation based on nearest points known.

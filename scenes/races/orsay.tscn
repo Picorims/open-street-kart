@@ -1,12 +1,11 @@
-[gd_scene load_steps=6 format=3 uid="uid://snxec2n3dvd1"]
+[gd_scene load_steps=5 format=3 uid="uid://snxec2n3dvd1"]
 
 [ext_resource type="Environment" uid="uid://dyj70eprydpku" path="res://materials/world_environment.tres" id="1_jcgum"]
 [ext_resource type="PackedScene" uid="uid://c1j3m2tjlgh8y" path="res://prefabs/car_custom_physics_2.tscn" id="2_nvff5"]
 [ext_resource type="PackedScene" uid="uid://b4tvjt47re5eq" path="res://prefabs/map_data_loader.tscn" id="3_iklud"]
 [ext_resource type="Material" uid="uid://bkxkj3ary5fe6" path="res://materials/ground.tres" id="4_nvff5"]
-[ext_resource type="PackedScene" uid="uid://bdbxjgougy8vi" path="res://scenes/races/orsay_procedural_data.tscn" id="5_pn8re"]
 
-[node name="Node3D" type="Node3D"]
+[node name="Orsay" type="Node3D"]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="."]
 environment = ExtResource("1_jcgum")
@@ -28,6 +27,6 @@ longitudeOrigin = "48.66976838437996"
 elevationOrigin = "153.0"
 floorMaterial = ExtResource("4_nvff5")
 player = NodePath("../CarCustomPhysics2")
-proceduralDataHolder = ExtResource("5_pn8re")
 
-[node name="ProceduralDataHolder" parent="." instance=ExtResource("5_pn8re")]
+[node name="ProceduralDataHolder" type="Node3D" parent="."]
+unique_name_in_owner = true
