@@ -55,7 +55,7 @@ func _process(delta: float) -> void:
 	if proceduralDataHolder:
 		var node: StaticBody3D = self.get_parent_node_3d().get_node("ProceduralDataHolder/ElevationStaticBody")
 		if node && node.get_collision_layer_value(2) == false:
-			node.set_collision_layer_value(2, true)
+			node.set_collision_layer_value(2, true) # also in osm_data_generator.gd
 
 func get_origin() -> Vector3:
 	return _origin

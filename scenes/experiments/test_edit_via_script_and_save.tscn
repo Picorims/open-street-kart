@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://ctfpcpakaw37r"]
+
+[ext_resource type="Script" uid="uid://3h57lrbye7h8" path="res://scenes/experiments/test_edit_via_script_and_save.gd" id="1_optr8"]
+
+[node name="Node3D" type="Node3D"]
+script = ExtResource("1_optr8")
+
+[node name="@Node3D@548486" type="Node3D" parent="."]

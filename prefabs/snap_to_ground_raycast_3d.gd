@@ -20,7 +20,17 @@ signal snapped_target
 
 var _initialized = false
 
-var _ellapsed: float = 0
+# === not loaded reliably (only on scene reload, not after instanciation, this is problematic)
+#var _ellapsed: float = 0
+#func _process(delta: float) -> void:
+	#_ellapsed += delta
+	#print("le crash")
+	#if (_ellapsed > 1):
+		#_ellapsed = 0
+		## force snapping in editor
+		#print("blam")
+		#force_raycast_update()
+
 func _physics_process(delta: float) -> void:
 	if (target == null):
 		return
@@ -48,9 +58,3 @@ func _physics_process(delta: float) -> void:
 		self.debug_shape_custom_color = Color(1,0,1, 0.3)
 		# print("pas boom")
 		#if (Engine.is_editor_hint()): DebugDraw3D.draw_line(self.global_position, self.global_position + self.target_position, Color(1,0,1,1))
-	
-	_ellapsed += delta
-	if (_ellapsed > 1):
-		_ellapsed = 0
-		# force snapping in editor
-		force_raycast_update()
