@@ -269,7 +269,7 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 ## This variant is designed to account for road processing requirements
 func _setup_snapping_road(target: RoadPoint, roadContainer: RoadContainer):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
-	snapRayCast.offset = -1
+	snapRayCast.offset = -0.4
 	target.add_child(snapRayCast)
 	loader.persist_in_current_scene(snapRayCast)
 	snapRayCast.target = target
