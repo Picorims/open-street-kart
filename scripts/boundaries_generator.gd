@@ -161,6 +161,6 @@ func _regenerate_data(dataHolder: Node3D) -> void:
 					areasCountSuccess += 1
 	
 	print("Created ", areasCountSuccess, " boundaries. Tried: ", areasCount)
-	print("Nodes: ", self.get_child_count())
+	print("Nodes: ", boundariesNode.get_child_count())
 	
 	print("Done.")

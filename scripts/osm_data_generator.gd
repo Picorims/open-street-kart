@@ -20,11 +20,8 @@ const ROOT_NODE_NAME: String = "OSMData"
 
 var _roadKinds: Array[String]
 var _buildingKinds: Array[String]
-var _savePending: bool = false
 var _rootNode: Node3D
-var _needsOwner: Array[Node3D]
-var _scene: Node3D
-var _pendingRaycasts: Array[SnapToGroundRayCast3D]
+var _defferedRaycasts: Array[SnapToGroundRayCast3D]
 var snapsLeftRoad: int = 0
 var snapsLeft: int = 0
 static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
@@ -198,7 +195,7 @@ func _load_data() -> void:
 
 
 
-func reload_action() -> void:
+func reload_action(dataHolder: Node3D) -> void:
 	if !boundariesGenerator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
 	elif !elevationGenerator.is_loaded:
@@ -207,13 +204,7 @@ func reload_action() -> void:
 		snapsLeftRoad = 0
 		snapsLeft = 0
 		
-		print("Setup saving data...")
-		_scene = loader.proceduralDataHolder.instantiate()
-		
-		if (_scene.has_node(ROOT_NODE_NAME)):
-			_scene.get_node(ROOT_NODE_NAME).free()
-		
-		_regenerate_data()
+		_regenerate_data(dataHolder)
 
 var _lastLog: float = 0
 func _physics_process(delta: float) -> void:
@@ -224,22 +215,10 @@ func _physics_process(delta: float) -> void:
 			print("snaps left for roads: ", snapsLeftRoad)
 			print("snaps left for other things: ", snapsLeft)
 			_lastLog = 0
-	if (_savePending && snapsLeftRoad == 0 && snapsLeft == 0):
-		_savePending = false
-		print("Saving OSM data...")
-
-		for n in _needsOwner:
-			n.owner = _scene
-
-		loader.save_scene(_scene)
-		print("OSM data saved.")
-	else:
-		if _scene != null:
-			var node: StaticBody3D = _scene.get_node("ElevationStaticBody")
-			if node != null && node.get_collision_layer_value(2) == false:
-				node.set_collision_layer_value(2, true) # also in map_data_loader.gd
-		#for r in _pendingRaycasts:
-			# r.force_raycgeast_update()
+		var raycast: SnapToGroundRayCast3D = _defferedRaycasts.back()
+		if (raycast != null):
+			raycast.force_raycast_update()
+			_defferedRaycasts.pop_back()
 
 
 
@@ -287,38 +266,37 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 ## The collision layers must match.
 ##
 ## This variant is designed to account for road processing requirements
-func _setup_snapping_road(target: RoadPoint, needsOwner: Array[Node3D], roadContainer: RoadContainer):
+func _setup_snapping_road(target: RoadPoint, roadContainer: RoadContainer):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = -1
 	target.add_child(snapRayCast)
-	_pendingRaycasts.append(snapRayCast)
+	loader.persist_in_current_scene(snapRayCast)
 	snapRayCast.target = target
 	snapsLeftRoad += 1
 	snapRayCast.snapped_target.connect(func(): # not kept on scene save / reload
-		print("snapped!")
+		#print("snapped!")
 		snapsLeftRoad -= 1
-		roadContainer.rebuild_segments()
+		#roadContainer.rebuild_segments()
 	)
-	#snapRayCast.force_raycast_update()
-	needsOwner.append(snapRayCast)
+	#snapRayCast.force_raycast_update() # crashes Godot; road plugin interfering?
+	_defferedRaycasts.append(snapRayCast)
 	
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
 ## and move at the collision point the target. It then deletes itself.
 ## The collision layers must match.
-func _setup_snapping(target: Node3D, needsOwner: Array[Node3D], alignToNormal: bool = false, offset: float = 0.4):
+func _setup_snapping(target: Node3D, alignToNormal: bool = false, offset: float = 0.4):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = offset
 	snapRayCast.alignToNormal = alignToNormal
 	target.add_child(snapRayCast)
-	_pendingRaycasts.append(snapRayCast)
+	loader.persist_in_current_scene(snapRayCast)
 	snapRayCast.target = target
 	snapRayCast.rotation -= target.rotation # ignore rotation
 	snapsLeft += 1
 	snapRayCast.snapped_target.connect(func(): # not kept on scene save / reload
 		snapsLeft -= 1
 	)
-	#snapRayCast.force_raycast_update()
-	needsOwner.append(snapRayCast)
+	snapRayCast.force_raycast_update()
 
 ## inserts at the end of the array interpolated values between from and to
 ## so that the length between each of them is below max length between points (constant)
@@ -333,7 +311,7 @@ func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector
 	for i in range (0, pointsToAdd):
 		array.append(lerp(from, to, (i+1)*stepRatio))
 
-func _build_road(feature: Dictionary, roadManager: RoadManager, needsOwner: Array[Node3D]) -> bool:
+func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	if (!feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
 	if (!geometry.has("coordinates")): return false
@@ -364,7 +342,7 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, needsOwner: Arra
 	# see: https://github.com/TheDuckCow/godot-road-generator/wiki/Class:-RoadPoint
 	var roadContainer = RoadContainer.new()
 	roadManager.add_child(roadContainer)
-	needsOwner.append(roadContainer)
+	loader.persist_in_current_scene(roadContainer)
 	
 	var initPoint = RoadPoint.new()
 	initPoint.lane_width = 3
@@ -380,8 +358,8 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, needsOwner: Arra
 	initPoint.transform = _rotated_point(initPoint.transform, toMirrored, metersCoords[0], metersCoords[1])
 	
 	roadContainer.add_child(initPoint)
-	needsOwner.append(initPoint)
-	_setup_snapping_road(initPoint, needsOwner, roadContainer)
+	loader.persist_in_current_scene(initPoint)
+	_setup_snapping_road(initPoint, roadContainer)
 	
 	var previousRP = initPoint
 	for i in range(1, metersCoords.size()):
@@ -389,10 +367,10 @@ func _build_road(feature: Dictionary, roadManager: RoadManager, needsOwner: Arra
 		var prev = metersCoords[i-1]
 		var curr = metersCoords[i]
 		roadContainer.add_child(nextRP)
-		needsOwner.append(nextRP)
-		nextRP.copy_settings_from(initPoint, false) # issue here to copy transform
+		loader.persist_in_current_scene(nextRP)
+		nextRP.copy_settings_from(initPoint) # issue here to copy transform
 		nextRP.position = curr
-		_setup_snapping_road(nextRP, needsOwner, roadContainer)
+		_setup_snapping_road(nextRP, roadContainer)
 		if (i == metersCoords.size() - 1):
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
@@ -423,7 +401,7 @@ func _array_xz(a: Array[Vector3]) -> Array[Vector2]:
 		arr.append(_xz(v))
 	return arr
 
-func _build_building(feature: Dictionary, buildingsContainer: Node3D, needsOwner: Array[Node3D], verbose: bool = false) -> bool:
+func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: bool = false) -> bool:
 	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
 	if (verbose): print("_build_building: inspecting building data...")
 	
@@ -517,46 +495,43 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, needsOwner
 	meshCollisionNode.shape = mesh.create_trimesh_shape()
 
 	var staticBody: StaticBody3D = StaticBody3D.new()
-	needsOwner.append(staticBody)
+	buildingsContainer.add_child(staticBody)
+	loader.persist_in_current_scene(staticBody)
 	staticBody.add_child(meshNode)
-	needsOwner.append(meshNode)
+	loader.persist_in_current_scene(meshNode)
 	staticBody.add_child(meshCollisionNode)
-	needsOwner.append(meshCollisionNode)
+	loader.persist_in_current_scene(meshCollisionNode)
 	staticBody.position = origin + Vector3(0, INIT_HEIGHT, 0)
 
-	buildingsContainer.add_child(staticBody)
-	_setup_snapping(staticBody, needsOwner, false, inGroundHeight)
+	_setup_snapping(staticBody, false, inGroundHeight)
 
 	return true
 
-func _regenerate_data() -> void:
-	print("OSM data generation started. Removing existing data...")
-	for n in self.get_children():
-		self.remove_child(n)
-		n.queue_free()
+func _regenerate_data(dataHolder: Node3D) -> void:
 	print("Loading OSM data for road generation...")
 	_load_data()
 
 	_rootNode = Node3D.new()
-	_needsOwner = []
 	_rootNode.name = ROOT_NODE_NAME
-	_scene.add_child(_rootNode)
-	_rootNode.owner = _scene
 	
-	_pendingRaycasts = []
+	if (dataHolder.has_node(ROOT_NODE_NAME)):
+		dataHolder.get_node(ROOT_NODE_NAME).free()
 	
+	dataHolder.add_child(_rootNode)
+	loader.persist_in_current_scene(_rootNode)
+		
 	print("Setup road generator...")
 	var roadManager = RoadManager.new()
 	roadManager.auto_refresh = false
 	roadManager.material_resource = roadMaterial
 	roadManager.density = 8
 	_rootNode.add_child(roadManager)
-	_needsOwner.append(roadManager)
+	loader.persist_in_current_scene(roadManager)
 	
 	var buildingsContainer = Node3D.new()
 	_rootNode.add_child(buildingsContainer)
 	buildingsContainer.name = "Buildings"
-	_needsOwner.append(buildingsContainer)
+	loader.persist_in_current_scene(buildingsContainer)
 	
 	print("Creating structures")
 	assert(_data.features != null)
@@ -573,12 +548,12 @@ func _regenerate_data() -> void:
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
 			if _is_road(properties):
-				var success: bool = _build_road(f, roadManager, _needsOwner)
+				var success: bool = _build_road(f, roadManager)
 				roadsCount += 1
 				if success:
 					roadsCountSuccess += 1
 			elif _is_building(properties):
-				var success: bool = _build_building(f, buildingsContainer, _needsOwner)
+				var success: bool = _build_building(f, buildingsContainer)
 				buildsCount += 1
 				if success:
 					buildsCountSuccess += 1
@@ -588,9 +563,6 @@ func _regenerate_data() -> void:
 	print("Created ", roadsCountSuccess, " roads. Tried: ", roadsCount)
 	print("Created ", buildsCountSuccess, " buildings. Tried: ", buildsCount)
 	
-	print("Nodes: ", self.get_child_count())
-	
-	print("Pending save (snapping not done yet)...")
-	_savePending = true
+	print("Nodes: ", _rootNode.get_child_count())
 
 	print("Done, snapping excluded.")
