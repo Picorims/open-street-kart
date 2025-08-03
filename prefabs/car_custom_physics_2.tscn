@@ -73,31 +73,38 @@ shape = SubResource("CapsuleShape3D_2wjoa")
 shape = SubResource("BoxShape3D_n7qhw")
 
 [node name="DebugFrame" type="MeshInstance3D" parent="CarRigidBody"]
+layers = 2
 mesh = SubResource("BoxMesh_wgmx5")
 
 [node name="WheelFRFrame" type="MeshInstance3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.25)
+layers = 2
 mesh = SubResource("CapsuleMesh_x4217")
 
 [node name="WheelBRFrame" type="MeshInstance3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, 0.25)
+layers = 2
 mesh = SubResource("CapsuleMesh_x4217")
 
 [node name="WheelBLFrame" type="MeshInstance3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, -0.25)
+layers = 2
 mesh = SubResource("CapsuleMesh_x4217")
 
 [node name="WheelFLFrame" type="MeshInstance3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, -0.25)
+layers = 2
 mesh = SubResource("CapsuleMesh_x4217")
 
 [node name="MarkerX" type="MeshInstance3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.1, 0)
+layers = 2
 mesh = SubResource("BoxMesh_rtq4r")
 skeleton = NodePath("../WheelFLFrame")
 
 [node name="MarkerZ" type="MeshInstance3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.1)
+layers = 2
 mesh = SubResource("BoxMesh_e45dh")
 skeleton = NodePath("../WheelFLFrame")
 
