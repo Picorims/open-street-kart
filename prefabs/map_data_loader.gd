@@ -88,14 +88,14 @@ func _reload_surface_action():
 func _reload_osm_action():
 	_get_root_of_current_scene(func(rootNode: Node3D):
 		print("=== reloading roads ===")
-		$OSMDataGenerator.reload_action()
+		$OSMDataGenerator.reload_action(rootNode)
 		print ("=== reloading roads done (DO NOT FORGET TO SAVE!!!) ===")
 	)
 
 func _reload_boundaries_action():
 	_get_root_of_current_scene(func(rootNode: Node3D):
 		print("=== reloading boundaries ===")
-		$BoundariesGenerator.reload_action()
+		$BoundariesGenerator.reload_action(rootNode)
 		print ("=== reloading boundaries done (DO NOT FORGET TO SAVE!!!) ===")
 	)
 

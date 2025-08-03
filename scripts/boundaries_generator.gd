@@ -44,12 +44,12 @@ func _load_data() -> void:
 
 
 
-func reload_action() -> void:
+func reload_action(dataHolder: Node3D) -> void:
 	_is_loaded = false
-	_regenerate_data()
+	_regenerate_data(dataHolder)
 	_is_loaded = true
 
-func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D, needsOwner: Array[Node3D]) -> bool:
+func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D) -> bool:
 	print("boundary data:")
 	print(kind)
 	print(coords)
@@ -122,16 +122,12 @@ func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D, nee
 
 	
 	boundariesNode.add_child(area3D)
-	needsOwner.append(area3D)
-	needsOwner.append(collider)
+	loader.persist_in_current_scene(area3D)
+	loader.persist_in_current_scene(collider)
 
 	return true
 
-func _regenerate_data() -> void:
-	print("Boundaries data generation started. Removing existing data...")
-	for n in self.get_children():
-		self.remove_child(n)
-		n.queue_free()
+func _regenerate_data(dataHolder: Node3D) -> void:
 	print("Loading Boundaries data for road generation...")
 	_load_data()
 	
@@ -141,9 +137,13 @@ func _regenerate_data() -> void:
 	print("features: ", features.size())
 
 	var boundariesNode: Node3D = Node3D.new()
-	var needsOwner: Array[Node3D] = []
 	boundariesNode.name = ROOT_NODE_NAME
 	
+	if (dataHolder.has_node(ROOT_NODE_NAME)):
+		dataHolder.get_node(ROOT_NODE_NAME).free()
+
+	dataHolder.add_child(boundariesNode)
+	loader.persist_in_current_scene(boundariesNode)
 	var areasCount: int = 0
 	var areasCountSuccess: int = 0
 	for f: Dictionary in features:
@@ -155,7 +155,7 @@ func _regenerate_data() -> void:
 			if isTyped && hasCoords :
 				var coords: Array[Array]
 				coords.assign(f.geometry.coordinates[0])
-				var success: bool = _build_area(properties.osk_boundary_type, coords, boundariesNode, needsOwner)
+				var success: bool = _build_area(properties.osk_boundary_type, coords, boundariesNode)
 				areasCount += 1
 				if success:
 					areasCountSuccess += 1
@@ -163,17 +163,4 @@ func _regenerate_data() -> void:
 	print("Created ", areasCountSuccess, " boundaries. Tried: ", areasCount)
 	print("Nodes: ", self.get_child_count())
 	
-	print("saving...")
-	var scene: Node3D = loader.proceduralDataHolder.instantiate()
-	
-	if (scene.has_node(ROOT_NODE_NAME)):
-		scene.get_node(ROOT_NODE_NAME).free()
-
-	scene.add_child(boundariesNode)
-	boundariesNode.owner = scene
-
-	for n in needsOwner:
-		n.owner = scene
-
-	loader.save_scene(scene)
 	print("Done.")
