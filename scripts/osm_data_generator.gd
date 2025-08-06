@@ -22,6 +22,7 @@ var _roadKinds: Array[String]
 var _buildingKinds: Array[String]
 var _rootNode: Node3D
 var _deferredRaycasts: Array[SnapToGroundRayCast3D]
+var _toDeHack: Array[RoadPoint]
 var snapsLeftRoad: int = 0
 var snapsLeft: int = 0
 static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
@@ -218,8 +219,12 @@ func _physics_process(delta: float) -> void:
 		if (_deferredRaycasts.size() > 0):
 			var raycast: SnapToGroundRayCast3D = _deferredRaycasts.back()
 			if (raycast != null):
-				raycast.force_raycast_update()
+				# raycast.force_raycast_update()
 				_deferredRaycasts.pop_back()
+	if (_deferredRaycasts.size() == 0 && _toDeHack.size() > 0):
+		for p in _toDeHack:
+			p._is_internal_updating = false
+		_toDeHack = []
 
 
 
@@ -346,6 +351,8 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	loader.persist_in_current_scene(roadContainer)
 	
 	var initPoint = RoadPoint.new()
+	_toDeHack.append(initPoint)
+	initPoint._is_internal_updating = true # TEMP HACK, PERF ISSUE
 	initPoint.lane_width = 3
 	initPoint.gutter_profile = Vector2(3,-0.5)
 	var trafficDir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
@@ -365,11 +372,13 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	var previousRP = initPoint
 	for i in range(1, metersCoords.size()):
 		var nextRP = RoadPoint.new()
+		_toDeHack.append(nextRP)
 		var prev = metersCoords[i-1]
 		var curr = metersCoords[i]
 		roadContainer.add_child(nextRP)
 		loader.persist_in_current_scene(nextRP)
 		nextRP.copy_settings_from(initPoint) # issue here to copy transform
+		initPoint._is_internal_updating = true # TEMP HACK, PERF ISSUE
 		nextRP.position = curr
 		_setup_snapping_road(nextRP, roadContainer)
 		if (i == metersCoords.size() - 1):
@@ -544,6 +553,10 @@ func _regenerate_data(dataHolder: Node3D) -> void:
 	
 	var buildsCount: int = 0
 	var buildsCountSuccess: int = 0
+	
+	_deferredRaycasts = []
+	_toDeHack = []
+	
 	for f: Dictionary in features:
 		if (f.has("properties")): #&& roadsCount < 1000):
 			var properties: Dictionary = f.get("properties")
