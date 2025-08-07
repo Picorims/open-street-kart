@@ -22,11 +22,34 @@ var _roadKinds: Array[String]
 var _buildingKinds: Array[String]
 var _rootNode: Node3D
 var _deferredRaycasts: Array[SnapToGroundRayCast3D]
+## It is important to append in the order of building.
+## The previousRP of a point should always be placed somewhere before.
+var _roadsToBuild: Array[RoadPointPlaceholder] = []
+var _canBuildRoads: bool = true
+var _roadManager: RoadManager = null
 var snapsLeftRoad: int = 0
 var snapsLeft: int = 0
 static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
 const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
 
+class RoadPointPlaceholder extends Node3D:
+	var laneWidth: float = 0
+	var gutterProfile: Vector2 = Vector2(0,0)
+	var trafficDir: Array[RoadPoint.LaneDir] = []
+	var isRoadStart: bool = false
+	var isRoadEnd: bool = false
+	var previousRP: RoadPointPlaceholder = null
+	var priorMag: float = 0
+	var nextMag: float = 0
+	
+	func copy_settings_from(other: RoadPointPlaceholder, withTransform: bool):
+		self.laneWidth = other.laneWidth
+		self.gutterProfile = other.gutterProfile
+		self.trafficDir = other.trafficDir
+		if withTransform:
+			self.global_transform = other.global_transform
+			
+		
 func _ready() -> void:
 	assert(loader != null)
 	assert(boundariesGenerator != null)
@@ -201,10 +224,9 @@ func reload_action(dataHolder: Node3D) -> void:
 	elif !elevationGenerator.is_loaded:
 		print("Cannot continue, elevation not loaded.")
 	else:
-		snapsLeftRoad = 0
-		snapsLeft = 0
 		
 		_regenerate_data(dataHolder)
+		_canBuildRoads = true
 
 var _lastLog: float = 0
 func _physics_process(delta: float) -> void:
@@ -220,8 +242,54 @@ func _physics_process(delta: float) -> void:
 			if (raycast != null):
 				raycast.force_raycast_update()
 				_deferredRaycasts.pop_back()
-
-
+	if (_canBuildRoads && _roadsToBuild.size() > 0 && snapsLeftRoad == 0):
+		print("Building roads...")
+		print("points: ", _roadsToBuild.size())
+		# see: https://github.com/TheDuckCow/godot-road-generator/blob/main/demo/procedural_generator/procedural_generator.gd
+		# see: https://github.com/TheDuckCow/godot-road-generator/wiki/Class:-RoadPoint
+	
+		# separate function?
+		# build
+		for r in _roadsToBuild:
+			if r.isRoadEnd:
+				# stored from end to start
+				var roadPoints = [r]
+				var currP: RoadPointPlaceholder = r
+				while (currP.previousRP != null):
+					roadPoints.append(currP.previousRP)
+					currP = currP.previousRP
+				
+				var roadContainer: RoadContainer = RoadContainer.new()
+				_roadManager.add_child(roadContainer)
+				loader.persist_in_current_scene(roadContainer)
+				
+				var prevRP: RoadPoint = null
+				print("Building road of size: ", roadPoints.size())
+				for i in range(roadPoints.size()-1, -1, -1):
+					var placeholder: RoadPointPlaceholder = roadPoints[i]
+					var rp: RoadPoint = RoadPoint.new()
+					roadContainer.add_child(rp)
+					rp.lane_width = placeholder.laneWidth
+					rp.gutter_profile = placeholder.gutterProfile
+					rp.traffic_dir = placeholder.trafficDir
+					rp.next_mag = placeholder.nextMag
+					rp.prior_mag = placeholder.priorMag
+					rp.global_position = placeholder.global_position
+					rp.transform = placeholder.transform
+					rp.container = roadContainer
+					loader.persist_in_current_scene(rp)
+					
+					if (prevRP != null):
+						var thisDir = RoadPoint.PointInit.PRIOR
+						var targetDir = RoadPoint.PointInit.NEXT
+						rp.connect_roadpoint(thisDir, prevRP, targetDir)
+					prevRP = rp
+		#separate function?
+		# flush
+		for r in _roadsToBuild:
+			r.queue_free()
+		_roadsToBuild = []
+		print("Building roads done.")
 
 
 func _is_road(properties: Dictionary) -> bool:
@@ -267,7 +335,7 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 ## The collision layers must match.
 ##
 ## This variant is designed to account for road processing requirements
-func _setup_snapping_road(target: RoadPoint, roadContainer: RoadContainer):
+func _setup_snapping_road(target: RoadPointPlaceholder):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = -0.4
 	target.add_child(snapRayCast)
@@ -275,12 +343,13 @@ func _setup_snapping_road(target: RoadPoint, roadContainer: RoadContainer):
 	snapRayCast.target = target
 	snapsLeftRoad += 1
 	snapRayCast.snapped_target.connect(func(): # not kept on scene save / reload
-		#print("snapped!")
 		snapsLeftRoad -= 1
-		#roadContainer.rebuild_segments()
+		# this is NOT the right place to refresh segments:
+		# - there is a function on the road manager to bulk refresh everything.
+		# - there would be as many refresh as points in the road: waste of resources!
 	)
-	#snapRayCast.force_raycast_update() # crashes Godot; road plugin interfering?
-	_deferredRaycasts.append(snapRayCast)
+	snapRayCast.force_raycast_update() # crashes Godot with RoadPoint; road add-on perf issue?
+	#_deferredRaycasts.append(snapRayCast)
 	
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
 ## and move at the collision point the target. It then deletes itself.
@@ -312,7 +381,7 @@ func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector
 	for i in range (0, pointsToAdd):
 		array.append(lerp(from, to, (i+1)*stepRatio))
 
-func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
+func _build_road(feature: Dictionary, roadsContainer: Node3D) -> bool:
 	if (!feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
 	if (!geometry.has("coordinates")): return false
@@ -339,18 +408,14 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	if (metersCoords.size() < 2):
 		return false
 	
-	# see: https://github.com/TheDuckCow/godot-road-generator/blob/main/demo/procedural_generator/procedural_generator.gd
-	# see: https://github.com/TheDuckCow/godot-road-generator/wiki/Class:-RoadPoint
-	var roadContainer = RoadContainer.new()
-	roadManager.add_child(roadContainer)
-	loader.persist_in_current_scene(roadContainer)
-	
-	var initPoint = RoadPoint.new()
-	initPoint.lane_width = 3
-	initPoint.gutter_profile = Vector2(3,-0.5)
+	var initPoint: RoadPointPlaceholder = RoadPointPlaceholder.new()
+	roadsContainer.add_child(initPoint)
+	loader.persist_in_current_scene(initPoint)
+	initPoint.laneWidth = 3
+	initPoint.gutterProfile = Vector2(3,-0.5)
 	var trafficDir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
-	initPoint.traffic_dir = trafficDir
-	initPoint.position = metersCoords[0]
+	initPoint.trafficDir = trafficDir
+	initPoint.global_position = metersCoords[0]
 	
 	# we need to do a 180 turn, to face opposite direction
 	# we do not use rotated because it does it around the origin, not itself
@@ -358,37 +423,40 @@ func _build_road(feature: Dictionary, roadManager: RoadManager) -> bool:
 	#initPoint.transform = initPoint.transform.looking_at(metersCoords[1])
 	initPoint.transform = _rotated_point(initPoint.transform, toMirrored, metersCoords[0], metersCoords[1])
 	
-	roadContainer.add_child(initPoint)
+	initPoint.isRoadStart = true
+	initPoint.isRoadEnd = false
 	loader.persist_in_current_scene(initPoint)
-	_setup_snapping_road(initPoint, roadContainer)
+	_setup_snapping_road(initPoint)
+	_roadsToBuild.append(initPoint)
 	
 	var previousRP = initPoint
 	for i in range(1, metersCoords.size()):
-		var nextRP = RoadPoint.new()
+		var nextRP: RoadPointPlaceholder = RoadPointPlaceholder.new()
+		roadsContainer.add_child(nextRP)
+		loader.persist_in_current_scene(nextRP)
 		var prev = metersCoords[i-1]
 		var curr = metersCoords[i]
-		roadContainer.add_child(nextRP)
+		nextRP.isRoadStart = false
+		nextRP.isRoadEnd = false
 		loader.persist_in_current_scene(nextRP)
-		nextRP.copy_settings_from(initPoint) # issue here to copy transform
-		nextRP.position = curr
-		_setup_snapping_road(nextRP, roadContainer)
+		nextRP.copy_settings_from(initPoint, true) # issue here to copy transform
+		nextRP.global_position = curr
+		_setup_snapping_road(nextRP)
 		if (i == metersCoords.size() - 1):
+			nextRP.isRoadEnd = true
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
 			var prevMirrored = prev + 2 * (curr - prev)
 			#nextRP.transform = nextRP.transform.looking_at(lookingOpposite)
 			nextRP.transform = _rotated_point(nextRP.transform, prev, curr, prevMirrored)
-			nextRP.prior_mag = metersCoords[i-1].distance_to(metersCoords[i]) / 2
+			nextRP.priorMag = metersCoords[i-1].distance_to(metersCoords[i]) / 2
 		else:
 			nextRP.transform = _rotated_point(nextRP.transform, metersCoords[i-1], metersCoords[i], metersCoords[i+1])
-			nextRP.prior_mag = metersCoords[i-1].distance_to(metersCoords[i]) / 2
-			nextRP.next_mag = metersCoords[i].distance_to(metersCoords[i+1]) / 2
+			nextRP.priorMag = metersCoords[i-1].distance_to(metersCoords[i]) / 2
+			nextRP.nextMag = metersCoords[i].distance_to(metersCoords[i+1]) / 2
 		
-		var thisDir = RoadPoint.PointInit.PRIOR
-		var targetDir = RoadPoint.PointInit.NEXT
-		previousRP.container = roadContainer
-		nextRP.container = roadContainer
-		nextRP.connect_roadpoint(thisDir, previousRP, targetDir)
+		nextRP.previousRP = previousRP
+		_roadsToBuild.append(nextRP)
 		previousRP = nextRP
 		
 	return true
@@ -509,6 +577,11 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	return true
 
 func _regenerate_data(dataHolder: Node3D) -> void:
+	snapsLeftRoad = 0
+	snapsLeft = 0
+	_canBuildRoads = false
+	_roadsToBuild = []
+		
 	print("Loading OSM data for road generation...")
 	_load_data()
 
@@ -522,11 +595,16 @@ func _regenerate_data(dataHolder: Node3D) -> void:
 	loader.persist_in_current_scene(_rootNode)
 		
 	print("Setup road generator...")
+	var roadsContainer = Node3D.new()
+	roadsContainer.name = "Roads"
+	_rootNode.add_child(roadsContainer)
+	loader.persist_in_current_scene(roadsContainer)
 	var roadManager = RoadManager.new()
+	_roadManager = roadManager
 	roadManager.auto_refresh = false
 	roadManager.material_resource = roadMaterial
 	roadManager.density = 8
-	_rootNode.add_child(roadManager)
+	roadsContainer.add_child(roadManager)
 	loader.persist_in_current_scene(roadManager)
 	
 	var buildingsContainer = Node3D.new()
@@ -549,7 +627,7 @@ func _regenerate_data(dataHolder: Node3D) -> void:
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
 			if _is_road(properties):
-				var success: bool = _build_road(f, roadManager)
+				var success: bool = _build_road(f, roadsContainer)
 				roadsCount += 1
 				if success:
 					roadsCountSuccess += 1
@@ -566,4 +644,5 @@ func _regenerate_data(dataHolder: Node3D) -> void:
 	
 	print("Nodes: ", _rootNode.get_child_count())
 
-	print("Done, snapping excluded.")
+	print("Done, snapping and road building excluded.")
+	_canBuildRoads = true
