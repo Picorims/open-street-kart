@@ -530,7 +530,10 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 
 	# we create an extruded polygon, with only the wall and ceiling
 
-	# walls
+	# walls (also corresponds to occluder)
+	var occluderVertices: PackedVector3Array = []
+	var occluderIndices: PackedInt32Array = []
+		
 	for i in range(metersCoords.size()):
 		var nextIdx = (i + 1) % metersCoords.size()
 		var bottomL = metersCoords[i]
@@ -538,15 +541,37 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 		var topL = bottomL + Vector3(0, inGroundHeight + aboveGroundHeight, 0)
 		var topR = bottomR + Vector3(0, inGroundHeight + aboveGroundHeight, 0)
 
-		# first triangle
+		# first triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
 		surfaceTool.add_vertex(topL)
 		surfaceTool.add_vertex(bottomR)
 		surfaceTool.add_vertex(bottomL)
 
-		# second triangle
+		# second triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
 		surfaceTool.add_vertex(topR)
 		surfaceTool.add_vertex(bottomR)
 		surfaceTool.add_vertex(topL)
+		
+		# occluder
+		if (i == 0):
+			occluderVertices.append_array([bottomL, topL])
+		if (i != metersCoords.size() - 1):
+			occluderVertices.append_array([bottomR, topR])
+			
+		# indices are even at the bottom, odd at the top, growing towards R
+		var topLIdx: int
+		var bottomLIdx: int
+		var topRIdx: int
+		var bottomRIdx: int
+			
+		topLIdx = (2*i) + 1
+		bottomLIdx = 2*i
+		if (i != metersCoords.size() - 1):
+			topRIdx = topLIdx + 2
+			bottomRIdx = bottomLIdx + 2
+		else:
+			topRIdx = 1
+			bottomRIdx = 0
+		occluderIndices.append_array([topLIdx, bottomRIdx, bottomLIdx, topRIdx, bottomRIdx, topLIdx])
 	
 	surfaceTool.generate_normals()
 	var mesh: Mesh = surfaceTool.commit()
@@ -573,6 +598,13 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	staticBody.position = origin + Vector3(0, INIT_HEIGHT, 0)
 
 	_setup_snapping(staticBody, false, inGroundHeight)
+	
+	var occluderInstance: OccluderInstance3D = OccluderInstance3D.new()
+	staticBody.add_child(occluderInstance)
+	loader.persist_in_current_scene(occluderInstance)
+	var occluder3DPolygon: ArrayOccluder3D = ArrayOccluder3D.new()
+	occluder3DPolygon.set_arrays(occluderVertices, occluderIndices)
+	occluderInstance.occluder = occluder3DPolygon
 
 	return true
 
