@@ -140,7 +140,6 @@ func _regenerate_mesh(dataHolder: Node3D) -> void:
 			
 			# occluder
 			# size = last_index + 1 = first index available
-			var startIndex: int = occluderIndices.size()
 			var bottomLIdx: int = _get_data_index(latIdx, lonIdx)
 			var bottomRIdx: int = _get_data_index(latIdx, lonIdx+1)
 			var topLIdx: int = _get_data_index(latIdx+1, lonIdx)
