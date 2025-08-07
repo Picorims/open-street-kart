@@ -45,7 +45,7 @@ class RoadPointPlaceholder extends Node3D:
 	func copy_settings_from(other: RoadPointPlaceholder, withTransform: bool):
 		self.laneWidth = other.laneWidth
 		self.gutterProfile = other.gutterProfile
-		self.trafficDir = other.trafficDir 
+		self.trafficDir = other.trafficDir
 		if withTransform:
 			self.global_transform = other.global_transform
 			
@@ -423,7 +423,6 @@ func _build_road(feature: Dictionary, roadsContainer: Node3D) -> bool:
 	#initPoint.transform = initPoint.transform.looking_at(metersCoords[1])
 	initPoint.transform = _rotated_point(initPoint.transform, toMirrored, metersCoords[0], metersCoords[1])
 	
-	#roadContainer.add_child(initPoint)
 	initPoint.isRoadStart = true
 	initPoint.isRoadEnd = false
 	loader.persist_in_current_scene(initPoint)
