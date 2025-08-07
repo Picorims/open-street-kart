@@ -46,9 +46,13 @@ var _data: Array[Vector3] = []
 var _rows: int = 0
 var _cols: int = 0
 
+func _get_data_index(latIdx: int, lonIdx: int) -> int:
+	assert(latIdx >= 0 && lonIdx >= 0 && latIdx < _cols && lonIdx < _rows, "_get_data_index: illegal indexes: " + str(latIdx) + ", " + str(lonIdx))
+	return lonIdx * _cols + latIdx
+
 func _read_data(latIdx: int, lonIdx: int) -> Vector3:
 	assert(latIdx >= 0 && lonIdx >= 0 && latIdx < _cols && lonIdx < _rows, "_read_data: illegal indexes: " + str(latIdx) + ", " + str(lonIdx))
-	return _data[lonIdx * _cols + latIdx]
+	return _data[_get_data_index(latIdx, lonIdx)]
 	
 func _str_to_float(s: String) -> float:
 	var dot_pos = s.find(".")
@@ -101,27 +105,46 @@ func _regenerate_mesh(dataHolder: Node3D) -> void:
 	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
 	var origin: Vector3 = _data[0]
+	var occluderVertices: PackedVector3Array
+	var occluderIndices: PackedInt32Array
+	
+	var pointsMeters: Array[Vector3] = []
+	for v in _data:
+		pointsMeters.append(loader.lat_alt_lon_to_world_global_pos(v))
+	
+	occluderVertices.append_array(pointsMeters)
+	
 	print("origin: ", origin)
 	for lonIdx in range(_rows-1):
 		for latIdx in range(_cols-1):
 			# build square using 2 mesh triangles and four positions
 			# i.e. linear interpolation between elevation points in the grid
-			var bottomL = loader.lat_alt_lon_to_world_global_pos(_read_data(latIdx, lonIdx))
-			var bottomR = loader.lat_alt_lon_to_world_global_pos(_read_data(latIdx, lonIdx+1))
-			var topL = loader.lat_alt_lon_to_world_global_pos(_read_data(latIdx+1, lonIdx))
-			var topR = loader.lat_alt_lon_to_world_global_pos(_read_data(latIdx+1, lonIdx+1))
+			var bottomL = pointsMeters[_get_data_index(latIdx, lonIdx)]
+			var bottomR = pointsMeters[_get_data_index(latIdx, lonIdx+1)]
+			var topL = pointsMeters[_get_data_index(latIdx+1, lonIdx)]
+			var topR = pointsMeters[_get_data_index(latIdx+1, lonIdx+1)]
 
 			# print("making square with points: ", bottomL, ", ", bottomR, ", ", topL, ", ", topR)
 			
+			# ORDER OF VERTICES MUST BE COHERENT WITH OCCLUDER INDICES ORDER !!!
 			# first triangle
 			surfaceTool.add_vertex(bottomL)
 			surfaceTool.add_vertex(bottomR)
 			surfaceTool.add_vertex(topL)
 			
+			# ORDER OF VERTICES MUST BE COHERENT WITH OCCLUDER INDICES ORDER !!!
 			# second triangle
 			surfaceTool.add_vertex(topL)
 			surfaceTool.add_vertex(bottomR)
 			surfaceTool.add_vertex(topR)
+			
+			# occluder
+			# size = last_index + 1 = first index available
+			var bottomLIdx: int = _get_data_index(latIdx, lonIdx)
+			var bottomRIdx: int = _get_data_index(latIdx, lonIdx+1)
+			var topLIdx: int = _get_data_index(latIdx+1, lonIdx)
+			var topRIdx: int = _get_data_index(latIdx+1, lonIdx+1)
+			occluderIndices.append_array([bottomLIdx, bottomRIdx, topLIdx, topLIdx, bottomRIdx, topRIdx])
 
 	# DEBUG TRIANGLE ===
 	# surfaceTool.add_vertex(Vector3(0, 0, 0))
@@ -132,6 +155,7 @@ func _regenerate_mesh(dataHolder: Node3D) -> void:
 	print("triangles defined.")
 	print("calculate normals...")
 	surfaceTool.generate_normals()
+	surfaceTool.set_material(_material)
 	
 	print("commiting...")
 	
@@ -152,10 +176,6 @@ func _regenerate_mesh(dataHolder: Node3D) -> void:
 	root.add_child(displayNode)
 	loader.persist_in_current_scene(displayNode)
 	displayNode.mesh = surfaceTool.commit()
-	print("assigning material...")
-	var surfacesCount = displayNode.mesh.get_surface_count()
-	for i in surfacesCount:
-		displayNode.set_surface_override_material(i, _material)
 	
 	print("assigning collision shape...")
 	var collisionNode: CollisionShape3D = CollisionShape3D.new()
@@ -163,6 +183,14 @@ func _regenerate_mesh(dataHolder: Node3D) -> void:
 	loader.persist_in_current_scene(collisionNode)
 	var shape: Shape3D = displayNode.mesh.create_trimesh_shape()
 	collisionNode.shape = shape
+	
+	print("assigning occluder...")
+	var occluderInstance: OccluderInstance3D = OccluderInstance3D.new()
+	root.add_child(occluderInstance)
+	loader.persist_in_current_scene(occluderInstance)
+	var occluder3DPolygon: ArrayOccluder3D = ArrayOccluder3D.new()
+	occluder3DPolygon.set_arrays(occluderVertices, occluderIndices)
+	occluderInstance.occluder = occluder3DPolygon
 
 	print("done")
 
