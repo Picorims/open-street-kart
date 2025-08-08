@@ -20,8 +20,7 @@ func _ready() -> void:
 	var car: Node3D = CAR_SCENE.instantiate()
 	self.add_child(car)
 	car.basis = self.basis
-	#car.global_position = self.global_position
-	#car.transform = self.transform
+	car.global_transform = self.global_transform
 	var rigidBody: RigidBody3D = car.get_node("CarRigidBody")
 	rigidBody.freeze = true
 	
