@@ -1,11 +1,21 @@
+# Open Street Kart is an arcade kart game where you race in real life areas reconstructed from Open Street Map
+# Copyright (c) 2025 Charly Schmidt aka Picorims<picorims.contact@gmail.com> and Open Street Kart contributors
+
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
 @tool
 class_name Checkpoint extends Node3D
 
+## the box is always centered.
 @export var boxSize: Vector3 = Vector3(5,5,5):
 	set(v):
 		boxSize = v
 		_update_box()
 
+## in local coords
+@export var respawnPoint: Vector3 = Vector3()
 
 func _ready() -> void:
 	_update_box()
@@ -29,3 +39,6 @@ func _update_box():
 	var shape: BoxShape3D = collShapeNode.shape
 	shape.size = boxSize
 	
+	
+func get_respawn_global_pos() -> Vector3:
+	return self.global_position + respawnPoint

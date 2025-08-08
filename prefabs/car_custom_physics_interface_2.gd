@@ -20,3 +20,10 @@ class_name CarCustomPhysics2 extends Node3D
 			print("New checkpoint: ", v.name)
 		else:
 			print("Checkpoint removed.")
+
+func respawn():
+	print("Respawning car...")
+	var rb: RigidBody3D = $CarRigidBody
+	rb.freeze = true
+	rb.global_position = lastCheckpoint.get_respawn_global_pos()
+	rb.freeze = false
