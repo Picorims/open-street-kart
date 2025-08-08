@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://b83cmssahdrjq"]
+
+[ext_resource type="Script" uid="uid://piie5mqxjfdi" path="res://prefabs/checkpoint.gd" id="1_xsm40"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xsm40"]
+size = Vector3(50, 50, 50)
+
+[node name="Checkpoint" type="Node3D"]
+script = ExtResource("1_xsm40")
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_xsm40")
+debug_color = Color(0, 0.792157, 0.415686, 0.419608)

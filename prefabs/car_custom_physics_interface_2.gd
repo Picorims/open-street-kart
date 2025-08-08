@@ -6,9 +6,17 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-extends Node3D
+class_name CarCustomPhysics2 extends Node3D
 
 @export var speedMultiplier: float = 1.0:
 	set(v):
 		speedMultiplier = v
 		$CarRigidBody.speedMultiplier = v
+
+@export var lastCheckpoint: Checkpoint = null:
+	set(v):
+		lastCheckpoint = v
+		if (v != null):
+			print("New checkpoint: ", v.name)
+		else:
+			print("Checkpoint removed.")
