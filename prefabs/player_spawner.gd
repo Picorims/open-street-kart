@@ -8,12 +8,20 @@
 
 class_name PlayerSpawner extends Node3D
 
+enum CountdownState {
+	THREE = 3,
+	TWO = 2,
+	ONE = 1,
+	GO = 0,
+	IDLE = -1,
+}
+
 const CAR_SCENE: PackedScene = preload("res://prefabs/car_custom_physics_2.tscn")
-const COUNTDOWN_DURATION: float = 3
+const COUNTDOWN_DURATION: CountdownState = CountdownState.THREE
 
 var _inCountdown: bool = false
 var _countDownState = 0
-var _countdownEllapsed: float = 0
+var _countdownElapsed: float = 0
 var cars: Array[RigidBody3D] = []
 
 func _ready() -> void:
@@ -26,7 +34,6 @@ func _ready() -> void:
 	
 	var snapRayCast = SnapToGroundRayCast3D.new()
 	self.add_child(snapRayCast)
-	#snapRayCast.global_position = self.global_position + Vector3(0, -1, 0)
 	snapRayCast.alignToNormal = true
 	snapRayCast.offset = -0.5
 	snapRayCast.target_position = Vector3(0, -1000, 0)
@@ -40,27 +47,28 @@ func _ready() -> void:
 
 func _process(delta: float) -> void:
 	if (_inCountdown):
-		_countdownEllapsed += delta
+		_countdownElapsed += delta
 		
-		if (_countDownState == 0):
+		if (_countDownState == CountdownState.IDLE): # initialize
 			print("3...")
-			_countDownState = 3
-		elif (_countDownState == 3 && _countdownEllapsed > 1):
+			_countDownState = CountdownState.THREE
+		elif (_countDownState == CountdownState.THREE && _countdownElapsed > 1):
 			print("2...")
-			_countDownState = 2
-		elif (_countDownState == 2 && _countdownEllapsed > 2):
+			_countDownState = CountdownState.TWO
+		elif (_countDownState == CountdownState.TWO && _countdownElapsed > 2):
 			print("1...")
-			_countDownState = 1
-		elif (_countDownState == 1 && _countdownEllapsed > 3):
+			_countDownState = CountdownState.ONE
+		elif (_countDownState == CountdownState.ONE && _countdownElapsed > 3):
 			print("GO!")
-			_countDownState = 0
+			_countDownState = CountdownState.GO
 		
-		if (_countdownEllapsed > COUNTDOWN_DURATION):
+		if (_countdownElapsed > COUNTDOWN_DURATION):
 			for c in cars:
 				c.freeze = false
 			_inCountdown = false
+			_countDownState = CountdownState.IDLE
 
 func countdown():
-	_countdownEllapsed = 0
-	_countDownState = 0
+	_countdownElapsed = 0
+	_countDownState = CountdownState.IDLE
 	_inCountdown = true
