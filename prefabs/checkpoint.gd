@@ -25,6 +25,7 @@ func _update_box():
 	var collShapeNode: CollisionShape3D = $"Area3D/CollisionShape3D"
 	if (collShapeNode == null):
 		print("ERROR: collision shape undefined, this should not happen!")
+		return
 	var shape: BoxShape3D = collShapeNode.shape
 	shape.size = boxSize
 	

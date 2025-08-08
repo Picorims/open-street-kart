@@ -16,4 +16,7 @@ class_name CarCustomPhysics2 extends Node3D
 @export var lastCheckpoint: Checkpoint = null:
 	set(v):
 		lastCheckpoint = v
-		print("New checkpoint: ", v.name)
+		if (v != null):
+			print("New checkpoint: ", v.name)
+		else:
+			print("Checkpoint removed.")
