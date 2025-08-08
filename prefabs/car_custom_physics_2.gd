@@ -32,7 +32,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	_cancel_inertia(state)
 	_apply_wheel_adherence(state)
 
-	state.apply_central_force((forwardBackward * accelerationForce * speedMultiplier * basis.x))
+	state.apply_central_force((forwardBackward * accelerationForce * speedMultiplier * global_basis.x))
 	state.apply_torque(leftRight * rotationForce * Vector3(0,-1,0))
 	
 	for wheelRayCast in wheelRayCasts:
@@ -74,7 +74,7 @@ func _apply_single_wheel_suspension(suspensionRay: RayCast3D) -> void:
 # applied on x,z plan
 func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var radius: float = _get_radius_of_rotation(state)
-	var centrifugusDirection: Vector3 = basis.z.normalized() * sign(state.angular_velocity.y)
+	var centrifugusDirection: Vector3 = global_basis.z.normalized() * sign(state.angular_velocity.y)
 	if (centrifugusDirection.length() < 0.01):
 		return
 	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / radius)
@@ -98,11 +98,11 @@ func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
 	if (_wheels_on_ground() < 2):
 		_debugSlidingForce = Vector3(0,0,0)
 		return
-	var normalToGround: Vector3 = basis.y.normalized()
+	var normalToGround: Vector3 = global_basis.y.normalized()
 	var groundCounterForce: Vector3 = normalToGround * (get_gravity()).length()
 	var slidingForce: Vector3 = (get_gravity() + groundCounterForce) * mass
 	_debugSlidingForce = slidingForce
-	var z: Vector3 = basis.z.normalized()
+	var z: Vector3 = global_basis.z.normalized()
 	state.apply_central_force(z * -slidingForce.dot(z))
 
 func _wheels_on_ground() -> int:
