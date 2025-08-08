@@ -26,4 +26,6 @@ func respawn():
 	var rb: RigidBody3D = $CarRigidBody
 	rb.freeze = true
 	rb.global_position = lastCheckpoint.get_respawn_global_pos()
+	var newBasis: Basis = basis.rotated(Vector3.UP, deg_to_rad(lastCheckpoint.lookTowardsDegrees)).orthonormalized()
+	$CarRigidBody.force_basis_on_next_physics_frame(newBasis)
 	rb.freeze = false
