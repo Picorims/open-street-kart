@@ -25,7 +25,9 @@ var _debugSoftClampSpeedForce: Vector3
 var _forcedBasis: Basis
 var _mustForceBasis: bool = false
 var wheelRayCasts: Array[RayCast3D]
-var _maxSpeedSquared:float = maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
+var _maxSpeedSquared: float:
+	get():
+		return maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
 
 func _ready() -> void:
 	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
@@ -58,9 +60,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 func _soft_clamp_speed(state: PhysicsDirectBodyState3D):
 	var velSquaredXZ: float = (state.linear_velocity * Vector3(1,0,1)).length_squared()
 	if (velSquaredXZ > _maxSpeedSquared):
-		var normXZ: Vector3 = state.linear_velocity.normalized() * Vector3(1,0,1)
+		var normProjectedOnXZ: Vector3 = state.linear_velocity.normalized() * Vector3(1,0,1)
 		var diff: float = (velSquaredXZ - _maxSpeedSquared)
-		_debugSoftClampSpeedForce = -normXZ * diff * diff
+		# This is a physics based "clamp", being quadratic to be as close as possible to a hard limit.
+		# We do not use clamp as it causes unexpected behavior, such as making the car drift in air.
+		# It does not affect fall speed.
+		_debugSoftClampSpeedForce = -normProjectedOnXZ * diff * diff
 		state.apply_central_force(_debugSoftClampSpeedForce)
 		#state.linear_velocity = state.linear_velocity.clamp(norm, norm * maxSpeedMetersPerSecond)
 	else:
