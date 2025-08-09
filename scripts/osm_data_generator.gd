@@ -9,7 +9,6 @@
 @tool
 extends Node3D
 
-const BuildingHolder = preload("res://prefabs/building_holder.gd")
 const ROOT_NODE_NAME: String = "OSMData"
 
 @export var loader: MapDataLoader

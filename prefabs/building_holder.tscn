@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://1oqre1etbq5q"]
-
-[ext_resource type="Script" uid="uid://nrvn8d2s2oo4" path="res://prefabs/building_holder.gd" id="1_80ufy"]
-
-[node name="BuildingHolder" type="Node3D"]
-script = ExtResource("1_80ufy")

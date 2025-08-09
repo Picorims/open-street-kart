@@ -11,6 +11,8 @@ class_name BoundariesGenerator extends Node3D
 
 const ROOT_NODE_NAME: String = "Boundaries"
 const RACE_BOUNDARY_SCRIPT = preload("res://scripts/race_global_boundary.gd")
+const LOCAL_RACE_BOUNDARY_SCRIPT = preload("res://scripts/race_local_boundary.gd")
+const DEBUG_ENABLED = true
 
 @export var loader: MapDataLoader
 
@@ -50,13 +52,14 @@ func reload_action(dataHolder: Node3D) -> void:
 	_regenerate_data(dataHolder)
 	_is_loaded = true
 
-func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D) -> bool:
+func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D, id: String) -> bool:
 	print("boundary data:")
 	print(kind)
 	print(coords)
 	
 	var area3D: Area3D = Area3D.new()
-	var collider: CollisionShape3D = CollisionShape3D.new()
+	# concave shapes are not supported by Area3D, except if made with a polygon.
+	var collider: CollisionPolygon3D = CollisionPolygon3D.new()
 	area3D.add_child(collider)
 	var mesh: MeshInstance3D = MeshInstance3D.new()
 	
@@ -64,11 +67,14 @@ func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D) -> 
 	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
 	var coordsMeters: Array[Vector3] = []
-	_race2DPolygon = []
+	var area2dPolygon: Array[Vector2] = []
 	for c in coords:
 		var metersC = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 0.0, c[1]))
 		coordsMeters.append(metersC)
-		_race2DPolygon.append(Vector2(metersC.x, metersC.z))
+		area2dPolygon.append(Vector2(metersC.x, metersC.z))
+			
+	if (kind == "race"):
+		_race2DPolygon = area2dPolygon
 	
 	print("converted boundary data:")
 	print(coordsMeters)
@@ -105,22 +111,34 @@ func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D) -> 
 		
 	mesh.mesh = surfaceTool.commit()
 	area3D.add_child(mesh)
-	collider.make_convex_from_siblings() #i.e. from mesh
+	#collider.position = Vector3(0, elevationMin, 0)
+	collider.basis = Basis(Vector3.LEFT, PI/2).rotated(Vector3.UP, PI).orthonormalized()
+	collider.basis.x *= -1
+	collider.depth = elevationMax - elevationMin
+	collider.polygon = PackedVector2Array(area2dPolygon)
 	# var debug = Engine.is_editor_hint()
 	
-	var debug = false
+	var debug = DEBUG_ENABLED
 	if debug:
+		var color: Color = Color()
+		if (kind == "race"):
+			color = Color(1,0,1,0.3)
+		elif (kind == "local_race_boundary"):
+			color = Color(1,0.5,0.5,0.3)
 		var mat: StandardMaterial3D = StandardMaterial3D.new()
-		mat.albedo_color = Color(1,0,1,0.3)
+		mat.albedo_color = color
 		mat.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 		mat.cull_mode = BaseMaterial3D.CULL_DISABLED # see both sides
 		mesh.material_override = mat
 	else:
 		area3D.remove_child(mesh)
 		mesh.queue_free()
-	area3D.name = kind.to_pascal_case()
 	if (kind == "race"):
+		area3D.name = kind.to_pascal_case()
 		area3D.set_script(RACE_BOUNDARY_SCRIPT)
+	elif (kind == "local_race_boundary"):
+		area3D.name = kind.to_pascal_case() + "_" + id
+		area3D.set_script(LOCAL_RACE_BOUNDARY_SCRIPT)
 
 	
 	boundariesNode.add_child(area3D)
@@ -157,7 +175,7 @@ func _regenerate_data(dataHolder: Node3D) -> void:
 			if isTyped && hasCoords :
 				var coords: Array[Array]
 				coords.assign(f.geometry.coordinates[0])
-				var success: bool = _build_area(properties.osk_boundary_type, coords, boundariesNode)
+				var success: bool = _build_area(properties.osk_boundary_type, coords, boundariesNode, f.get("id", "{0}".format(randi_range(0,100000))))
 				areasCount += 1
 				if success:
 					areasCountSuccess += 1
