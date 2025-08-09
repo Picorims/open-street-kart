@@ -30,7 +30,7 @@ func _ready() -> void:
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_mustForceBasis):
 		_mustForceBasis = false
-		self.global_basis = _forcedBasis.orthonormalized()
+		state.transform.basis = _forcedBasis.orthonormalized()
 	var forwardBackward: float = Input.get_axis("backward", "forward")
 	var leftRight: float = Input.get_axis("left", "right")
 
