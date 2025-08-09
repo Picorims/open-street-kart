@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://piie5mqxjfdi" path="res://prefabs/checkpoint.gd" id="1_xsm40"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_xsm40"]
-size = Vector3(50, 50, 50)
+size = Vector3(5, 5, 5)
 
 [node name="Checkpoint" type="Node3D"]
 script = ExtResource("1_xsm40")

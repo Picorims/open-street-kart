@@ -17,6 +17,8 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
+var _forcedBasis: Basis
+var _mustForceBasis: bool = false
 var wheelRayCasts: Array[RayCast3D]
 
 func _ready() -> void:
@@ -26,6 +28,9 @@ func _ready() -> void:
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is underdamped, >1 is overdamped): ", dampingRatio)
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	if (_mustForceBasis):
+		_mustForceBasis = false
+		state.transform.basis = _forcedBasis.orthonormalized()
 	var forwardBackward: float = Input.get_axis("backward", "forward")
 	var leftRight: float = Input.get_axis("left", "right")
 
@@ -130,3 +135,7 @@ func _process(_delta: float) -> void:
 	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
 	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
 	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
+
+func force_basis_on_next_physics_frame(basis: Basis):
+	_forcedBasis = basis
+	_mustForceBasis = true

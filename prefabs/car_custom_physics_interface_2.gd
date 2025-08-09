@@ -20,3 +20,15 @@ class_name CarCustomPhysics2 extends Node3D
 			print("New checkpoint: ", v.name)
 		else:
 			print("Checkpoint removed.")
+
+func respawn():
+	print("Respawning car...")
+	var rb: RigidBody3D = $CarRigidBody
+	rb.freeze = true
+	if (lastCheckpoint == null):
+		print("ERROR: player never encountered a checkpoint, cannot respawn!")
+		return
+	rb.global_position = lastCheckpoint.get_respawn_global_pos()
+	var newBasis: Basis = Basis(Vector3.UP, deg_to_rad(lastCheckpoint.lookTowardsDegrees)).orthonormalized()
+	$CarRigidBody.force_basis_on_next_physics_frame(newBasis)
+	rb.freeze = false

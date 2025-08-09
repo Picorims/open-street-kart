@@ -10,6 +10,7 @@
 class_name BoundariesGenerator extends Node3D
 
 const ROOT_NODE_NAME: String = "Boundaries"
+const RACE_BOUNDARY_SCRIPT = preload("res://scripts/race_global_boundary.gd")
 
 @export var loader: MapDataLoader
 
@@ -118,7 +119,8 @@ func _build_area(kind: String, coords: Array[Array], boundariesNode: Node3D) -> 
 		area3D.remove_child(mesh)
 		mesh.queue_free()
 	area3D.name = kind.to_pascal_case()
-	
+	if (kind == "race"):
+		area3D.set_script(RACE_BOUNDARY_SCRIPT)
 
 	
 	boundariesNode.add_child(area3D)
