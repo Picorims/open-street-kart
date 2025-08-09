@@ -13,7 +13,7 @@ class_name CarCustomPhysics2 extends Node3D
 		speedMultiplier = v
 		$CarRigidBody.speedMultiplier = v
 
-@export var lastCheckpoint: Checkpoint = null:
+@export var lastCheckpoint: TrackCheckpoint = null:
 	set(v):
 		lastCheckpoint = v
 		if (v != null):

@@ -1,0 +1,18 @@
+[gd_scene load_steps=3 format=3 uid="uid://qsw0gu4qcmpn"]
+
+[ext_resource type="Script" uid="uid://d1nndhqb0e171" path="res://prefabs/loop_checkpoint.gd" id="1_c7dra"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_xsm40"]
+size = Vector3(5, 100, 200)
+
+[node name="LoopCheckpoint" type="Node3D"]
+script = ExtResource("1_c7dra")
+debugDrawBoxColor = Color(1, 0.5, 0, 1)
+debugDrawArrowColor = Color(0.6, 0.3, 0, 1)
+debugShapeFillColor = null
+
+[node name="Area3D" type="Area3D" parent="."]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Area3D"]
+shape = SubResource("BoxShape3D_xsm40")
+debug_color = Color(1, 0.65947, 0.414489, 0.419608)
