@@ -8,18 +8,24 @@
 
 extends RigidBody3D
 var currentDirection: Vector3 = Vector3(1,0,0)
-@export var accelerationForce: float = 3000
+@export var accelerationForce: float = 5000
 @export var rotationForce: float = 300
 @export var speedMultiplier: float = 1.0
 @export var springStrength: float = 150000 # 100000
 @export var springDamping: float = 15000 # 12000 # coefficient
 @export var restDistance: float = 0.7
+@export var maxSpeedMetersPerSecond: float = 30:
+	set(v):
+		maxSpeedMetersPerSecond = v
+		_maxSpeedSquared = v*v
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
+var _debugSoftClampSpeedForce: Vector3
 var _forcedBasis: Basis
 var _mustForceBasis: bool = false
 var wheelRayCasts: Array[RayCast3D]
+var _maxSpeedSquared:float = maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
 
 func _ready() -> void:
 	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
@@ -32,6 +38,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_mustForceBasis = false
 		state.transform.basis = _forcedBasis.orthonormalized()
 	var forwardBackward: float = Input.get_axis("backward", "forward")
+	if (forwardBackward < 0):
+		forwardBackward *= 0.1 # softer brake and slow backward speed
 	var leftRight: float = Input.get_axis("left", "right")
 
 	_cancel_inertia(state)
@@ -43,10 +51,20 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	for wheelRayCast in wheelRayCasts:
 		_apply_single_wheel_suspension(wheelRayCast)
 
+	_soft_clamp_speed(state)
 
 
 
-
+func _soft_clamp_speed(state: PhysicsDirectBodyState3D):
+	var velSquaredXZ: float = (state.linear_velocity * Vector3(1,0,1)).length_squared()
+	if (velSquaredXZ > _maxSpeedSquared):
+		var normXZ: Vector3 = state.linear_velocity.normalized() * Vector3(1,0,1)
+		var diff: float = (velSquaredXZ - _maxSpeedSquared)
+		_debugSoftClampSpeedForce = -normXZ * diff * diff
+		state.apply_central_force(_debugSoftClampSpeedForce)
+		#state.linear_velocity = state.linear_velocity.clamp(norm, norm * maxSpeedMetersPerSecond)
+	else:
+		_debugSoftClampSpeedForce = Vector3(0,0,0)
 
 func _get_point_velocity(point: Vector3) -> Vector3:
 	# physics formula
@@ -135,6 +153,7 @@ func _process(_delta: float) -> void:
 	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
 	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
 	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
+	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
 
 func force_basis_on_next_physics_frame(basis: Basis):
 	_forcedBasis = basis
