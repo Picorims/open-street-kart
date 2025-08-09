@@ -12,7 +12,7 @@ config_version=5
 
 config/name="Open Street Kart"
 config/tags=PackedStringArray("3d", "physics", "vehicle")
-run/main_scene="uid://b8oyi6totocxs"
+run/main_scene="uid://snxec2n3dvd1"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 

@@ -24,9 +24,12 @@ var _countDownState = 0
 var _countdownElapsed: float = 0
 var cars: Array[RigidBody3D] = []
 
+signal go
+
 func _ready() -> void:
 	var car: Node3D = CAR_SCENE.instantiate()
 	self.add_child(car)
+	car.speedMultiplier = 1.5
 	car.basis = self.basis
 	car.global_transform = self.global_transform
 	var rigidBody: RigidBody3D = car.get_node("CarRigidBody")
@@ -41,9 +44,7 @@ func _ready() -> void:
 	snapRayCast.force_raycast_update()
 	
 	cars.append(rigidBody)
-	
-	# temporary, until full race load is implemented
-	countdown()
+
 
 func _process(delta: float) -> void:
 	if (_inCountdown):
@@ -61,6 +62,7 @@ func _process(delta: float) -> void:
 		elif (_countDownState == CountdownState.ONE && _countdownElapsed > 3):
 			print("GO!")
 			_countDownState = CountdownState.GO
+			go.emit()
 		
 		if (_countdownElapsed > COUNTDOWN_DURATION):
 			for c in cars:
