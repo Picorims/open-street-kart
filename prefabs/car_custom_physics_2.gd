@@ -18,6 +18,7 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 	set(v):
 		maxSpeedMetersPerSecond = v
 		_maxSpeedSquared = v*v
+@export var interface: CarCustomPhysics2
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
@@ -28,10 +29,14 @@ var wheelRayCasts: Array[RayCast3D]
 var _maxSpeedSquared: float:
 	get():
 		return maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
-var _drifting = false
+var _drifting = false:
+	set(v):
+		_drifting = v
+		interface.driftingEffects = v
 var _driftingDirection: float = 0 # 1 or -1, see signf()
 
 func _ready() -> void:
+	assert(interface != null, "ERROR: interface not assigned.")
 	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
 	# actual damping / critical damping (critical = best)
 	var dampingRatio: float = springDamping / (2 * sqrt(mass * springStrength))
