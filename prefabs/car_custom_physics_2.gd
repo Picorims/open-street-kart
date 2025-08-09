@@ -9,12 +9,12 @@
 extends RigidBody3D
 var currentDirection: Vector3 = Vector3(1,0,0)
 @export var accelerationForce: float = 5000
-@export var rotationForce: float = 300
+@export var rotationForce: float = 100
 @export var speedMultiplier: float = 1.0
 @export var springStrength: float = 150000 # 100000
 @export var springDamping: float = 15000 # 12000 # coefficient
 @export var restDistance: float = 0.7
-@export var maxSpeedMetersPerSecond: float = 30:
+@export var maxSpeedMetersPerSecond: float = 25:
 	set(v):
 		maxSpeedMetersPerSecond = v
 		_maxSpeedSquared = v*v
@@ -28,6 +28,8 @@ var wheelRayCasts: Array[RayCast3D]
 var _maxSpeedSquared: float:
 	get():
 		return maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
+var _drifting = false
+var _driftingDirection: float = 0 # 1 or -1, see signf()
 
 func _ready() -> void:
 	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
@@ -43,6 +45,16 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (forwardBackward < 0):
 		forwardBackward *= 0.1 # softer brake and slow backward speed
 	var leftRight: float = Input.get_axis("left", "right")
+	
+	var startsDrifting = Input.is_action_just_pressed("drift")
+	var stopsDrifting = Input.is_action_just_released("drift")
+	if startsDrifting:
+		_drifting = true
+		_driftingDirection = signf(leftRight)
+	if stopsDrifting:
+		_drifting = false
+	if _drifting:
+		leftRight = (leftRight * 0.75) + 1 * _driftingDirection # 0.25 to 1.75 in given direction
 
 	_cancel_inertia(state)
 	_apply_wheel_adherence(state)
