@@ -53,7 +53,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	
 	var startsDrifting = Input.is_action_just_pressed("drift")
 	var stopsDrifting = Input.is_action_just_released("drift")
-	if startsDrifting:
+	if startsDrifting && leftRight > 0: # cannot drift when not turning
 		_drifting = true
 		_driftingDirection = signf(leftRight)
 	if stopsDrifting:
