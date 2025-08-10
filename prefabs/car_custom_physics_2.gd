@@ -23,6 +23,10 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
 const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
 
+const BRAKE_FORCE_FACTOR: float = 0.1
+const BACKWARDS_FORCE_FACTOR: float = 0.20
+const MIN_SPEED_FOR_BEING_BRAKE_SQUARED: float = 4 
+
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
 var _debugSoftClampSpeedForce: Vector3
@@ -51,7 +55,18 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.transform.basis = _forcedBasis.orthonormalized()
 	var forwardBackward: float = Input.get_axis("backward", "forward")
 	if (forwardBackward < 0):
-		forwardBackward *= 0.1 # softer brake and slow backward speed
+		var goingForward: bool
+		# we want to avoid an invalid vector with (0,0,0).normalized()
+		if (state.linear_velocity.length_squared() > 0.01):
+			goingForward = global_basis.x.dot(state.linear_velocity.normalized()) > 0
+		else:
+			goingForward = false
+		var goingFast: bool = state.linear_velocity.length_squared() > MIN_SPEED_FOR_BEING_BRAKE_SQUARED
+		var isBraking: bool = goingForward && goingFast
+		if (isBraking):
+			forwardBackward *= BRAKE_FORCE_FACTOR # softer brake and slow backward speed
+		else:
+			forwardBackward *= BACKWARDS_FORCE_FACTOR
 	var leftRight: float = Input.get_axis("left", "right")
 	
 	var startsDrifting = Input.is_action_just_pressed("drift")
