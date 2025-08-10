@@ -14,10 +14,8 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 @export var springStrength: float = 150000 # 100000
 @export var springDamping: float = 15000 # 12000 # coefficient
 @export var restDistance: float = 0.7
-@export var maxSpeedMetersPerSecond: float = 25:
-	set(v):
-		maxSpeedMetersPerSecond = v
-		_maxSpeedSquared = v*v
+@export var maxSpeedMetersPerSecond: float = 25
+@export var maxSpeedOutOfBounds: float = 8
 @export var interface: CarCustomPhysics2
 
 const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
@@ -39,9 +37,6 @@ var _forcedBasis: Basis
 var _mustForceBasis: bool = false
 var wheelRayCasts: Array[RayCast3D]
 var _groundRaycast: RayCast3D
-var _maxSpeedSquared: float:
-	get():
-		return maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
 var _drifting = false:
 	set(v):
 		_drifting = v
@@ -78,7 +73,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		else:
 			forwardBackward *= BACKWARDS_FORCE_FACTOR
 	var leftRight: float = Input.get_axis("left", "right")
-	var onGround = _groundRaycast.is_colliding()
+	var onGround: bool = _groundRaycast.is_colliding()
+	var outOfBounds = false
+	if (onGround):
+		var collider: CollisionObject3D = _get_collider_of_colliding_raycast(_groundRaycast)
+		if (collider != null):
+			var collidesOutOfBoundsMask: bool = !collider.get_collision_layer_value(5)
+			outOfBounds = collidesOutOfBoundsMask
 	
 	var wantToDrift = Input.is_action_pressed("drift")
 	# cannot drift when not turning, or if already drifting in a direction.
@@ -108,17 +109,24 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	for wheelRayCast in wheelRayCasts:
 		_apply_single_wheel_suspension(wheelRayCast)
 
-	_soft_clamp_speed(state)
+	_soft_clamp_speed(state, outOfBounds)
 
 func _disable_drift() -> void:
 	_drifting = false
 	_driftingDirection = 0
+	
+func _get_max_speed_squared(outOfBounds: bool):
+	if (outOfBounds):
+		return maxSpeedOutOfBounds * maxSpeedOutOfBounds
+	else:
+		return maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
 
-func _soft_clamp_speed(state: PhysicsDirectBodyState3D):
+func _soft_clamp_speed(state: PhysicsDirectBodyState3D, outOfBounds: bool):
 	var velSquaredXZ: float = (state.linear_velocity * Vector3(1,0,1)).length_squared()
-	if (velSquaredXZ > _maxSpeedSquared):
+	var maxSpeedSquared = _get_max_speed_squared(outOfBounds)
+	if (velSquaredXZ > maxSpeedSquared):
 		var normProjectedOnXZ: Vector3 = state.linear_velocity.normalized() * Vector3(1,0,1)
-		var diff: float = (velSquaredXZ - _maxSpeedSquared)
+		var diff: float = (velSquaredXZ - maxSpeedSquared)
 		# This is a physics based "clamp", being quadratic to be as close as possible to a hard limit.
 		# We do not use clamp as it causes unexpected behavior, such as making the car drift in air.
 		# It does not affect fall speed.
@@ -220,3 +228,13 @@ func _process(_delta: float) -> void:
 func force_basis_on_next_physics_frame(basis: Basis):
 	_forcedBasis = basis
 	_mustForceBasis = true
+	
+## Returns null if the type do not match.
+func _get_collider_of_colliding_raycast(raycast: RayCast3D) -> CollisionObject3D:
+	assert(raycast.is_colliding(), "ERROR: raycast not colliding.")
+	# from godot documentation:
+	var target = raycast.get_collider() # A CollisionObject3D.
+	if (is_instance_of(target, CollisionObject3D)):
+		return target
+	else:
+		return null
