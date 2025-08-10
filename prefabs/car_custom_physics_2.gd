@@ -25,6 +25,7 @@ const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
 
 const BRAKE_FORCE_FACTOR: float = 0.1
 const BACKWARDS_FORCE_FACTOR: float = 0.20
+const MIN_SPEED_FOR_BEING_BRAKE_SQUARED: float = 4 
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
@@ -55,7 +56,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var forwardBackward: float = Input.get_axis("backward", "forward")
 	if (forwardBackward < 0):
 		var goingForward: bool = global_basis.x.dot(state.linear_velocity.normalized()) > 0
-		var goingFast: bool = state.linear_velocity.length_squared() > 4
+		var goingFast: bool = state.linear_velocity.length_squared() > MIN_SPEED_FOR_BEING_BRAKE_SQUARED
 		var isBraking: bool = goingForward && goingFast
 		if (isBraking):
 			forwardBackward *= BRAKE_FORCE_FACTOR # softer brake and slow backward speed
