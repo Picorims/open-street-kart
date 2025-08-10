@@ -51,7 +51,13 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.transform.basis = _forcedBasis.orthonormalized()
 	var forwardBackward: float = Input.get_axis("backward", "forward")
 	if (forwardBackward < 0):
-		forwardBackward *= 0.1 # softer brake and slow backward speed
+		var goingForward: bool = global_basis.x.dot(state.linear_velocity.normalized()) > 0
+		var goingFast: bool = state.linear_velocity.length_squared() > 4
+		var isBraking: bool = goingForward && goingFast
+		if (isBraking):
+			forwardBackward *= 0.1 # softer brake and slow backward speed
+		else:
+			forwardBackward *= 0.20
 	var leftRight: float = Input.get_axis("left", "right")
 	
 	var startsDrifting = Input.is_action_just_pressed("drift")
