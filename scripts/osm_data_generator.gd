@@ -635,6 +635,7 @@ func _regenerate_data(dataHolder: Node3D) -> void:
 	roadManager.auto_refresh = false
 	roadManager.material_resource = roadMaterial
 	roadManager.density = 8
+	roadManager.collision_layer += 16 # layer 5
 	roadsContainer.add_child(roadManager)
 	loader.persist_in_current_scene(roadManager)
 	
