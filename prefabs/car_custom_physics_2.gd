@@ -25,7 +25,10 @@ const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
 
 const BRAKE_FORCE_FACTOR: float = 0.1
 const BACKWARDS_FORCE_FACTOR: float = 0.20
-const MIN_SPEED_FOR_BEING_BRAKE_SQUARED: float = 4 
+const MIN_SPEED_FOR_BEING_BRAKE_SQUARED: float = 4
+
+const DIRECTION_NERF_IN_AIR = 0.1
+const FORWARD_BACKWARD_NERF_IN_AIR = 0.1
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
@@ -33,6 +36,7 @@ var _debugSoftClampSpeedForce: Vector3
 var _forcedBasis: Basis
 var _mustForceBasis: bool = false
 var wheelRayCasts: Array[RayCast3D]
+var _groundRaycast: RayCast3D
 var _maxSpeedSquared: float:
 	get():
 		return maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
@@ -45,6 +49,7 @@ var _driftingDirection: float = 0 # 1 or -1, see signf()
 func _ready() -> void:
 	assert(interface != null, "ERROR: interface not assigned.")
 	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
+	_groundRaycast = $GroundRayCast3D
 	# actual damping / critical damping (critical = best)
 	var dampingRatio: float = springDamping / (2 * sqrt(mass * springStrength))
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is underdamped, >1 is overdamped): ", dampingRatio)
@@ -53,6 +58,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_mustForceBasis):
 		_mustForceBasis = false
 		state.transform.basis = _forcedBasis.orthonormalized()
+		_disable_drift()
+		state.linear_velocity = Vector3(0,0,0)
+		state.angular_velocity = Vector3(0,0,0)
 	var forwardBackward: float = Input.get_axis("backward", "forward")
 	if (forwardBackward < 0):
 		var goingForward: bool
@@ -68,19 +76,26 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		else:
 			forwardBackward *= BACKWARDS_FORCE_FACTOR
 	var leftRight: float = Input.get_axis("left", "right")
+	var onGround = _groundRaycast.is_colliding()
 	
 	var wantToDrift = Input.is_action_pressed("drift")
 	# cannot drift when not turning, or if already drifting in a direction.
-	if wantToDrift && abs(leftRight) > 0 && _driftingDirection == 0:
+	if wantToDrift && abs(leftRight) > 0 && _driftingDirection == 0 && onGround:
 		_drifting = true
 		_driftingDirection = signf(leftRight)
 	if !wantToDrift && _drifting:
-		_drifting = false
-		_driftingDirection = 0
+		_disable_drift()
 	if _drifting:
 		# example: if left right factor is 0.75 and added direction multiplier is 1, the range is:
 		# 0.25 to 1.75 in given direction
 		leftRight = (leftRight * DRIFT_LEFT_RIGHT_FACTOR) + DRIFT_ADDED_DIRECTION_MULTIPLIER * _driftingDirection
+
+	if !onGround:
+		leftRight *= DIRECTION_NERF_IN_AIR
+		forwardBackward *= FORWARD_BACKWARD_NERF_IN_AIR
+
+	if (Input.is_action_just_pressed("debug_jump")):
+		state.apply_impulse(Vector3(0,5000,0))
 
 	_cancel_inertia(state)
 	_apply_wheel_adherence(state)
@@ -93,7 +108,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 	_soft_clamp_speed(state)
 
-
+func _disable_drift() -> void:
+	_drifting = false
+	_driftingDirection = 0
 
 func _soft_clamp_speed(state: PhysicsDirectBodyState3D):
 	var velSquaredXZ: float = (state.linear_velocity * Vector3(1,0,1)).length_squared()
