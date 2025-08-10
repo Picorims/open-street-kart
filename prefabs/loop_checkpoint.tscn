@@ -9,7 +9,7 @@ size = Vector3(5, 100, 200)
 script = ExtResource("1_c7dra")
 debugDrawBoxColor = Color(1, 0.5, 0, 1)
 debugDrawArrowColor = Color(0.6, 0.3, 0, 1)
-debugShapeFillColor = null
+debugShapeFillColor = Color(1, 0.5, 0, 0.4)
 
 [node name="Area3D" type="Area3D" parent="."]
 

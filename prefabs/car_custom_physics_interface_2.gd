@@ -21,6 +21,12 @@ class_name CarCustomPhysics2 extends Node3D
 		else:
 			print("Checkpoint removed.")
 
+@export var driftingEffects: bool = false:
+	set(v):
+		driftingEffects = v
+		$CarRigidBody/WheelBLGPUParticles3D.emitting = v
+		$CarRigidBody/WheelBRGPUParticles3D.emitting = v
+
 func respawn():
 	print("Respawning car...")
 	var rb: RigidBody3D = $CarRigidBody
