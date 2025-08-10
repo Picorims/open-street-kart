@@ -20,6 +20,9 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 		_maxSpeedSquared = v*v
 @export var interface: CarCustomPhysics2
 
+const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
+const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
+
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
 var _debugSoftClampSpeedForce: Vector3
@@ -53,13 +56,15 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	
 	var startsDrifting = Input.is_action_just_pressed("drift")
 	var stopsDrifting = Input.is_action_just_released("drift")
-	if startsDrifting && leftRight > 0: # cannot drift when not turning
+	if startsDrifting && abs(leftRight) > 0: # cannot drift when not turning
 		_drifting = true
 		_driftingDirection = signf(leftRight)
 	if stopsDrifting:
 		_drifting = false
 	if _drifting:
-		leftRight = (leftRight * 0.75) + 1 * _driftingDirection # 0.25 to 1.75 in given direction
+		# example: if left right factor is 0.75 and added direction multiplier is 1, the range is:
+		# 0.25 to 1.75 in given direction
+		leftRight = (leftRight * DRIFT_LEFT_RIGHT_FACTOR) + DRIFT_ADDED_DIRECTION_MULTIPLIER * _driftingDirection
 
 	_cancel_inertia(state)
 	_apply_wheel_adherence(state)
