@@ -77,8 +77,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	var outOfBounds = false
 	if (onGround):
 		var collider: CollisionObject3D = _get_collider_of_colliding_raycast(_groundRaycast)
-		var collidesOutOfBoundsMask: bool = !collider.get_collision_layer_value(5)
-		outOfBounds = collidesOutOfBoundsMask
+		if (collider != null):
+			var collidesOutOfBoundsMask: bool = !collider.get_collision_layer_value(5)
+			outOfBounds = collidesOutOfBoundsMask
 	
 	var wantToDrift = Input.is_action_pressed("drift")
 	# cannot drift when not turning, or if already drifting in a direction.
@@ -228,6 +229,7 @@ func force_basis_on_next_physics_frame(basis: Basis):
 	_forcedBasis = basis
 	_mustForceBasis = true
 	
+## Returns null if the type do not match.
 func _get_collider_of_colliding_raycast(raycast: RayCast3D) -> CollisionObject3D:
 	assert(raycast.is_colliding(), "ERROR: raycast not colliding.")
 	# from godot documentation:
