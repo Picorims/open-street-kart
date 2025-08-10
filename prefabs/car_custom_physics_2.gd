@@ -55,7 +55,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.transform.basis = _forcedBasis.orthonormalized()
 	var forwardBackward: float = Input.get_axis("backward", "forward")
 	if (forwardBackward < 0):
-		var goingForward: bool = global_basis.x.dot(state.linear_velocity.normalized()) > 0
+		var goingForward: bool
+		# we want to avoid an invalid vector with (0,0,0).normalized()
+		if (state.linear_velocity.length_squared() > 0.01):
+			goingForward = global_basis.x.dot(state.linear_velocity.normalized()) > 0
+		else:
+			goingForward = false
 		var goingFast: bool = state.linear_velocity.length_squared() > MIN_SPEED_FOR_BEING_BRAKE_SQUARED
 		var isBraking: bool = goingForward && goingFast
 		if (isBraking):
