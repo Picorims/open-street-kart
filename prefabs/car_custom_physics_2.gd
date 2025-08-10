@@ -69,13 +69,14 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			forwardBackward *= BACKWARDS_FORCE_FACTOR
 	var leftRight: float = Input.get_axis("left", "right")
 	
-	var startsDrifting = Input.is_action_just_pressed("drift")
-	var stopsDrifting = Input.is_action_just_released("drift")
-	if startsDrifting && abs(leftRight) > 0: # cannot drift when not turning
+	var wantToDrift = Input.is_action_pressed("drift")
+	# cannot drift when not turning, or if already drifting in a direction.
+	if wantToDrift && abs(leftRight) > 0 && _driftingDirection == 0:
 		_drifting = true
 		_driftingDirection = signf(leftRight)
-	if stopsDrifting:
+	if !wantToDrift && _drifting:
 		_drifting = false
+		_driftingDirection = 0
 	if _drifting:
 		# example: if left right factor is 0.75 and added direction multiplier is 1, the range is:
 		# 0.25 to 1.75 in given direction
