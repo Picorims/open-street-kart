@@ -27,8 +27,10 @@ const BRAKE_FORCE_FACTOR: float = 0.1
 const BACKWARDS_FORCE_FACTOR: float = 0.20
 const MIN_SPEED_FOR_BEING_BRAKE_SQUARED: float = 4
 
-const DIRECTION_NERF_IN_AIR = 0.1
-const FORWARD_BACKWARD_NERF_IN_AIR = 0.1
+const DIRECTION_NERF_IN_AIR: float = 0.1
+const FORWARD_BACKWARD_NERF_IN_AIR: float = 0.1
+
+const DEBUG_JUMP_FORCE: float = 5000
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
@@ -95,7 +97,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		forwardBackward *= FORWARD_BACKWARD_NERF_IN_AIR
 
 	if (Input.is_action_just_pressed("debug_jump")):
-		state.apply_impulse(Vector3(0,5000,0))
+		state.apply_impulse(Vector3(0,DEBUG_JUMP_FORCE,0))
 
 	_cancel_inertia(state)
 	_apply_wheel_adherence(state)
