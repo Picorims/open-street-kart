@@ -51,6 +51,8 @@ func _ready() -> void:
 	_groundRaycast = $GroundRayCast3D
 	assert(_groundRaycast != null, "ERROR: ground raycast not found.")
 	# actual damping / critical damping (critical = best)
+	assert(mass > 0, "ERROR: mass should not be zero.")
+	assert(springStrength > 0, "ERROR: springSrength should not be greater than zero.")
 	var dampingRatio: float = springDamping / (2 * sqrt(mass * springStrength))
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is underdamped, >1 is overdamped): ", dampingRatio)
 	
