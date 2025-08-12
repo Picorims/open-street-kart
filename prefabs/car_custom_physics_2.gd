@@ -66,11 +66,6 @@ func _ready() -> void:
 			var typedBody: FreezeManagedRigidBody3D = body
 			typedBody.managedFreeze = false
 	)
-	
-	assert($WheelFRRayCast3D != null, "ERROR: Wheel raycast FR not found.")
-	assert($WheelBLRayCast3D != null, "ERROR: Wheel raycast BL not found.")
-	assert($WheelBRRayCast3D != null, "ERROR: Wheel raycast BR not found.")
-	assert($WheelFLRayCast3D != null, "ERROR: Wheel raycast FL not found.")
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_mustForceBasis):
