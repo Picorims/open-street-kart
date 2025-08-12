@@ -59,6 +59,11 @@ func _ready() -> void:
 			var typedBody: FreezeManagedRigidBody3D = body
 			typedBody.managedFreeze = false
 	)
+	
+	assert($WheelFRRayCast3D != null, "ERROR: Wheel raycast FR not found.")
+	assert($WheelBLRayCast3D != null, "ERROR: Wheel raycast BL not found.")
+	assert($WheelBRRayCast3D != null, "ERROR: Wheel raycast BR not found.")
+	assert($WheelFLRayCast3D != null, "ERROR: Wheel raycast FL not found.")
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_mustForceBasis):
@@ -201,6 +206,7 @@ func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
 		_debugSlidingForce = Vector3(0,0,0)
 		return
 	var normalToGround: Vector3 = global_basis.y.normalized()
+	assert(normalToGround)
 	var groundCounterForce: Vector3 = normalToGround * (get_gravity()).length()
 	var slidingForce: Vector3 = (get_gravity() + groundCounterForce) * mass
 	_debugSlidingForce = slidingForce
