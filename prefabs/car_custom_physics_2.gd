@@ -30,6 +30,11 @@ const FORWARD_BACKWARD_NERF_IN_AIR: float = 0.1
 
 const DEBUG_JUMP_FORCE: float = 5000
 
+# crash avoidance related constants
+const MIN_INERTIA_RADIUS_LIMIT = 0.001
+const MAX_INERTIA_RADIUS_LIMIT = 10_000
+const MIN_ANGLE_THRESHOLD = 0.01
+
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
 var _debugSoftClampSpeedForce: Vector3
@@ -185,8 +190,9 @@ func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var radius: float = _get_radius_of_rotation(state)
 	var centrifugusDirection: Vector3 = global_basis.z.normalized() * sign(state.angular_velocity.y)
 	if (centrifugusDirection.length() < 0.01):
-		return
-	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / min(max(radius,0.001),10_000))
+		return # TODO might be the cause of bugs when going backwards?
+	var cappedRadius = min(max(radius, MIN_INERTIA_RADIUS_LIMIT), MAX_INERTIA_RADIUS_LIMIT)
+	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / cappedRadius)
 	state.apply_central_force(-centrifugusForce)
 	_debugCentrifugusForce = centrifugusForce
 
@@ -197,7 +203,7 @@ func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
 	# we compute the circumference of the entire circle,
 	# and deduct a radius from there
 	var length = (state.linear_velocity * Vector3(1,0,1)).length()
-	var angle = max(abs(state.angular_velocity.y), 0.01) # avoid 0 to avoid division by zero crash
+	var angle = max(abs(state.angular_velocity.y), MIN_ANGLE_THRESHOLD) # avoid 0 to avoid division by zero crash
 	var circumference = (2*PI / angle) * length
 	var radius = circumference / (2*PI)
 	return radius
@@ -208,7 +214,7 @@ func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
 		_debugSlidingForce = Vector3(0,0,0)
 		return
 	var normalToGround: Vector3 = global_basis.y.normalized()
-	assert(normalToGround)
+	assert(normalToGround.length_squared() > 0)
 	var groundCounterForce: Vector3 = normalToGround * (get_gravity()).length()
 	var slidingForce: Vector3 = (get_gravity() + groundCounterForce) * mass
 	_debugSlidingForce = slidingForce
