@@ -50,6 +50,12 @@ func _ready() -> void:
 	# actual damping / critical damping (critical = best)
 	var dampingRatio: float = springDamping / (2 * sqrt(mass * springStrength))
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is underdamped, >1 is overdamped): ", dampingRatio)
+	
+	$ManagedFreezeWakeUpArea3D.body_entered.connect(func (body: Node3D):
+		if (is_instance_of(body, FreezeManagedRigidBody3D)):
+			var typedBody: FreezeManagedRigidBody3D = body
+			typedBody.managedFreeze = false
+	)
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_mustForceBasis):

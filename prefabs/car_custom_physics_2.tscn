@@ -1,4 +1,4 @@
-[gd_scene load_steps=25 format=3 uid="uid://c1j3m2tjlgh8y"]
+[gd_scene load_steps=26 format=3 uid="uid://c1j3m2tjlgh8y"]
 
 [ext_resource type="Script" uid="uid://dlohgk4brx70b" path="res://prefabs/car_custom_physics_interface_2.gd" id="1_2glma"]
 [ext_resource type="Script" uid="uid://bdrvech1c3yhq" path="res://prefabs/car_custom_physics_2.gd" id="2_pkjqb"]
@@ -89,6 +89,9 @@ albedo_color = Color(0.333333, 0.333333, 0.333333, 1)
 material = SubResource("StandardMaterial3D_f0e7b")
 radial_segments = 16
 rings = 8
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_2glma"]
+radius = 1.0
 
 [node name="CarCustomPhysics2" type="Node3D"]
 script = ExtResource("1_2glma")
@@ -199,3 +202,10 @@ amount = 128
 randomness = 0.52
 process_material = SubResource("ParticleProcessMaterial_qe5cl")
 draw_pass_1 = SubResource("SphereMesh_gx5rs")
+
+[node name="ManagedFreezeWakeUpArea3D" type="Area3D" parent="CarRigidBody"]
+collision_layer = 0
+collision_mask = 32
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CarRigidBody/ManagedFreezeWakeUpArea3D"]
+shape = SubResource("SphereShape3D_2glma")
