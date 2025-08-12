@@ -186,7 +186,7 @@ func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var centrifugusDirection: Vector3 = global_basis.z.normalized() * sign(state.angular_velocity.y)
 	if (centrifugusDirection.length() < 0.01):
 		return
-	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / radius)
+	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / min(max(radius,0.001),10_000))
 	state.apply_central_force(-centrifugusForce)
 	_debugCentrifugusForce = centrifugusForce
 
@@ -197,7 +197,7 @@ func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
 	# we compute the circumference of the entire circle,
 	# and deduct a radius from there
 	var length = (state.linear_velocity * Vector3(1,0,1)).length()
-	var angle = max(abs(state.angular_velocity.y), 1) # avoid 0 to avoid division by zero crash
+	var angle = max(abs(state.angular_velocity.y), 0.01) # avoid 0 to avoid division by zero crash
 	var circumference = (2*PI / angle) * length
 	var radius = circumference / (2*PI)
 	return radius
