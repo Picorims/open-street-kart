@@ -190,7 +190,7 @@ func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
 	# we compute the circumference of the entire circle,
 	# and deduct a radius from there
 	var length = (state.linear_velocity * Vector3(1,0,1)).length()
-	var angle = abs(state.angular_velocity.y)
+	var angle = max(abs(state.angular_velocity.y), 1) # avoid 0 to avoid division by zero crash
 	var circumference = (2*PI / angle) * length
 	var radius = circumference / (2*PI)
 	return radius
