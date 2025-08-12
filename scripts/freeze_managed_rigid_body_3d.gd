@@ -55,7 +55,7 @@ func _physics_process(delta: float) -> void:
 	
 	# avoid running too often
 	_ellpased += delta
-	if (_ellpased < 0.05):
+	if (_ellpased < 0.1):
 		return
 	else:
 		_ellpased = 0

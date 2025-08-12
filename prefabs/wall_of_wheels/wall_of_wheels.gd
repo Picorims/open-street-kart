@@ -8,11 +8,11 @@
 @tool
 class_name WallOfWheels extends Path3D
 
-const WHEEL_RADIUS = 0.5
-const GAP_BETWEEN_WHEELS = 0.5
+const WHEEL_RADIUS = 0.6
+const GAP_BETWEEN_WHEELS = 0.75
 const VERTICAL_GAP = 0.01
 const WHEEL_DEPTH = 0.4
-const STACK_COUNT = 3
+const STACK_COUNT = 2
 
 var _isDirty: bool = false
 var _lastUpdateRequest: float = 0
