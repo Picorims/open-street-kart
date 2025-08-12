@@ -46,7 +46,10 @@ var _driftingDirection: float = 0 # 1 or -1, see signf()
 func _ready() -> void:
 	assert(interface != null, "ERROR: interface not assigned.")
 	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
+	for r in wheelRayCasts:
+		assert(r != null, "ERROR: a wheel raycast was not found.")
 	_groundRaycast = $GroundRayCast3D
+	assert(_groundRaycast != null, "ERROR: ground raycast not found.")
 	# actual damping / critical damping (critical = best)
 	var dampingRatio: float = springDamping / (2 * sqrt(mass * springStrength))
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is underdamped, >1 is overdamped): ", dampingRatio)
