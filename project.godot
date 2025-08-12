@@ -65,8 +65,10 @@ debug_jump={
 
 [layer_names]
 
+3d_physics/layer_1="General collision layer"
 3d_physics/layer_2="Cast To Ground (Layer 2)"
 3d_physics/layer_5="car on track layer"
+3d_physics/layer_6="Managed freeze layer"
 
 [physics]
 
