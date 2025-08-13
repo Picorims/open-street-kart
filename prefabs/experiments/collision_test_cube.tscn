@@ -1,0 +1,18 @@
+[gd_scene load_steps=4 format=3 uid="uid://dsj01gx1fn4s8"]
+
+[ext_resource type="Material" uid="uid://cc37b7v35xkl6" path="res://materials/wall_material.tres" id="1_os2xs"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_os2xs"]
+size = Vector3(10, 1, 10)
+
+[sub_resource type="BoxMesh" id="BoxMesh_2gbxq"]
+material = ExtResource("1_os2xs")
+size = Vector3(10, 1, 10)
+
+[node name="CollisionTestCube" type="StaticBody3D"]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_os2xs")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_2gbxq")
