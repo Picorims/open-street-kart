@@ -10,14 +10,22 @@
 ## Point of the AI's path, with a given angle, predecessors and sucessors, as well as a range.
 class_name RacePathNode extends Node3D
 
+## sets the predecessor and successor to bind to previous child.
+@export_tool_button("Bind to previous child", "LinkButton") var bindToPreviousChild: Callable = Callable(self, "_bind_to_previous_child")
+
 ## defines the ridable area around the point.
 @export var rangeRadius: float = 8:
 	set(v):
 		rangeRadius = v
 		_rangeBarShape.size.z = v * 2
 
-@export var predecessors: Array[RacePathNode] = []
-@export var successors: Array[RacePathNode] = []
+func add_predecessor(s: RacePathNode):
+	_predecessors.append(s)
+@export_storage var _predecessors: Array[RacePathNode] = []
+func add_successor(s: RacePathNode):
+	_successors.append(s)
+@export_storage var _successors: Array[RacePathNode] = []
+
 
 var _rangeBarShape: BoxMesh = BoxMesh.new()
 
@@ -53,3 +61,23 @@ func _ready() -> void:
 		self.add_child(forwardMesh)
 		forwardMesh.position = Vector3(1,0,0)
 		
+
+func _bind_to_previous_child():
+	print("Attempting a bind to previous child of ", self.name)
+	var children: Array[Node] = get_parent_node_3d().get_children()
+	var predecessor: RacePathNode = null
+	for i in range(children.size()):
+		if children[i] == self: # equality by ref, not content
+			if i == 0:
+				print("ERROR: No previous child.")
+				return
+			
+			predecessor = children[i-1]
+			break
+	if (predecessor == null):
+		print("ERROR: No previous child found.")
+	
+	print("Found ", predecessor.name)
+	predecessor.add_successor(self)
+	self.add_predecessor(predecessor)
+	print("Binding done.")

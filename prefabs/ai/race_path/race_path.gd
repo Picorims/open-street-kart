@@ -32,7 +32,9 @@ func _bake_path():
 	
 	var index: int = 0
 	
+	#TODO support branching
 	while queue.size() >= index+1:
+		#FIXME not suited for branching.
 		newCurve.add_point(queue[index].position)
 		queue.append_array(queue[index].successors)
 		index += 1
