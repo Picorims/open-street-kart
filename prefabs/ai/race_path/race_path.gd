@@ -28,15 +28,16 @@ func _bake_path():
 	newCurve.add_point(startingNode.position)
 	
 	var queue: Array[RacePathNode] = []
-	queue.append_array(startingNode.successors)
+	queue.append(startingNode.successor)
 	
 	var index: int = 0
 	
 	#TODO support branching
-	while queue.size() >= index+1:
-		#FIXME not suited for branching.
+	while queue.size()-1 >= index:
+		print(index)
 		newCurve.add_point(queue[index].position)
-		queue.append_array(queue[index].successors)
+		if (queue[index].successor != null):
+			queue.append(queue[index].successor)
 		index += 1
 		
 		if index > MAX_POINTS:

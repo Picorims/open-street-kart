@@ -17,17 +17,14 @@ class_name RacePathNode extends Node3D
 @export var rangeRadius: float = 8:
 	set(v):
 		rangeRadius = v
-		_rangeBarShape.size.z = v * 2
+		if (_rangeBarMesh.mesh != null):
+			_rangeBarMesh.mesh.size.z = v * 2
 
-func add_predecessor(s: RacePathNode):
-	_predecessors.append(s)
-@export_storage var _predecessors: Array[RacePathNode] = []
-func add_successor(s: RacePathNode):
-	_successors.append(s)
-@export_storage var _successors: Array[RacePathNode] = []
+@export var predecessor: RacePathNode
+@export var successor: RacePathNode
 
 
-var _rangeBarShape: BoxMesh = BoxMesh.new()
+var _rangeBarMesh: MeshInstance3D = MeshInstance3D.new()
 
 func _ready() -> void:
 	if (Engine.is_editor_hint()):
@@ -42,8 +39,8 @@ func _ready() -> void:
 		pointMesh.mesh = shapePoint
 		self.add_child(pointMesh)
 		
-		var rangeBarMesh: MeshInstance3D = MeshInstance3D.new()
-		var rangeBarShape: BoxMesh = _rangeBarShape
+		var rangeBarMesh: MeshInstance3D = _rangeBarMesh
+		var rangeBarShape: BoxMesh = BoxMesh.new()
 		rangeBarShape.size = Vector3(0.2, 0.2, rangeRadius * 2)
 		var matBar: StandardMaterial3D = StandardMaterial3D.new()
 		matBar.albedo_color = Color(0,0.2,1)
@@ -65,19 +62,19 @@ func _ready() -> void:
 func _bind_to_previous_child():
 	print("Attempting a bind to previous child of ", self.name)
 	var children: Array[Node] = get_parent_node_3d().get_children()
-	var predecessor: RacePathNode = null
+	var newPredecessor: RacePathNode = null
 	for i in range(children.size()):
 		if children[i] == self: # equality by ref, not content
 			if i == 0:
 				print("ERROR: No previous child.")
 				return
 			
-			predecessor = children[i-1]
+			newPredecessor = children[i-1]
 			break
-	if (predecessor == null):
+	if (newPredecessor == null):
 		print("ERROR: No previous child found.")
 	
-	print("Found ", predecessor.name)
-	predecessor.add_successor(self)
-	self.add_predecessor(predecessor)
+	print("Found ", newPredecessor.name)
+	newPredecessor.successor = self
+	self.predecessor = newPredecessor
 	print("Binding done.")
