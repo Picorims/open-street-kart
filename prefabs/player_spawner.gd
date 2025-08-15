@@ -27,8 +27,9 @@ var cars: Array[RigidBody3D] = []
 signal go
 
 func _ready() -> void:
-	var car: Node3D = CAR_SCENE.instantiate()
+	var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 	self.add_child(car)
+	car.mode = CarCustomPhysics2.CarMode.USER
 	car.speedMultiplier = 1.5
 	car.basis = self.basis
 	car.global_transform = self.global_transform

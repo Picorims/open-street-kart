@@ -8,6 +8,12 @@
 
 class_name CarCustomPhysics2 extends Node3D
 
+enum CarMode {
+	UNSET,
+	USER,
+	BOT,
+}
+
 @export var speedMultiplier: float = 1.0:
 	set(v):
 		speedMultiplier = v
@@ -26,6 +32,11 @@ class_name CarCustomPhysics2 extends Node3D
 		driftingEffects = v
 		$CarRigidBody/WheelBLGPUParticles3D.emitting = v
 		$CarRigidBody/WheelBRGPUParticles3D.emitting = v
+
+@export var mode: CarMode:
+	set(v):
+		mode = v
+		$CarRigidBody.mode = v
 
 func respawn():
 	print("Respawning car...")

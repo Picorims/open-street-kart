@@ -7,6 +7,9 @@
 
 
 extends RigidBody3D
+
+
+
 var currentDirection: Vector3 = Vector3(1,0,0)
 @export var accelerationForce: float = 5000
 @export var rotationForce: float = 100
@@ -17,6 +20,13 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 @export var maxSpeedMetersPerSecond: float = 25
 @export var maxSpeedOutOfBounds: float = 8
 @export var interface: CarCustomPhysics2
+@export var mode: CarCustomPhysics2.CarMode:
+	set(v):
+		mode = v
+		if (v == CarCustomPhysics2.CarMode.USER):
+			_brain = UserBrain.new()
+		if (v == CarCustomPhysics2.CarMode.BOT):
+			_brain = BotBrain.new()
 
 const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
 const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
@@ -47,6 +57,7 @@ var _drifting = false:
 		_drifting = v
 		interface.driftingEffects = v
 var _driftingDirection: float = 0 # 1 or -1, see signf()
+var _brain: ACarBrain
 
 func _ready() -> void:
 	assert(interface != null, "ERROR: interface not assigned.")
@@ -68,13 +79,16 @@ func _ready() -> void:
 	)
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	if (_brain == null):
+		return
+	
 	if (_mustForceBasis):
 		_mustForceBasis = false
 		state.transform.basis = _forcedBasis.orthonormalized()
 		_disable_drift()
 		state.linear_velocity = Vector3(0,0,0)
 		state.angular_velocity = Vector3(0,0,0)
-	var forwardBackward: float = Input.get_axis("backward", "forward")
+	var forwardBackward: float = _brain.get_forward_backward_axis()
 	if (forwardBackward < 0):
 		var goingForward: bool
 		# we want to avoid an invalid vector with (0,0,0).normalized()
@@ -88,7 +102,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			forwardBackward *= BRAKE_FORCE_FACTOR # softer brake and slow backward speed
 		else:
 			forwardBackward *= BACKWARDS_FORCE_FACTOR
-	var leftRight: float = Input.get_axis("left", "right")
+	var leftRight: float = _brain.get_left_right_axis()
 	var onGround: bool = _groundRaycast.is_colliding()
 	var outOfBounds = false
 	if (onGround):
@@ -97,7 +111,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			var collidesOutOfBoundsMask: bool = !collider.get_collision_layer_value(5)
 			outOfBounds = collidesOutOfBoundsMask
 	
-	var wantToDrift = Input.is_action_pressed("drift")
+	var wantToDrift = _brain.drift_input_active()
 	# cannot drift when not turning, or if already drifting in a direction.
 	if wantToDrift && abs(leftRight) > 0 && _driftingDirection == 0 && onGround:
 		_drifting = true
