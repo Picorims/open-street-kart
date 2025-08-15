@@ -12,7 +12,7 @@ class_name BoundariesGenerator extends Node3D
 const ROOT_NODE_NAME: String = "Boundaries"
 const RACE_BOUNDARY_SCRIPT = preload("res://scripts/race_global_boundary.gd")
 const LOCAL_RACE_BOUNDARY_SCRIPT = preload("res://scripts/race_local_boundary.gd")
-const DEBUG_ENABLED = true
+const DEBUG_ENABLED = false
 
 @export var loader: MapDataLoader
 
