@@ -22,14 +22,24 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis) -> void:
 		trackWidthSquared *= trackWidthSquared
 		var distanceSquaredFromCenter: float = globalPos.distance_squared_to(q.closestPoint) 
 		# TODO account for car width
-		var targetOffsetAhead: int = min(10, int(populatedLinVel.length_squared()) << 4) # divide by 16
+		var targetOffsetAhead: int = min(10, int(populatedLinVel.length_squared()) << 3) # divide by 8
 		var targetPosAhead: Vector3 = _xz(path.curve.sample_baked(q.closestOffset + targetOffsetAhead))
+		# try to take into account the car's distance from the center by offseting according to the closest
+		# offset (different from ahead offest). The goal is to limit the left to right yoyo effect.
+		# Side effects on correctly handling turns should be relatively small.
+		var trackSide: float = sign(q.forwardBasis.x.dot(globalPosXZ - _xz(q.closestPoint)))
+		targetPosAhead += _xz(q.forwardBasis.x) * trackSide * min(distanceSquaredFromCenter, trackWidthSquared) * 0.1
 		var wantedDirNormalized: Vector3 = _xz(targetPosAhead - globalPos).normalized()
 		var currentDirNormalized: Vector3 = _xz(populatedLinVel).normalized()
 		# We go forward on X, so to have 0 if right direction (and a signed diff otherwise),
 		# we need an angle of 90°. To do so we use the Z axis of the basis.
 		var wantedVSCurrentDiff: float = wantedDirNormalized.dot(globalBasis.z)
-		_leftRight = clampf(wantedVSCurrentDiff * 2, -1, 1)
+		## 0 if aligned, growing the more it is not.
+		var notAlignedToPath = q.forwardBasis.z.dot(globalBasis.x)
+		var preparedLeftRight = wantedVSCurrentDiff * 4
+		if (distanceSquaredFromCenter < trackWidthSquared):
+			preparedLeftRight *= notAlignedToPath
+		_leftRight = clampf(preparedLeftRight, -1, 1)
 		_driftActive = abs(_leftRight) > 0.9
 		
 		DebugDraw2D.set_text("_forwardBackward", _forwardBackward)
@@ -38,6 +48,7 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis) -> void:
 		DebugDraw2D.set_text("distanceSquaredFromCenter", distanceSquaredFromCenter)
 		DebugDraw2D.set_text("targetOffsetAhead", targetOffsetAhead)
 		DebugDraw2D.set_text("distanceSquaredFromCenter", distanceSquaredFromCenter)
+		DebugDraw2D.set_text("trackSide", trackSide)
 		
 		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forwardBasis.z, Color(0.8,0.8,1), 0.1)
 		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forwardBasis.x, Color(0.8,0.8,1), 0.1)
