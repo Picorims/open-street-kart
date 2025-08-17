@@ -15,9 +15,9 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, frontCollid
 	if (path == null):
 		return
 	_forwardBackward = 1
-	var speedSquared: float = populatedLinVel.length_squared()
+	var speed: float = populatedLinVel.length()
 	
-	if (frontColliding && speedSquared < 1):
+	if (frontColliding && speed < 1):
 		_lastRecoveryWantedTimestamp = Time.get_ticks_msec()
 	
 	var q: RacePath.QueryInfo = path.query_info(globalPos)
@@ -43,7 +43,7 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, frontCollid
 	# So we do everything on a 2D plane at 0.
 	var distanceFromCenter: float = _xz(globalPos).distance_to(_xz(q.closestPoint)) 
 	# TODO account for car width
-	var targetOffsetAhead: int = min(10, int(speedSquared) << 3) # divide by 8
+	var targetOffsetAhead: int = max(10, speed)
 	var targetPosAhead: Vector3 = _xz(path.curve.sample_baked(q.closestOffset + targetOffsetAhead))
 	# try to take into account the car's distance from the center by offseting according to the closest
 	# offset (different from ahead offest). The goal is to limit the left to right yoyo effect.
