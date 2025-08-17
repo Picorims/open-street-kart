@@ -17,7 +17,8 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, frontCollid
 	_forwardBackward = 1
 	var speed: float = populatedLinVel.length()
 	
-	if (frontColliding && speed < 1):
+	# HACK second part of if only there while there is the weird drive on wall bug.
+	if ((frontColliding && speed < 1) || populatedLinVel.normalized().dot(Vector3.UP) > 0.8):
 		_lastRecoveryWantedTimestamp = Time.get_ticks_msec()
 	
 	var q: RacePath.QueryInfo = path.query_info(globalPos)
