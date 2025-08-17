@@ -167,6 +167,10 @@ skeleton = NodePath("../WheelFLFrame")
 [node name="Camera3D" type="Camera3D" parent="CarRigidBody"]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5.4, 1.6, 0)
 
+[node name="FrontRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+target_position = Vector3(1, 0, 0)
+collision_mask = 17
+
 [node name="GroundRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 target_position = Vector3(0, -0.8, 0)
 collision_mask = 17
