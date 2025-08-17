@@ -11,17 +11,28 @@
 ## Can be extended for user input, AI input, etc.
 class_name ACarBrain extends Node
 
+var _forwardBackward: float = 0
+var _leftRight: float = 0
+var _driftActive: bool = false
+var path: RacePath
+var lastQueryInfo: RacePath.QueryInfo = RacePath.QueryInfo.new()
+## Manually updated by the car force integration function.
+var populatedLinVel: Vector3
+## Manually updated by the car force integration function.
+var populatedAngVel: Vector3
+
 ## @abstract
+## Called at every force integration by the car physics engine.
+## Use this function to update input variables that are queried by the
+## car physics engine.
+func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis) -> void:
+	push_error("ACarBrain: tick() is not implemented.")
+
 func get_forward_backward_axis() -> float:
-	push_error("ACarBrain: get_forward_backward_axis() is not implemented.")
-	return 0
+	return clampf(_forwardBackward, -1, 1)
 
-## @abstract	
 func get_left_right_axis() -> float:
-	push_error("ACarBrain: get_left_right_axis() is not implemented.")
-	return 0
+	return clampf(_leftRight, -1, 1)
 
-## @abstract
 func drift_input_active() -> bool:
-	push_error("ACarBrain: drift_input_active() is not implemented.")
-	return false
+	return _driftActive

@@ -17,8 +17,12 @@ class_name RacePath extends Path3D
 const MAX_POINTS: int = 10_000
 const DISTANCE_DIVIDER: float = 3
 
+var _foundRacePathNodes: Array[RacePathNode] = []
+var _nodesOffset: Array[float] = []
+
 func _ready() -> void:
 	assert(self.global_position.is_equal_approx(Vector3(0,0,0)), "RacePath should be at the origin.")
+	_bake_path() # necessary for runtime (otherwise found race path nodes and offsets are empty
 
 func _bake_path():
 	if (startingNode == null):
@@ -29,7 +33,10 @@ func _bake_path():
 		return
 	print("Baking race path...")
 	var newCurve: Curve3D = Curve3D.new()
+	var newNodes: Array[RacePathNode] = []
+	var newNodesOffset: Array[float] = []
 	newCurve.add_point(startingNode.position)
+	newNodes.append(startingNode)
 
 
 	
@@ -40,7 +47,7 @@ func _bake_path():
 	
 	#TODO support branching
 	while queue.size()-1 >= index:
-		print(index)
+		newNodes.append(queue[index])
 		newCurve.add_point(queue[index].position)
 		if (queue[index].successor != null):
 			queue.append(queue[index].successor)
@@ -63,5 +70,45 @@ func _bake_path():
 		newCurve.set_point_in(i, -(axis * (prevDist / DISTANCE_DIVIDER)))
 		newCurve.set_point_out(i, (axis * (nextDist / DISTANCE_DIVIDER)))
 		
+	for i in range(0, newCurve.point_count):
+		newNodesOffset.append(newCurve.get_closest_offset(newCurve.get_point_position(i)))
+	
+	assert(
+		newNodes.size() == newNodesOffset.size() && newNodesOffset.size() == newCurve.point_count,
+		"ERROR: path data is not consistent: {0} {1} {2}".format([newNodes.size(), newNodesOffset.size(), newCurve.point_count]))
+	
 	self.curve = newCurve
+	_foundRacePathNodes = newNodes
+	_nodesOffset = newNodesOffset
 	print("done")
+
+class QueryInfo:
+	var prev: RacePathNode
+	var next: RacePathNode
+	var closestOffset: float
+	var closestPoint: Vector3
+	var prevOffset: float
+	var nextOffset: float
+	## z is forward, x is left, y is top.
+	var forwardBasis: Basis
+
+func query_info(pos: Vector3) -> QueryInfo:
+	var q: QueryInfo = QueryInfo.new()
+	q.closestOffset = curve.get_closest_offset(pos)
+	q.closestPoint = curve.sample_baked(q.closestOffset)
+	var aBitForwardPoint: Vector3 = curve.sample_baked(q.closestOffset + 0.5)
+	var forwardNormalized = (aBitForwardPoint - q.closestPoint).normalized()
+	q.forwardBasis = Basis(forwardNormalized, 0)
+	
+	var foundNext: bool = false
+	var i: int = 0
+	while (!foundNext && i < _nodesOffset.size()):
+		if (_nodesOffset[i] > q.closestOffset):
+			q.next = _foundRacePathNodes[i]
+			q.nextOffset = _nodesOffset[i]
+			if (i > 0):
+				q.prev = _foundRacePathNodes[i-1]
+				q.prevOffset = _nodesOffset[i-1]
+			foundNext = true
+		i += 1
+	return q

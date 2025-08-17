@@ -37,6 +37,11 @@ enum CarMode {
 	set(v):
 		mode = v
 		$CarRigidBody.mode = v
+		
+@export var path: RacePath:
+	set(v):
+		path = v
+		$CarRigidBody.path = v
 
 func respawn():
 	print("Respawning car...")

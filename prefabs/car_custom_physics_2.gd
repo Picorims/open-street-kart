@@ -27,6 +27,11 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 			_brain = UserBrain.new()
 		if (v == CarCustomPhysics2.CarMode.BOT):
 			_brain = BotBrain.new()
+@export var path: RacePath:
+	set(v):
+		path = v
+		if (_brain != null):
+			_brain.path = v
 
 const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
 const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
@@ -81,6 +86,9 @@ func _ready() -> void:
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_brain == null):
 		return
+		
+	var debugPos = global_position + Vector3(0,3,0)
+	_brain.tick(global_position, debugPos, global_basis)
 	
 	if (_mustForceBasis):
 		_mustForceBasis = false
@@ -140,6 +148,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_apply_single_wheel_suspension(wheelRayCast)
 
 	_soft_clamp_speed(state, outOfBounds)
+	_brain.populatedLinVel = state.linear_velocity
+	_brain.populatedAngVel = state.angular_velocity
 
 func _disable_drift() -> void:
 	_drifting = false

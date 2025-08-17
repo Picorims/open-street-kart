@@ -8,6 +8,8 @@
 
 class_name PlayerSpawner extends Node3D
 
+@export var racePath: RacePath
+
 enum CountdownState {
 	THREE = 3,
 	TWO = 2,
@@ -27,9 +29,11 @@ var cars: Array[RigidBody3D] = []
 signal go
 
 func _ready() -> void:
+	assert(racePath != null, "ERROR: racePath not configured on player spawner.")
 	var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 	self.add_child(car)
-	car.mode = CarCustomPhysics2.CarMode.USER
+	car.mode = CarCustomPhysics2.CarMode.BOT
+	car.path = racePath
 	car.speedMultiplier = 1.5
 	car.basis = self.basis
 	car.global_transform = self.global_transform
