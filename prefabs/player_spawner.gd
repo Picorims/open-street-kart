@@ -20,7 +20,7 @@ enum CountdownState {
 
 const CAR_SCENE: PackedScene = preload("res://prefabs/car_custom_physics_2.tscn")
 const COUNTDOWN_DURATION: CountdownState = CountdownState.THREE
-const CARS_COUNT = 8
+const CARS_COUNT = 16
 
 var _inCountdown: bool = false
 var _countDownState = 0

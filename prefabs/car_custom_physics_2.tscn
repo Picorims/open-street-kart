@@ -177,19 +177,19 @@ collision_mask = 17
 
 [node name="WheelFRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.1, 0.3)
-target_position = Vector3(0, -0.4, 0)
+target_position = Vector3(0, -0.7, 0)
 
 [node name="WheelFLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.1, -0.3)
-target_position = Vector3(0, -0.4, 0)
+target_position = Vector3(0, -0.7, 0)
 
 [node name="WheelBLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.1, -0.3)
-target_position = Vector3(0, -0.4, 0)
+target_position = Vector3(0, -0.7, 0)
 
 [node name="WheelBRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.1, 0.3)
-target_position = Vector3(0, -0.4, 0)
+target_position = Vector3(0, -0.7, 0)
 
 [node name="WheelBLGPUParticles3D" type="GPUParticles3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.25, -0.3)

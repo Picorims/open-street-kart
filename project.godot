@@ -73,7 +73,7 @@ debug_jump={
 
 [physics]
 
-common/physics_ticks_per_second=240
+common/physics_ticks_per_second=180
 common/physics_jitter_fix=0.0
 3d/physics_engine="GodotPhysics3D"
 common/physics_interpolation=true
