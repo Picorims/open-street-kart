@@ -33,6 +33,7 @@ func _bake_path():
 		return
 	print("Baking race path...")
 	var newCurve: Curve3D = Curve3D.new()
+	newCurve.bake_interval = 1
 	var newNodes: Array[RacePathNode] = []
 	var newNodesOffset: Array[float] = []
 	newCurve.add_point(startingNode.position)
@@ -92,14 +93,31 @@ class QueryInfo:
 	## z is forward, x is left, y is top.
 	var forwardBasis: Basis
 
+static var closestOffsetAccumulatedUs: float = 0
+static var closestPointAccumulatedUs: float = 0
+static var basisAccumulatedUs: float = 0
+static var loopsAccumulatedUs: float = 0
+var checkpointUs: float = 0
+
 func query_info(pos: Vector3) -> QueryInfo:
 	var q: QueryInfo = QueryInfo.new()
+
+	checkpointUs = Time.get_ticks_usec()
+	# Very expensive
 	q.closestOffset = curve.get_closest_offset(pos)
+	closestOffsetAccumulatedUs += Time.get_ticks_usec() - checkpointUs
+
+	checkpointUs = Time.get_ticks_usec()
 	q.closestPoint = curve.sample_baked(q.closestOffset)
-	var aBitForwardPoint: Vector3 = curve.sample_baked(q.closestOffset + 0.5)
+	closestPointAccumulatedUs += Time.get_ticks_usec() - checkpointUs
+
+	var aBitForwardPoint: Vector3 = curve.sample_baked(q.closestOffset + 2 * curve.bake_interval)
 	var forwardNormalized = (aBitForwardPoint - q.closestPoint).normalized()
+	checkpointUs = Time.get_ticks_usec()
 	q.forwardBasis = Basis(forwardNormalized, 0)
+	basisAccumulatedUs += Time.get_ticks_usec() - checkpointUs
 	
+	checkpointUs = Time.get_ticks_usec()
 	var foundNext: bool = false
 	var i: int = 0
 	while (!foundNext && i < _nodesOffset.size()):
@@ -111,4 +129,13 @@ func query_info(pos: Vector3) -> QueryInfo:
 				q.prevOffset = _nodesOffset[i-1]
 			foundNext = true
 		i += 1
+	
+	loopsAccumulatedUs += Time.get_ticks_usec() - checkpointUs
 	return q
+
+func _process(delta: float) -> void:
+	pass
+	#DebugDraw2D.set_text("closestOffsetAccumulatedUs", closestOffsetAccumulatedUs)
+	#DebugDraw2D.set_text("closestPointAccumulatedUs", closestPointAccumulatedUs)
+	#DebugDraw2D.set_text("basisAccumulatedUs", basisAccumulatedUs)
+	#DebugDraw2D.set_text("loopsAccumulatedUs", loopsAccumulatedUs)
