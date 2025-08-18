@@ -20,6 +20,7 @@ enum CountdownState {
 
 const CAR_SCENE: PackedScene = preload("res://prefabs/car_custom_physics_2.tscn")
 const COUNTDOWN_DURATION: CountdownState = CountdownState.THREE
+const CARS_COUNT = 8
 
 var _inCountdown: bool = false
 var _countDownState = 0
@@ -30,25 +31,36 @@ signal go
 
 func _ready() -> void:
 	assert(racePath != null, "ERROR: racePath not configured on player spawner.")
-	var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
-	self.add_child(car)
-	car.mode = CarCustomPhysics2.CarMode.BOT
-	car.path = racePath
-	car.speedMultiplier = 1.5
-	car.basis = self.basis
-	car.global_transform = self.global_transform
-	var rigidBody: RigidBody3D = car.get_node("CarRigidBody")
-	rigidBody.freeze = true
-	
-	var snapRayCast = SnapToGroundRayCast3D.new()
-	self.add_child(snapRayCast)
-	snapRayCast.alignToNormal = true
-	snapRayCast.offset = -0.5
-	snapRayCast.target_position = Vector3(0, -1000, 0)
-	snapRayCast.target = car
-	snapRayCast.force_raycast_update()
-	
-	cars.append(rigidBody)
+	for i in range(CARS_COUNT):
+		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
+		self.add_child(car)
+		if (i == CARS_COUNT-1):
+			car.mode = CarCustomPhysics2.CarMode.USER
+			var cam: Camera3D = car.get_node("CarRigidBody/Camera3D")
+			if (cam != null):
+				cam.current = true
+				car.showDebugArrows = true
+			else:
+				push_error("ERROR: Could not set user as main camera focus.")
+		else:
+			car.mode = CarCustomPhysics2.CarMode.BOT
+		car.path = racePath
+		car.speedMultiplier = 1.5
+		car.basis = self.basis
+		car.global_transform = self.global_transform
+		car.global_position += self.basis.x * -i + self.basis.z * (i % 4) + self.basis.y * 5
+		var rigidBody: RigidBody3D = car.get_node("CarRigidBody")
+		rigidBody.freeze = true
+		
+		var snapRayCast = SnapToGroundRayCast3D.new()
+		self.add_child(snapRayCast)
+		snapRayCast.alignToNormal = true
+		snapRayCast.offset = -0.5
+		snapRayCast.target_position = Vector3(0, -1000, 0)
+		snapRayCast.target = car
+		snapRayCast.force_raycast_update()
+		
+		cars.append(rigidBody)
 
 
 func _process(delta: float) -> void:

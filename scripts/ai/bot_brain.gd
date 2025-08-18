@@ -81,21 +81,24 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	# The bot is not able to take advantage of slow turn mechanism of drift.
 	_driftActive = abs(_leftRight) > 0.9 && sign(prevLeftRight) == sign(_leftRight)
 	
-	DebugDraw2D.set_text("_forwardBackward", _forwardBackward)
-	DebugDraw2D.set_text("_leftRight", _leftRight)
-	DebugDraw2D.set_text("trackWidth", trackWidth)
-	DebugDraw2D.set_text("distanceFromCenter", distanceFromCenter)
-	DebugDraw2D.set_text("targetOffsetAhead", targetOffsetAhead)
-	DebugDraw2D.set_text("trackSide", trackSide)
-	DebugDraw2D.set_text("wantedVSCurrentDiff", wantedVSCurrentDiff)
-	DebugDraw2D.set_text("ratioPrevNext", ratioPrevNext)
-	DebugDraw2D.set_text("adjustedOffset", adjustedOffset)
+	# === FOR DEBUGGING VARIABLES vvvv ===
+	#DebugDraw2D.set_text("_forwardBackward", _forwardBackward)
+	#DebugDraw2D.set_text("_leftRight", _leftRight)
+	#DebugDraw2D.set_text("trackWidth", trackWidth)
+	#DebugDraw2D.set_text("distanceFromCenter", distanceFromCenter)
+	#DebugDraw2D.set_text("targetOffsetAhead", targetOffsetAhead)
+	#DebugDraw2D.set_text("trackSide", trackSide)
+	#DebugDraw2D.set_text("wantedVSCurrentDiff", wantedVSCurrentDiff)
+	#DebugDraw2D.set_text("ratioPrevNext", ratioPrevNext)
+	#DebugDraw2D.set_text("adjustedOffset", adjustedOffset)
+	# === FOR DEBUGGING VARIABLES ^^^^ ===
 	
-	DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forwardBasis.z, Color(0.8,0.8,1), 0.1)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forwardBasis.x, Color(0.8,0.8,1), 0.1)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + (globalPos - lastQueryInfo.closestPoint), Color(1,1,0), 0.1)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + wantedDirNormalized, Color(1,0.85,0.85), 0.1)
-	DebugDraw3D.draw_line(targetPosAhead + Vector3(0,-100,0), targetPosAhead + Vector3(0,100,0), Color(0,0,0))
+	if (showDebugArrows):
+		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forwardBasis.z, Color(0.8,0.8,1), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forwardBasis.x, Color(0.8,0.8,1), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + (globalPos - lastQueryInfo.closestPoint), Color(1,1,0), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + wantedDirNormalized, Color(1,0.85,0.85), 0.1)
+		DebugDraw3D.draw_line(targetPosAhead + Vector3(0,-100,0), targetPosAhead + Vector3(0,100,0), Color(0,0,0))
 	
 	if (_recovering()):
 		_forwardBackward = -1

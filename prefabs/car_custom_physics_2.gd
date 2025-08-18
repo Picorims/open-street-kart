@@ -11,6 +11,7 @@ extends RigidBody3D
 
 
 var currentDirection: Vector3 = Vector3(1,0,0)
+@export var showDebugArrows: bool = false
 @export var accelerationForce: float = 5000
 @export var rotationForce: float = 100
 @export var speedMultiplier: float = 1.0
@@ -27,6 +28,7 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 			_brain = UserBrain.new()
 		if (v == CarCustomPhysics2.CarMode.BOT):
 			_brain = BotBrain.new()
+		_brain.showDebugArrows = showDebugArrows
 @export var path: RacePath:
 	set(v):
 		path = v
@@ -63,8 +65,11 @@ var _drifting = false:
 		interface.driftingEffects = v
 var _driftingDirection: float = 0 # 1 or -1, see signf()
 var _brain: ACarBrain
+var _cam: Camera3D
 
 func _ready() -> void:
+	_cam = $Camera3D
+	assert(_cam != null, "ERROR: No cam configured on the car.")
 	assert(interface != null, "ERROR: interface not assigned.")
 	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
 	for r in wheelRayCasts:
@@ -260,12 +265,15 @@ func _input(event):
 func _process(_delta: float) -> void:
 	# debug
 	var debugPos = global_position + Vector3(0,3,0)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
-	DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
-	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
-	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
+	
+	if (_cam.current):
+		DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
+		DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
+	if (showDebugArrows):
+		DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
 
 func force_basis_on_next_physics_frame(basis: Basis):
 	_forcedBasis = basis

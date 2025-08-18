@@ -20,6 +20,7 @@ var lastQueryInfo: RacePath.QueryInfo = RacePath.QueryInfo.new()
 var populatedLinVel: Vector3
 ## Manually updated by the car force integration function.
 var populatedAngVel: Vector3
+var showDebugArrows: bool = false
 
 ## @abstract
 ## Called at every force integration by the car physics engine.

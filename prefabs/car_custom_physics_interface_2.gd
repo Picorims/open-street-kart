@@ -43,6 +43,12 @@ enum CarMode {
 		path = v
 		$CarRigidBody.path = v
 
+@export var showDebugArrows: bool:
+	set(v):
+		showDebugArrows = v
+		$CarRigidBody.showDebugArrows = v
+
+
 func respawn():
 	print("Respawning car...")
 	var rb: RigidBody3D = $CarRigidBody
