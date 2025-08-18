@@ -11,14 +11,14 @@ class_name BotBrain extends ACarBrain
 const RECOVERY_DURATION_MS: float = 2_000
 var _lastRecoveryWantedTimestamp: float = -RECOVERY_DURATION_MS
 
-func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, frontColliding: bool) -> void:
+func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis: Basis, frontColliding: bool, onGround: bool) -> void:
 	if (path == null):
 		return
 	_forwardBackward = 1
 	var speed: float = populatedLinVel.length()
 	
-	# HACK second part of if only there while there is the weird drive on wall bug.
-	if ((frontColliding && speed < 1) || populatedLinVel.normalized().dot(Vector3.UP) > 0.8):
+	# HACK second part of the if only there while there is the weird drive on wall bug.
+	if ((frontColliding && speed < 1) || (speed < 0.1 && localBasis.y.dot(Vector3.UP) < 0.2)):
 		_lastRecoveryWantedTimestamp = Time.get_ticks_msec()
 	
 	var q: RacePath.QueryInfo = path.query_info(globalPos)
@@ -44,7 +44,7 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, frontCollid
 	# So we do everything on a 2D plane at 0.
 	var distanceFromCenter: float = _xz(globalPos).distance_to(_xz(q.closestPoint)) 
 	# TODO account for car width
-	var targetOffsetAhead: int = max(10, speed)
+	var targetOffsetAhead: int = max(10, 0.9 * speed)
 	var targetPosAhead: Vector3 = _xz(path.curve.sample_baked(q.closestOffset + targetOffsetAhead))
 	# try to take into account the car's distance from the center by offseting according to the closest
 	# offset (different from ahead offest). The goal is to limit the left to right yoyo effect.
@@ -72,6 +72,11 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, frontCollid
 	
 	var prevLeftRight = _leftRight
 	_leftRight = clampf(preparedLeftRight, -1, 1)
+	
+	# HACK temporarily disable turning in air due to addociated physics bug
+	if (!onGround):
+		_leftRight = 0
+	
 	# sign check avoid bot being stuck going forward while wanting to turn.
 	# The bot is not able to take advantage of slow turn mechanism of drift.
 	_driftActive = abs(_leftRight) > 0.9 && sign(prevLeftRight) == sign(_leftRight)

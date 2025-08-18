@@ -106,8 +106,16 @@ continuous_cd = true
 linear_damp = 0.3
 angular_damp = 2.0
 script = ExtResource("2_pkjqb")
+accelerationForce = null
+rotationForce = null
+speedMultiplier = null
+springStrength = null
+springDamping = null
 restDistance = 0.35
+maxSpeedMetersPerSecond = null
+maxSpeedOutOfBounds = null
 interface = NodePath("..")
+mode = null
 
 [node name="WheelFR" type="CollisionShape3D" parent="CarRigidBody"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.25)

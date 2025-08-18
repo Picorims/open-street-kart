@@ -25,7 +25,7 @@ var populatedAngVel: Vector3
 ## Called at every force integration by the car physics engine.
 ## Use this function to update input variables that are queried by the
 ## car physics engine.
-func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, frontColliding: bool) -> void:
+func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis: Basis, frontColliding: bool, onGround: bool) -> void:
 	push_error("ACarBrain: tick() is not implemented.")
 
 func get_forward_backward_axis() -> float:

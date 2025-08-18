@@ -8,7 +8,7 @@
 ## Car brain for hooking user input to the car.
 class_name UserBrain extends ACarBrain
 
-func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, frontColliding: bool):
+func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis: Basis, frontColliding: bool, onGround: bool):
 	_driftActive = Input.is_action_pressed("drift")
 	_forwardBackward = Input.get_axis("backward", "forward")
 	_leftRight = Input.get_axis("left", "right")

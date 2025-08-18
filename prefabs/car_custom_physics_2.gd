@@ -88,7 +88,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		return
 		
 	var debugPos = global_position + Vector3(0,3,0)
-	_brain.tick(global_position, debugPos, global_basis, $FrontRayCast3D.is_colliding())
+	_brain.tick(global_position, debugPos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
 	
 	if (_mustForceBasis):
 		_mustForceBasis = false
