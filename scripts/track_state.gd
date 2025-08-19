@@ -10,10 +10,13 @@ class_name TrackState extends Node
 @export var loopCheckpoints: Array[LoopCheckpoint] = []
 @export var playerSpawner: PlayerSpawner = null
 
+const RACE_HUD_SCENE: PackedScene = preload("res://gui/race_hud.tscn")
+
 var _startUs: float = 0
 var _startLapUs: Dictionary[String, float]
 var _durationsUs: Dictionary[String, Array] # is Array[float]
 var _totalUs: Dictionary[String, float]
+var _raceHUD: RaceHUD
 
 enum Mode {
 	AGAINST_CLOCK
@@ -60,6 +63,9 @@ func init(mode: Mode):
 
 		)
 	
+	_raceHUD = RACE_HUD_SCENE.instantiate()
+	add_child(_raceHUD)
+	
 	playerSpawner.countdown()
 	playerSpawner.go.connect(func ():
 		start()
@@ -80,3 +86,50 @@ func _pretty_duration_from_us(us: float) -> String:
 	var microseconds: int = int(floor(us)) % 1_000_000
 	
 	return "{0}:{1}.{2} ({3} us)".format([minutes, seconds, milliseconds, microseconds])
+
+func _process(delta: float) -> void:
+	_process_live_ranking()
+
+class _OffsetEntry:
+	var carName: String
+	var carDisplayName: String
+	var carOffset: float
+	var color: Color
+
+## Updates ranking info on the HUD during the track race.
+## Not responsible for the final ranking.
+func _process_live_ranking() -> void:
+	## smaller to bigger
+	var rankings: Array[_OffsetEntry] = []
+	for c in playerSpawner.carRootNodes:
+		var entry: _OffsetEntry = _OffsetEntry.new()
+		entry.carName = c.name
+		entry.carDisplayName = c.displayName
+		entry.carOffset = c.get_race_path_offset()
+		entry.color = c.material.albedo_color
+		var insertPos = 0
+		
+		if (rankings.size() == 0):
+			rankings.append(entry)
+			continue
+		
+		var inserted: bool = false
+		while (insertPos < rankings.size()):
+			if (rankings[insertPos].carOffset > entry.carOffset):
+				rankings.insert(insertPos, entry)
+				inserted = true
+				break
+			insertPos += 1
+		if (not inserted):
+			rankings.append(entry)
+			
+	var ratios: Dictionary[String, RaceHUD.RatioEntry] = {}
+	var pathLength: float = max(playerSpawner.racePath.curve.get_baked_length(), 0.01)
+	var distanceFirstToLast: float = rankings[-1].carOffset - rankings[0].carOffset
+	for r in rankings:
+		var entry: RaceHUD.RatioEntry = RaceHUD.RatioEntry.new()
+		entry.ratio = (r.carOffset - rankings[0].carOffset) / max(distanceFirstToLast, 0.01)
+		entry.color = r.color
+		ratios[r.carDisplayName] = entry
+	_raceHUD.display_ratios(ratios)
+	_raceHUD.update_group_pos(rankings[0].carOffset / pathLength, rankings[-1].carOffset / pathLength)

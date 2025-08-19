@@ -62,6 +62,9 @@ enum CarMode {
 		newMesh.material = material
 		$CarRigidBody/DebugFrame.mesh = newMesh
 
+func get_race_path_offset() -> float:
+	return $CarRigidBody.get_race_path_offset()
+
 func respawn():
 	print("Respawning car...")
 	var rb: RigidBody3D = $CarRigidBody

@@ -26,6 +26,7 @@ var _inCountdown: bool = false
 var _countDownState = 0
 var _countdownElapsed: float = 0
 var cars: Array[RigidBody3D] = []
+var carRootNodes: Array[CarCustomPhysics2] = []
 
 signal go
 
@@ -65,6 +66,7 @@ func _ready() -> void:
 		snapRayCast.force_raycast_update()
 		
 		cars.append(rigidBody)
+		carRootNodes.append(car)
 
 
 func _process(delta: float) -> void:

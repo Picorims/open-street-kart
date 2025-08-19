@@ -12,8 +12,10 @@ const RECOVERY_DURATION_MS: float = 2_000
 var _lastRecoveryWantedTimestamp: float = -RECOVERY_DURATION_MS
 
 func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis: Basis, frontColliding: bool, onGround: bool) -> void:
+	super(globalPos, debugPos, globalBasis, localBasis, frontColliding, onGround)
 	if (path == null):
 		return
+
 	_forwardBackward = 1
 	var speed: float = populatedLinVel.length()
 	
@@ -21,10 +23,9 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	if ((frontColliding && speed < 1) || (speed < 0.1 && localBasis.y.dot(Vector3.UP) < 0.2)):
 		_lastRecoveryWantedTimestamp = Time.get_ticks_msec()
 	
-	var q: RacePath.QueryInfo = path.query_info(globalPos)
-	lastQueryInfo = q
-	var globalPosXZ = _xz(globalPos)
+	var q: RacePath.QueryInfo = lastQueryInfo
 	
+	var globalPosXZ = _xz(globalPos)
 	# The path needs to be extended beyond start and stop limits for the bot
 	# to behave correctly.
 	var trackWidth: float = 0

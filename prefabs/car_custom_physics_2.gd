@@ -67,6 +67,9 @@ var _driftingDirection: float = 0 # 1 or -1, see signf()
 var _brain: ACarBrain
 var _cam: Camera3D
 
+func get_race_path_offset() -> float:
+	return _brain.lastQueryInfo.closestOffset
+
 func _ready() -> void:
 	_cam = $Camera3D
 	assert(_cam != null, "ERROR: No cam configured on the car.")

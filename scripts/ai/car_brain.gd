@@ -22,12 +22,15 @@ var populatedLinVel: Vector3
 var populatedAngVel: Vector3
 var showDebugArrows: bool = false
 
-## @abstract
 ## Called at every force integration by the car physics engine.
 ## Use this function to update input variables that are queried by the
 ## car physics engine.
 func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis: Basis, frontColliding: bool, onGround: bool) -> void:
-	push_error("ACarBrain: tick() is not implemented.")
+	if (path == null):
+		return
+	var q: RacePath.QueryInfo = path.query_info(globalPos)
+	lastQueryInfo = q
+
 
 func get_forward_backward_axis() -> float:
 	return clampf(_forwardBackward, -1, 1)
