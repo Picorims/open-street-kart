@@ -7,16 +7,33 @@
 
 
 extends RigidBody3D
+
+
+
 var currentDirection: Vector3 = Vector3(1,0,0)
+@export var showDebugArrows: bool = false
 @export var accelerationForce: float = 5000
 @export var rotationForce: float = 100
 @export var speedMultiplier: float = 1.0
-@export var springStrength: float = 150000 # 100000
-@export var springDamping: float = 15000 # 12000 # coefficient
-@export var restDistance: float = 0.7
+@export var springStrength: float = 250000 
+@export var springDamping: float = 21000 # coefficient
+@export var restDistance: float = 2
 @export var maxSpeedMetersPerSecond: float = 25
 @export var maxSpeedOutOfBounds: float = 8
 @export var interface: CarCustomPhysics2
+@export var mode: CarCustomPhysics2.CarMode:
+	set(v):
+		mode = v
+		if (v == CarCustomPhysics2.CarMode.USER):
+			_brain = UserBrain.new()
+		if (v == CarCustomPhysics2.CarMode.BOT):
+			_brain = BotBrain.new()
+		_brain.showDebugArrows = showDebugArrows
+@export var path: RacePath:
+	set(v):
+		path = v
+		if (_brain != null):
+			_brain.path = v
 
 const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
 const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
@@ -47,8 +64,12 @@ var _drifting = false:
 		_drifting = v
 		interface.driftingEffects = v
 var _driftingDirection: float = 0 # 1 or -1, see signf()
+var _brain: ACarBrain
+var _cam: Camera3D
 
 func _ready() -> void:
+	_cam = $Camera3D
+	assert(_cam != null, "ERROR: No cam configured on the car.")
 	assert(interface != null, "ERROR: interface not assigned.")
 	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
 	for r in wheelRayCasts:
@@ -68,13 +89,19 @@ func _ready() -> void:
 	)
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
+	if (_brain == null):
+		return
+		
+	var debugPos = global_position + Vector3(0,3,0)
+	_brain.tick(global_position, debugPos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
+	
 	if (_mustForceBasis):
 		_mustForceBasis = false
 		state.transform.basis = _forcedBasis.orthonormalized()
 		_disable_drift()
 		state.linear_velocity = Vector3(0,0,0)
 		state.angular_velocity = Vector3(0,0,0)
-	var forwardBackward: float = Input.get_axis("backward", "forward")
+	var forwardBackward: float = _brain.get_forward_backward_axis()
 	if (forwardBackward < 0):
 		var goingForward: bool
 		# we want to avoid an invalid vector with (0,0,0).normalized()
@@ -88,7 +115,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			forwardBackward *= BRAKE_FORCE_FACTOR # softer brake and slow backward speed
 		else:
 			forwardBackward *= BACKWARDS_FORCE_FACTOR
-	var leftRight: float = Input.get_axis("left", "right")
+	var leftRight: float = _brain.get_left_right_axis()
 	var onGround: bool = _groundRaycast.is_colliding()
 	var outOfBounds = false
 	if (onGround):
@@ -97,7 +124,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			var collidesOutOfBoundsMask: bool = !collider.get_collision_layer_value(5)
 			outOfBounds = collidesOutOfBoundsMask
 	
-	var wantToDrift = Input.is_action_pressed("drift")
+	var wantToDrift = _brain.drift_input_active()
 	# cannot drift when not turning, or if already drifting in a direction.
 	if wantToDrift && abs(leftRight) > 0 && _driftingDirection == 0 && onGround:
 		_drifting = true
@@ -126,6 +153,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_apply_single_wheel_suspension(wheelRayCast)
 
 	_soft_clamp_speed(state, outOfBounds)
+	_brain.populatedLinVel = state.linear_velocity
+	_brain.populatedAngVel = state.angular_velocity
 
 func _disable_drift() -> void:
 	_drifting = false
@@ -236,12 +265,15 @@ func _input(event):
 func _process(_delta: float) -> void:
 	# debug
 	var debugPos = global_position + Vector3(0,3,0)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
-	DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
-	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
-	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
-	DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
+	
+	if (_cam.current):
+		DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
+		DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
+	if (showDebugArrows):
+		DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
 
 func force_basis_on_next_physics_frame(basis: Basis):
 	_forcedBasis = basis
