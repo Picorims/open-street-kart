@@ -35,6 +35,8 @@ func _ready() -> void:
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 		self.add_child(car)
 		car.displayName = "p{0}".format([i+1])
+		car.material = StandardMaterial3D.new()
+		car.material.albedo_color = Color(randf(), randf(), randf())
 		if (i == CARS_COUNT-1):
 			car.mode = CarCustomPhysics2.CarMode.USER
 			car.displayName = "you"

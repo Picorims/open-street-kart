@@ -52,7 +52,16 @@ enum CarMode {
 	set(v):
 		displayName = v
 		$CarRigidBody/Label3D.text = v
-		
+
+@export var material: StandardMaterial3D:
+	set(v):
+		material = v
+		var mesh: BoxMesh = $CarRigidBody/DebugFrame.mesh
+		var newMesh: BoxMesh = BoxMesh.new()
+		newMesh.size = mesh.size
+		newMesh.material = material
+		$CarRigidBody/DebugFrame.mesh = newMesh
+
 func respawn():
 	print("Respawning car...")
 	var rb: RigidBody3D = $CarRigidBody
