@@ -34,8 +34,10 @@ func _ready() -> void:
 	for i in range(CARS_COUNT):
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 		self.add_child(car)
+		car.displayName = "p{0}".format([i+1])
 		if (i == CARS_COUNT-1):
 			car.mode = CarCustomPhysics2.CarMode.USER
+			car.displayName = "you"
 			var cam: Camera3D = car.get_node("CarRigidBody/Camera3D")
 			if (cam != null):
 				cam.current = true

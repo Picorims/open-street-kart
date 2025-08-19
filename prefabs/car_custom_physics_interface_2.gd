@@ -48,7 +48,11 @@ enum CarMode {
 		showDebugArrows = v
 		$CarRigidBody.showDebugArrows = v
 
-
+@export var displayName: String:
+	set(v):
+		displayName = v
+		$CarRigidBody/Label3D.text = v
+		
 func respawn():
 	print("Respawning car...")
 	var rb: RigidBody3D = $CarRigidBody
