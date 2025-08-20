@@ -126,10 +126,14 @@ func _process_live_ranking() -> void:
 	var ratios: Dictionary[String, RaceHUD.RatioEntry] = {}
 	var pathLength: float = max(playerSpawner.racePath.curve.get_baked_length(), 0.01)
 	var distanceFirstToLast: float = rankings[-1].carOffset - rankings[0].carOffset
+	var i: int = rankings.size() # because we want to start ranking value at 1
 	for r in rankings:
 		var entry: RaceHUD.RatioEntry = RaceHUD.RatioEntry.new()
 		entry.ratio = (r.carOffset - rankings[0].carOffset) / max(distanceFirstToLast, 0.01)
 		entry.color = r.color
 		ratios[r.carDisplayName] = entry
+		if r.carDisplayName == "you":
+			_raceHUD.set_self_ranking(i)
+		i -= 1
 	_raceHUD.display_ratios(ratios)
 	_raceHUD.update_group_pos(rankings[0].carOffset / pathLength, rankings[-1].carOffset / pathLength)

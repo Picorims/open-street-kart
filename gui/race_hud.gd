@@ -41,3 +41,6 @@ func update_group_pos(ratioFrom: float, ratioTo: float):
 	var bar: ColorRect = cursorsHolder.get_node("GroupPosition")
 	bar.set_position(Vector2(ratioFrom * cursorsHolder.size.x, bar.position.y), true)
 	bar.set_size(Vector2((ratioTo - ratioFrom) * cursorsHolder.size.x, bar.size.y), true)
+
+func set_self_ranking(ranking: int) -> void:
+	$SelfRankingContainer/SelfRanking.text = "{0}".format([ranking])
