@@ -54,6 +54,7 @@ const MIN_ANGLE_THRESHOLD = 0.01
 
 var _debugCentrifugusForce: Vector3
 var _debugSlidingForce: Vector3
+var _debugSlidingForceCompensated: Vector3
 var _debugSoftClampSpeedForce: Vector3
 var _forcedBasis: Basis
 var _mustForceBasis: bool = false
@@ -105,7 +106,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.linear_velocity = Vector3(0,0,0)
 		state.angular_velocity = Vector3(0,0,0)
 	var forwardBackward: float = _brain.get_forward_backward_axis()
-	if (forwardBackward < 0):
+	if (forwardBackward < 0): # if backwards force
 		var goingForward: bool
 		# we want to avoid an invalid vector with (0,0,0).normalized()
 		if (state.linear_velocity.length_squared() > 0.01):
@@ -215,9 +216,13 @@ func _apply_single_wheel_suspension(suspensionRay: RayCast3D) -> void:
 # applied on x,z plan
 func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var radius: float = _get_radius_of_rotation(state)
-	var centrifugusDirection: Vector3 = global_basis.z.normalized() * sign(state.angular_velocity.y)
+	# (projection on forward / backward axis of the velocity to know in which direction the car
+	# goes assuming wheel adherence.
+	var forwardBackwardLinVelDirection: float = sign(state.linear_velocity.dot(global_basis.x))
+	var rotationDirection: float = sign(state.angular_velocity.y)
+	var centrifugusDirection: Vector3 = global_basis.z.normalized() * rotationDirection * forwardBackwardLinVelDirection
 	if (centrifugusDirection.length() < 0.01):
-		return # TODO might be the cause of bugs when going backwards?
+		return
 	var cappedRadius = min(max(radius, MIN_INERTIA_RADIUS_LIMIT), MAX_INERTIA_RADIUS_LIMIT)
 	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / cappedRadius)
 	state.apply_central_force(-centrifugusForce)
@@ -246,7 +251,9 @@ func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
 	var slidingForce: Vector3 = (get_gravity() + groundCounterForce) * mass
 	_debugSlidingForce = slidingForce
 	var z: Vector3 = global_basis.z.normalized()
-	state.apply_central_force(z * -slidingForce.dot(z))
+	var compensatingForce: Vector3 = z * -slidingForce.dot(z)
+	_debugSlidingForceCompensated = compensatingForce
+	state.apply_central_force(compensatingForce)
 
 func _wheels_on_ground() -> int:
 	var wheelsOnGround: int = 0
@@ -276,6 +283,7 @@ func _process(_delta: float) -> void:
 		DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
 		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
 		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForceCompensated, Color(1,0,0.5), 0.1)
 		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
 
 func force_basis_on_next_physics_frame(basis: Basis):
