@@ -12,7 +12,7 @@ class_name FreezeManagedRigidBody3D extends RigidBody3D
 
 signal freezeChanged(freeze: bool)
 ## emitted after timeout ellapsed since unfrozen, if effectively still unfrozen.
-signal timeout
+signal timeout(frozen: bool)
 
 ## Use this instead of `freeze` for the signal and other logic to work.
 @export var managedFreeze: bool:
@@ -63,6 +63,6 @@ func _physics_process(delta: float) -> void:
 	var nowMs: float = Time.get_ticks_msec()
 	var unfrozenElapsed: float = nowMs - _lastUnfreezeMs
 	if (unfrozenElapsed > timeoutMs && !freeze):
-		timeout.emit()
+		timeout.emit(freeze)
 	if (linear_velocity.length_squared() < _freezeNotMovingThresholdSquared && !freeze) && unfrozenElapsed > minTimeoutMs:
 		managedFreeze = true
