@@ -11,6 +11,7 @@ config_version=5
 [application]
 
 config/name="Open Street Kart"
+config/version="1.0.0-alpha.2-indev"
 config/tags=PackedStringArray("3d", "physics", "vehicle")
 run/main_scene="uid://snxec2n3dvd1"
 config/features=PackedStringArray("4.4", "Mobile")
@@ -65,12 +66,14 @@ debug_jump={
 
 [layer_names]
 
+3d_physics/layer_1="General collision layer"
 3d_physics/layer_2="Cast To Ground (Layer 2)"
 3d_physics/layer_5="car on track layer"
+3d_physics/layer_6="Managed freeze layer"
 
 [physics]
 
-common/physics_ticks_per_second=240
+common/physics_ticks_per_second=180
 common/physics_jitter_fix=0.0
 3d/physics_engine="GodotPhysics3D"
 common/physics_interpolation=true

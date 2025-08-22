@@ -8,6 +8,8 @@
 
 class_name PlayerSpawner extends Node3D
 
+@export var racePath: RacePath
+
 enum CountdownState {
 	THREE = 3,
 	TWO = 2,
@@ -18,32 +20,53 @@ enum CountdownState {
 
 const CAR_SCENE: PackedScene = preload("res://prefabs/car_custom_physics_2.tscn")
 const COUNTDOWN_DURATION: CountdownState = CountdownState.THREE
+const CARS_COUNT = 16
 
 var _inCountdown: bool = false
 var _countDownState = 0
 var _countdownElapsed: float = 0
 var cars: Array[RigidBody3D] = []
+var carRootNodes: Array[CarCustomPhysics2] = []
 
 signal go
 
 func _ready() -> void:
-	var car: Node3D = CAR_SCENE.instantiate()
-	self.add_child(car)
-	car.speedMultiplier = 1.5
-	car.basis = self.basis
-	car.global_transform = self.global_transform
-	var rigidBody: RigidBody3D = car.get_node("CarRigidBody")
-	rigidBody.freeze = true
-	
-	var snapRayCast = SnapToGroundRayCast3D.new()
-	self.add_child(snapRayCast)
-	snapRayCast.alignToNormal = true
-	snapRayCast.offset = -0.5
-	snapRayCast.target_position = Vector3(0, -1000, 0)
-	snapRayCast.target = car
-	snapRayCast.force_raycast_update()
-	
-	cars.append(rigidBody)
+	assert(racePath != null, "ERROR: racePath not configured on player spawner.")
+	for i in range(CARS_COUNT):
+		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
+		self.add_child(car)
+		car.displayName = "p{0}".format([i+1])
+		car.material = StandardMaterial3D.new()
+		car.material.albedo_color = Color(randf(), randf(), randf())
+		if (i == CARS_COUNT-1):
+			car.mode = CarCustomPhysics2.CarMode.USER
+			car.displayName = "you"
+			var cam: Camera3D = car.get_node("CarRigidBody/Camera3D")
+			if (cam != null):
+				cam.current = true
+				car.showDebugArrows = true
+			else:
+				push_error("ERROR: Could not set user as main camera focus.")
+		else:
+			car.mode = CarCustomPhysics2.CarMode.BOT
+		car.path = racePath
+		car.speedMultiplier = 1.5
+		car.basis = self.basis
+		car.global_transform = self.global_transform
+		car.global_position += self.basis.x * -i + self.basis.z * (i % 4) + self.basis.y * 5
+		var rigidBody: RigidBody3D = car.get_node("CarRigidBody")
+		rigidBody.freeze = true
+		
+		var snapRayCast = SnapToGroundRayCast3D.new()
+		self.add_child(snapRayCast)
+		snapRayCast.alignToNormal = true
+		snapRayCast.offset = -0.5
+		snapRayCast.target_position = Vector3(0, -1000, 0)
+		snapRayCast.target = car
+		snapRayCast.force_raycast_update()
+		
+		cars.append(rigidBody)
+		carRootNodes.append(car)
 
 
 func _process(delta: float) -> void:

@@ -8,6 +8,12 @@
 
 class_name CarCustomPhysics2 extends Node3D
 
+enum CarMode {
+	UNSET,
+	USER,
+	BOT,
+}
+
 @export var speedMultiplier: float = 1.0:
 	set(v):
 		speedMultiplier = v
@@ -26,6 +32,38 @@ class_name CarCustomPhysics2 extends Node3D
 		driftingEffects = v
 		$CarRigidBody/WheelBLGPUParticles3D.emitting = v
 		$CarRigidBody/WheelBRGPUParticles3D.emitting = v
+
+@export var mode: CarMode:
+	set(v):
+		mode = v
+		$CarRigidBody.mode = v
+		
+@export var path: RacePath:
+	set(v):
+		path = v
+		$CarRigidBody.path = v
+
+@export var showDebugArrows: bool:
+	set(v):
+		showDebugArrows = v
+		$CarRigidBody.showDebugArrows = v
+
+@export var displayName: String:
+	set(v):
+		displayName = v
+		$CarRigidBody/Label3D.text = v
+
+@export var material: StandardMaterial3D:
+	set(v):
+		material = v
+		var mesh: BoxMesh = $CarRigidBody/DebugFrame.mesh
+		var newMesh: BoxMesh = BoxMesh.new()
+		newMesh.size = mesh.size
+		newMesh.material = material
+		$CarRigidBody/DebugFrame.mesh = newMesh
+
+func get_race_path_offset() -> float:
+	return $CarRigidBody.get_race_path_offset()
 
 func respawn():
 	print("Respawning car...")
