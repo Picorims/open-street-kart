@@ -26,6 +26,7 @@ var _inCountdown: bool = false
 var _countDownState = 0
 var _countdownElapsed: float = 0
 var cars: Array[RigidBody3D] = []
+var carRootNodes: Array[CarCustomPhysics2] = []
 
 signal go
 
@@ -34,8 +35,12 @@ func _ready() -> void:
 	for i in range(CARS_COUNT):
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 		self.add_child(car)
+		car.displayName = "p{0}".format([i+1])
+		car.material = StandardMaterial3D.new()
+		car.material.albedo_color = Color(randf(), randf(), randf())
 		if (i == CARS_COUNT-1):
 			car.mode = CarCustomPhysics2.CarMode.USER
+			car.displayName = "you"
 			var cam: Camera3D = car.get_node("CarRigidBody/Camera3D")
 			if (cam != null):
 				cam.current = true
@@ -61,6 +66,7 @@ func _ready() -> void:
 		snapRayCast.force_raycast_update()
 		
 		cars.append(rigidBody)
+		carRootNodes.append(car)
 
 
 func _process(delta: float) -> void:

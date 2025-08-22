@@ -213,3 +213,8 @@ collision_mask = 32
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CarRigidBody/ManagedFreezeWakeUpArea3D"]
 shape = SubResource("SphereShape3D_2glma")
+
+[node name="Label3D" type="Label3D" parent="CarRigidBody"]
+transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0.5, 0)
+text = "-"
+font_size = 64

@@ -48,6 +48,22 @@ enum CarMode {
 		showDebugArrows = v
 		$CarRigidBody.showDebugArrows = v
 
+@export var displayName: String:
+	set(v):
+		displayName = v
+		$CarRigidBody/Label3D.text = v
+
+@export var material: StandardMaterial3D:
+	set(v):
+		material = v
+		var mesh: BoxMesh = $CarRigidBody/DebugFrame.mesh
+		var newMesh: BoxMesh = BoxMesh.new()
+		newMesh.size = mesh.size
+		newMesh.material = material
+		$CarRigidBody/DebugFrame.mesh = newMesh
+
+func get_race_path_offset() -> float:
+	return $CarRigidBody.get_race_path_offset()
 
 func respawn():
 	print("Respawning car...")
