@@ -106,6 +106,10 @@ func _stop():
 		currentRank += 1
 	
 	# was still running
+	# From last to first, because the array is sorted in ascending order
+	# by offset from the start of the track. So the lowest offset, in other
+	# words the start of the array, is last, and thus shall be inserted as
+	# last as well. Hence the need to iterate in reverse order.
 	for i in range(_lastEstimatedRankings.size()-1, -1, -1):
 		var rankingInfo: _OffsetEntry = _lastEstimatedRankings[i]
 		if registered.has(rankingInfo.carName):
@@ -153,21 +157,12 @@ func _process_live_ranking() -> void:
 		entry.carDisplayName = c.displayName
 		entry.carOffset = c.get_race_path_offset()
 		entry.color = c.material.albedo_color
-		var insertPos = 0
-		
-		if (rankings.size() == 0):
-			rankings.append(entry)
-			continue
-		
-		var inserted: bool = false
-		while (insertPos < rankings.size()):
-			if (rankings[insertPos].carOffset > entry.carOffset):
-				rankings.insert(insertPos, entry)
-				inserted = true
-				break
-			insertPos += 1
-		if (not inserted):
-			rankings.append(entry)
+		rankings.append(entry)
+	
+	# sort ascending
+	rankings.sort_custom(func(a: _OffsetEntry, b: _OffsetEntry) -> bool:
+		return a.carOffset < b.carOffset
+	)
 	
 	_lastEstimatedRankings = rankings
 	
