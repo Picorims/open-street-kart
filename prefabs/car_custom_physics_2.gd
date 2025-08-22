@@ -216,8 +216,8 @@ func _apply_single_wheel_suspension(suspensionRay: RayCast3D) -> void:
 # applied on x,z plan
 func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var radius: float = _get_radius_of_rotation(state)
-	# (projection on forward / backward axis of the velocity to know in which direction the car
-	# goes assuming wheel adherence.
+	# Projecting the linear velocity onto the forward / backward axis to know in which direction the car
+	# goes, assuming wheel adherence.
 	var forwardBackwardLinVelDirection: float = sign(state.linear_velocity.dot(global_basis.x))
 	var rotationDirection: float = sign(state.angular_velocity.y)
 	var centrifugusDirection: Vector3 = global_basis.z.normalized() * rotationDirection * forwardBackwardLinVelDirection
