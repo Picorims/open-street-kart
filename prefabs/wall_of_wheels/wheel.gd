@@ -42,12 +42,13 @@ func _ready() -> void:
 	_shapeMesh.radial_segments = 16
 	mesh.mesh = _shapeMesh
 	_shapeMesh.material = _mat
-	timeout.connect(func(frozen: bool):
-		if (!frozen):
-			# force the wheel to fall on the side so that
-			# it freezes by itself by stopping moving.
-			center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
-			center_of_mass = Vector3(0, -3 * height, 0)
+	timeout.connect(func():
+		# when emitted, necessarily not frozen.
+		
+		# force the wheel to fall on the side so that
+		# it freezes by itself by stopping moving.
+		center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_CUSTOM
+		center_of_mass = Vector3(0, -3 * height, 0)
 	)
 	freezeChanged.connect(func(frozen: bool):
 		center_of_mass_mode = RigidBody3D.CENTER_OF_MASS_MODE_AUTO
