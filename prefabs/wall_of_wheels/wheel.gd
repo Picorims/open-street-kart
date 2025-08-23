@@ -8,6 +8,12 @@
 @tool
 class_name Wheel extends FreezeManagedRigidBody3D
 
+
+@export var material: StandardMaterial3D = StandardMaterial3D.new():
+	set(v):
+		material = v
+		if (_shapeMesh != null):
+			_shapeMesh.material = material
 @export var radius: float:
 	set(v):
 		radius = v
@@ -20,15 +26,9 @@ class_name Wheel extends FreezeManagedRigidBody3D
 		height = v
 		_shape.height = v
 		_shapeMesh.height = v
-		
-@export var color: Color:
-	set(v):
-		color = v
-		_mat.albedo_color = v
 
 var _shape: CylinderShape3D = CylinderShape3D.new()
 var _shapeMesh: CylinderMesh = CylinderMesh.new()
-var _mat: StandardMaterial3D = StandardMaterial3D.new()
 
 func _ready() -> void:
 	freeze = true
@@ -41,7 +41,7 @@ func _ready() -> void:
 	add_child(mesh)
 	_shapeMesh.radial_segments = 16
 	mesh.mesh = _shapeMesh
-	_shapeMesh.material = _mat
+	_shapeMesh.material = material
 	timeout.connect(func():
 		# when emitted, necessarily not frozen.
 		
