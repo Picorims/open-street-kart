@@ -7,12 +7,12 @@
 
 @tool
 class_name WallOfWheels extends Path3D
-
-const WHEEL_RADIUS = 0.6
+const MATERIAL: StandardMaterial3D = preload("res://materials/environment/hay/hay.tres")
+const WHEEL_RADIUS = 0.8
 const GAP_BETWEEN_WHEELS = 0.75
 const VERTICAL_GAP = 0.01
-const WHEEL_DEPTH = 0.4
-const STACK_COUNT = 2
+const WHEEL_DEPTH = 1.5
+const STACK_COUNT = 1
 
 var _isDirty: bool = false
 var _lastUpdateRequest: float = 0
@@ -48,13 +48,10 @@ func _create_wheel_pillar(pos: Vector3, index: int):
 	for i in range(STACK_COUNT):
 		var wheel: Wheel = Wheel.new()
 		self.add_child(wheel)
-		wheel.position = pos + Vector3(0, (WHEEL_DEPTH + VERTICAL_GAP) * i, 0)
+		wheel.position = pos + Vector3(0, ((WHEEL_DEPTH + VERTICAL_GAP) * i) + WHEEL_DEPTH/2, 0)
 		wheel.height = WHEEL_DEPTH
 		wheel.radius = WHEEL_RADIUS
-		if (index % 2 == 0):
-			wheel.color = Color(1,1,1)
-		else:
-			wheel.color = Color(1,0.2,0.2)
+		wheel.material = MATERIAL
 
 func _on_curve_changed() -> void:
 	_lastUpdateRequest = Time.get_ticks_msec() # must be first to not instant trigger!
