@@ -15,6 +15,7 @@ class_name RacePath extends Path3D
 @export var startingNode: RacePathNode
 
 const MAX_POINTS: int = 10_000
+## controls the intensity of bezier smoothing.
 const DISTANCE_DIVIDER: float = 3
 
 var _foundRacePathNodes: Array[RacePathNode] = []
@@ -33,7 +34,7 @@ func _bake_path():
 		return
 	print("Baking race path...")
 	var newCurve: Curve3D = Curve3D.new()
-	newCurve.bake_interval = 1
+	newCurve.bake_interval = 2
 	var newNodes: Array[RacePathNode] = []
 	var newNodesOffset: Array[float] = []
 	newCurve.add_point(startingNode.position)
@@ -113,9 +114,6 @@ func query_info(pos: Vector3) -> QueryInfo:
 
 	var aBitForwardPoint: Vector3 = curve.sample_baked(q.closestOffset + 2 * curve.bake_interval)
 	var forwardNormalized = (aBitForwardPoint - q.closestPoint).normalized()
-	checkpointUs = Time.get_ticks_usec()
-	q.forwardBasis = Basis(forwardNormalized, 0)
-	basisAccumulatedUs += Time.get_ticks_usec() - checkpointUs
 	
 	checkpointUs = Time.get_ticks_usec()
 	var foundNext: bool = false
@@ -129,8 +127,29 @@ func query_info(pos: Vector3) -> QueryInfo:
 				q.prevOffset = _nodesOffset[i-1]
 			foundNext = true
 		i += 1
-	
 	loopsAccumulatedUs += Time.get_ticks_usec() - checkpointUs
+	
+	checkpointUs = Time.get_ticks_usec()
+	var failedBasis: bool = false
+	if (forwardNormalized.length_squared() < 0.01):
+		forwardNormalized = curve.sample_baked(q.closestOffset + 6 * curve.bake_interval)
+		forwardNormalized = (forwardNormalized - q.closestPoint).normalized()
+		if (forwardNormalized.length_squared() < 0.01):
+			failedBasis = true
+		else:
+			q.forwardBasis = Basis(forwardNormalized, 0)
+	else:
+		q.forwardBasis = Basis(forwardNormalized, 0)
+
+	# try to approximate with control points as a last resort
+	if (failedBasis):
+		if (q.prev != null && q.next != null):
+			q.forwardBasis = Basis((q.next.global_position - q.prev.global_position).normalized(), 0)
+		else:
+			# failed.
+			q.forwardBasis = Basis()
+	basisAccumulatedUs += Time.get_ticks_usec() - checkpointUs
+	
 	return q
 
 func _process(delta: float) -> void:
