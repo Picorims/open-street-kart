@@ -223,9 +223,12 @@ func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var centrifugusDirection: Vector3 = global_basis.z.normalized() * rotationDirection * forwardBackwardLinVelDirection
 	if (centrifugusDirection.length() < 0.01):
 		return
-	var cappedRadius = min(max(radius, MIN_INERTIA_RADIUS_LIMIT), MAX_INERTIA_RADIUS_LIMIT)
+	var cappedRadius: float = min(max(radius, MIN_INERTIA_RADIUS_LIMIT), MAX_INERTIA_RADIUS_LIMIT)
 	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / cappedRadius)
-	state.apply_central_force(-centrifugusForce)
+	var counterForce: Vector3 = -centrifugusForce
+	if (_drifting):
+		counterForce *= 0.7
+	state.apply_central_force(counterForce)
 	_debugCentrifugusForce = centrifugusForce
 
 # applied on x,z plan
