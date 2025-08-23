@@ -6,6 +6,8 @@ An arcade kart game where you race in real life areas reconstructed from Open St
 
 ## Project
 
+### Software
+
 ```
 Open Street Kart is an arcade kart game where you race in real life areas reconstructed from Open Street Map
 Copyright (c) 2025 Charly Schmidt aka Picorims<picorims.contact@gmail.com> and Open Street Kart contributors
@@ -14,6 +16,10 @@ This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/.
 ```
+
+### Artistic assets (excluding third party assets like Road Generator add-on assets)
+
+<a href="https://github.com/Picorims/open-street-kart">Open Street Kart textures, materials, music, sound, and other artistic assets</a> © 2025 by <a href="https://github.com/Picorims/open-street-kart">Picorims and Open Street Kart contributors (see notice on individual assets for the exact authors)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
 
 ## Data
 
