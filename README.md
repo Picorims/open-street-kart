@@ -2,6 +2,8 @@
 
 An arcade kart game where you race in real life areas reconstructed from Open Street Map
 
+![thumbnail](./thumbnail.png)
+
 # Credits
 
 ## Project
