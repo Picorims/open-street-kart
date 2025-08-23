@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://clrgqfab65qq1" path="res://scripts/osm_data_generator.gd" id="3_h0kh0"]
 [ext_resource type="Material" uid="uid://7iunwf827xth" path="res://materials/environment/road/asphalt/asphalt.tres" id="4_sy242"]
 [ext_resource type="Script" uid="uid://dev8urf5n8g4g" path="res://scripts/boundaries_generator.gd" id="5_eypua"]
-[ext_resource type="Material" uid="uid://b40mf1746kqgo" path="res://materials/building.tres" id="5_sy242"]
+[ext_resource type="Material" uid="uid://pk7bh6318xwy" path="res://materials/environment/building/render/render.tres" id="5_sy242"]
 
 [sub_resource type="ArrayMesh" id="ArrayMesh_jy2bk"]
 
