@@ -45,13 +45,13 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	# So we do everything on a 2D plane at 0.
 	var distanceFromCenter: float = _xz(globalPos).distance_to(_xz(q.closestPoint)) 
 	# TODO account for car width
-	var targetOffsetAhead: int = max(10, 0.9 * speed)
+	var targetOffsetAhead: int = max(12, 0.6 * speed + 8)
 	var targetPosAhead: Vector3 = _xz(path.curve.sample_baked(q.closestOffset + targetOffsetAhead))
 	# try to take into account the car's distance from the center by offseting according to the closest
 	# offset (different from ahead offest). The goal is to limit the left to right yoyo effect.
 	# Side effects on correctly handling turns should be relatively small.
 	var trackSide: float = sign(q.forwardBasis.x.dot(globalPosXZ - _xz(q.closestPoint)))
-	var adjustedOffset: float = (trackSide * min(distanceFromCenter, trackWidth * 0.25))
+	var adjustedOffset: float = (trackSide * min(distanceFromCenter, trackWidth * 0.15))
 	targetPosAhead += _xz(q.forwardBasis.x).normalized() * adjustedOffset
 	var wantedDirNormalized: Vector3 = _xz(targetPosAhead - globalPos).normalized()
 	var currentDirNormalized: Vector3 = _xz(populatedLinVel).normalized()
