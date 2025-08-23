@@ -1,0 +1,22 @@
+[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://7iunwf827xth"]
+
+[ext_resource type="Texture2D" uid="uid://bjcidawvp2hkb" path="res://materials/environment/road/asphalt/asphalt_albedo.png" id="1"]
+[ext_resource type="Texture2D" uid="uid://bbmbtgi4ktwen" path="res://materials/environment/road/asphalt/asphalt_orm.png" id="2"]
+[ext_resource type="Texture2D" uid="uid://si84qq6rdp1a" path="res://materials/environment/road/asphalt/asphalt_normal.png" id="3"]
+[ext_resource type="Texture2D" uid="uid://qco04u2xksls" path="res://materials/environment/road/asphalt/asphalt_heightmap.png" id="4"]
+
+[resource]
+albedo_texture = ExtResource("1")
+roughness_texture = ExtResource("2")
+roughness_texture_channel = 1
+normal_enabled = true
+normal_scale = 0.1
+normal_texture = ExtResource("3")
+ao_enabled = true
+ao_texture = ExtResource("2")
+heightmap_enabled = true
+heightmap_scale = 0.025
+heightmap_deep_parallax = true
+heightmap_min_layers = 8
+heightmap_max_layers = 32
+heightmap_texture = ExtResource("4")

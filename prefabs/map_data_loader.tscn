@@ -3,7 +3,7 @@
 [ext_resource type="Script" uid="uid://dtcc8wa14fk13" path="res://prefabs/map_data_loader.gd" id="1_gur84"]
 [ext_resource type="Script" uid="uid://ibbikdaolnj" path="res://scripts/elevation_mesh_generator.gd" id="2_ypkk7"]
 [ext_resource type="Script" uid="uid://clrgqfab65qq1" path="res://scripts/osm_data_generator.gd" id="3_h0kh0"]
-[ext_resource type="Material" uid="uid://b4g3k7di12ykd" path="res://materials/road_texture_low_res.material" id="4_jy2bk"]
+[ext_resource type="Material" uid="uid://7iunwf827xth" path="res://materials/environment/road/asphalt/asphalt.tres" id="4_sy242"]
 [ext_resource type="Script" uid="uid://dev8urf5n8g4g" path="res://scripts/boundaries_generator.gd" id="5_eypua"]
 [ext_resource type="Material" uid="uid://b40mf1746kqgo" path="res://materials/building.tres" id="5_sy242"]
 
@@ -32,7 +32,7 @@ script = ExtResource("3_h0kh0")
 loader = NodePath("..")
 boundariesGenerator = NodePath("../BoundariesGenerator")
 elevationGenerator = NodePath("../Surface")
-roadMaterial = ExtResource("4_jy2bk")
+roadMaterial = ExtResource("4_sy242")
 buildingMaterial = ExtResource("5_sy242")
 
 [node name="BoundariesGenerator" type="Node3D" parent="." node_paths=PackedStringArray("loader")]
