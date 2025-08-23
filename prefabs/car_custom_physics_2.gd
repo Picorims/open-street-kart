@@ -286,11 +286,11 @@ func _process(_delta: float) -> void:
 		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForceCompensated, Color(1,0,0.5), 0.1)
 		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
 
-var ellapsed: float = 0
+var elapsed: float = 0
 func _physics_process(delta: float) -> void:
-	ellapsed += delta
-	if (ellapsed > 0.02):
-		ellapsed = 0
+	elapsed += delta
+	if (elapsed > 0.02):
+		elapsed = 0
 		var debugPos = global_position + Vector3(0,3,0)
 		_brain.tick(global_position, debugPos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
 

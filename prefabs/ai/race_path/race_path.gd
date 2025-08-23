@@ -17,6 +17,7 @@ class_name RacePath extends Path3D
 const MAX_POINTS: int = 10_000
 ## controls the intensity of bezier smoothing.
 const DISTANCE_DIVIDER: float = 3
+const FORWARD_VECTOR_TOO_SMALL_THRESHOLD = 0.01
 
 var _foundRacePathNodes: Array[RacePathNode] = []
 var _nodesOffset: Array[float] = []
@@ -131,10 +132,10 @@ func query_info(pos: Vector3) -> QueryInfo:
 	
 	checkpointUs = Time.get_ticks_usec()
 	var failedBasis: bool = false
-	if (forwardNormalized.length_squared() < 0.01):
+	if (forwardNormalized.length_squared() < FORWARD_VECTOR_TOO_SMALL_THRESHOLD):
 		forwardNormalized = curve.sample_baked(q.closestOffset + 6 * curve.bake_interval)
 		forwardNormalized = (forwardNormalized - q.closestPoint).normalized()
-		if (forwardNormalized.length_squared() < 0.01):
+		if (forwardNormalized.length_squared() < FORWARD_VECTOR_TOO_SMALL_THRESHOLD):
 			failedBasis = true
 		else:
 			q.forwardBasis = Basis(forwardNormalized, 0)
