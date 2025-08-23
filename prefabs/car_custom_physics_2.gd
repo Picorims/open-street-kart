@@ -95,10 +95,7 @@ func _ready() -> void:
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_brain == null):
 		return
-		
-	var debugPos = global_position + Vector3(0,3,0)
-	_brain.tick(global_position, debugPos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
-	
+			
 	if (_mustForceBasis):
 		_mustForceBasis = false
 		state.transform.basis = _forcedBasis.orthonormalized()
@@ -288,6 +285,15 @@ func _process(_delta: float) -> void:
 		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
 		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForceCompensated, Color(1,0,0.5), 0.1)
 		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
+
+var elapsed: float = 0
+func _physics_process(delta: float) -> void:
+	elapsed += delta
+	if (elapsed > 0.02):
+		elapsed = 0
+		var debugPos = global_position + Vector3(0,3,0)
+		_brain.tick(global_position, debugPos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
+
 
 func force_basis_on_next_physics_frame(basis: Basis):
 	_forcedBasis = basis
