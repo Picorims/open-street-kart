@@ -22,7 +22,6 @@ fog_enabled = true
 fog_light_color = Color(0.126823, 0.588544, 0.716713, 1)
 fog_density = 0.0005
 fog_sky_affect = 0.0
-volumetric_fog_enabled = true
 volumetric_fog_density = 0.005
 volumetric_fog_emission = Color(0.0509804, 0.760784, 0.862745, 1)
 volumetric_fog_emission_energy = 0.65
