@@ -1,0 +1,26 @@
+[gd_scene load_steps=4 format=3 uid="uid://chvhjn0fseid0"]
+
+[ext_resource type="Environment" uid="uid://cdrbw2frpojjg" path="res://materials/menu_night_environment.tres" id="1_idtbq"]
+[ext_resource type="Material" uid="uid://bwmmwf7nnqfjw" path="res://materials/environment/grass/grass.tres" id="2_l16to"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_yr0dy"]
+material = ExtResource("2_l16to")
+size = Vector3(1000, 1, 1000)
+
+[node name="Node3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("1_idtbq")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_yr0dy")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.964893, -0.262644, 0, 0.262644, 0.964893, 0, 2.36505, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.949426, 0.313992, 0, -0.313992, -0.949426, 0, 2.84555, 0)
+light_color = Color(0.321859, 0.762367, 0.964098, 1)
+light_energy = 0.525
+light_angular_distance = 0.67
+light_specular = 2.304
