@@ -27,7 +27,11 @@ enum _Screen {
 
 enum Track {
 	NONE,
-	ORSAY
+	ORSAY_HILLS,
+}
+
+const TRACK_SCENES: Dictionary[Main.Track, PackedScene] = {
+	Track.ORSAY_HILLS: preload("res://scenes/races/orsay.tscn")
 }
 
 var _currentBackground: _BackgroundKind = _BackgroundKind.UNSET
@@ -35,7 +39,16 @@ var _currentScreen: _Screen = _Screen.NONE
 
 var _selectedMode: TrackState.GameMode
 var _selectedSpeed: TrackState.SpeedMode
-var _selectedTrack: Track = Track.NONE
+var _trackToLoad: Main.Track = Main.Track.NONE
+var _awaitingTrackToLoad: bool = false
+var _awaitingTrackToLoadSince: float = 0
+const TRACK_LOAD_DELAY_MS = 100
+
+func get_selected_mode() -> TrackState.GameMode:
+	return _selectedMode
+
+func get_selected_speed() -> TrackState.SpeedMode:
+	return _selectedSpeed
 
 func _ready():
 	print("Loading...")
@@ -72,9 +85,8 @@ func _apply_screen(screenKind: _Screen):
 			_clear_gui()
 			var newScreen: PickTrackScreen = _SCREEN_PICK_TRACK.instantiate()
 			$GUI.add_child(newScreen)
-			newScreen.track_selected.connect(func(track: Track):
-				_selectedTrack = track
-				print(_selectedTrack)
+			newScreen.track_selected.connect(func(track: Main.Track):
+				_launch_track(track)
 			)
 
 ## If background is different, apply it.
@@ -95,3 +107,33 @@ func _clear_gui():
 	for c in $GUI.get_children():
 		$GUI.remove_child(c)
 		c.queue_free()
+
+func _launch_track(track: Main.Track):
+	if (!TRACK_SCENES.has(track)):
+		push_error("Track {0} does not exist.".format([track]))
+		return
+	
+	_clear_gui()
+	_show_loading_screen()
+	_trackToLoad = track
+	_awaitingTrackToLoadSince = Time.get_ticks_msec()
+	_awaitingTrackToLoad = true
+	
+	# if not deferred to process, the game freezes before the loading screen shows up.
+	
+func _show_loading_screen():
+	$LoadingScreen.visible = true
+	
+func _hide_loading_screen():
+	$LoadingScreen.visible = false
+
+func _process(delta: float) -> void:
+	var awaitingTrackTimeDiff: float = Time.get_ticks_msec() - _awaitingTrackToLoadSince
+	if _awaitingTrackToLoad && awaitingTrackTimeDiff > TRACK_LOAD_DELAY_MS:
+		assert(_trackToLoad != Track.NONE, "no track to load.")
+		_clear_world()
+		var trackScene: Track = TRACK_SCENES.get(_trackToLoad).instantiate()
+		$World.add_child(trackScene)
+		trackScene.launch(_selectedMode, _selectedSpeed)
+		_hide_loading_screen()
+		_awaitingTrackToLoad = false

@@ -18,6 +18,14 @@ enum CarMode {
 	set(v):
 		speedMultiplier = v
 		$CarRigidBody.speedMultiplier = v
+@export var maxSpeedMetersPerSecond: float:
+	set(v):
+		maxSpeedMetersPerSecond = v
+		$CarRigidBody.maxSpeedMetersPerSecond = v
+@export var maxSpeedOutOfBoundsMetersPerSecond: float:
+	set(v):
+		maxSpeedOutOfBoundsMetersPerSecond = v
+		$CarRigidBody.maxSpeedOutOfBoundsMetersPerSecond = v
 
 @export var lastCheckpoint: TrackCheckpoint = null:
 	set(v):

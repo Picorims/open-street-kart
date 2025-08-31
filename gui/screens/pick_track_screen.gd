@@ -10,34 +10,26 @@ class_name PickTrackScreen extends Control
 
 signal track_selected(mode: Main.Track)
 
-func _ready() -> void:
-	pass
-	#_connect_button_to_mode(
-		#$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Chill,
-		#"chill",
-		#TrackState.SpeedMode.CHILL
-	#)
-	#
-	#_connect_button_to_mode(
-		#$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Casual,
-		#"casual",
-		#TrackState.SpeedMode.CASUAL
-	#)
-	#
-	#_connect_button_to_mode(
-		#$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Challenging,
-		#"challenging",
-		#TrackState.SpeedMode.CHALLENGING
-	#)
-	#
-	#_connect_button_to_mode(
-		#$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Crazy,
-		#"crazy",
-		#TrackState.SpeedMode.CRAZY
-	#)
+const TRACKS_DICTIONARY: Dictionary[String, Main.Track] = {
+	"Orsay Hills": Main.Track.ORSAY_HILLS,
+}
 
-#func _connect_button_to_mode(node: AtomGUIBlurredBgndMenuButton, name: String, mode: TrackState.SpeedMode):
-	#assert(node != null, "{0} button undefined.".format([name]))
-	#node.pressed.connect(func():
-		#mode_selected.emit(mode)
-	#)
+func _ready() -> void:
+	var list: ItemList = $MarginContainer/UIBlockContainer/TracksList/ItemList
+	assert (list != null, "track list is undefined.")
+	assert(TRACKS_DICTIONARY.keys().size() > 0, "no track in list.")
+	for track in TRACKS_DICTIONARY.keys():
+		list.add_item(track)
+	list.select(0)
+	
+	var validateButton: AtomGUIBlurredBgndMenuButton = $MarginContainer/UIBlockContainer/AtomGUIBlurredBgndMenuButton_Go
+	assert(validateButton != null, "validate button for track list is undefined.")
+	validateButton.pressed.connect(func():
+		var items: PackedInt32Array = list.get_selected_items()
+		if (items.size() != 1):
+			push_error("unexpected item count (not 1) for track list selected item(s)")
+			return
+	
+		var keyFromIndex: String = TRACKS_DICTIONARY.keys().get(items[0])
+		track_selected.emit(TRACKS_DICTIONARY.get(keyFromIndex))
+	)

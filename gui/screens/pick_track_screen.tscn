@@ -1,6 +1,14 @@
-[gd_scene load_steps=2 format=3 uid="uid://cenq0e4kh1j11"]
+[gd_scene load_steps=5 format=3 uid="uid://cenq0e4kh1j11"]
 
 [ext_resource type="Script" uid="uid://bblfpdryk8p7q" path="res://gui/screens/pick_track_screen.gd" id="1_bqhs8"]
+[ext_resource type="Shader" uid="uid://bhdo7hy443n7o" path="res://shaders/blur_menu_button_background.gdshader" id="2_8c8eu"]
+[ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="2_qj5ql"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_qj5ql"]
+shader = ExtResource("2_8c8eu")
+shader_parameter/samples = 35
+shader_parameter/lod = 2
+shader_parameter/tint_color = Color(0, 0, 0, 0)
 
 [node name="PickTrackScreen" type="Control"]
 layout_mode = 3
@@ -26,6 +34,7 @@ theme_override_constants/margin_left = 64
 
 [node name="UIBlockContainer" type="VBoxContainer" parent="MarginContainer"]
 layout_mode = 2
+theme_override_constants/separation = 16
 alignment = 1
 
 [node name="TitleMarginContainer" type="MarginContainer" parent="MarginContainer/UIBlockContainer"]
@@ -39,9 +48,33 @@ theme_type_variation = &"HeaderLarge"
 text = "Choose a track"
 horizontal_alignment = 1
 
-[node name="ItemList" type="ItemList" parent="MarginContainer/UIBlockContainer"]
+[node name="TracksList" type="Control" parent="MarginContainer/UIBlockContainer"]
 layout_mode = 2
 size_flags_vertical = 3
-item_count = 2
-item_0/text = "a"
-item_1/text = "b"
+
+[node name="ColorRect" type="ColorRect" parent="MarginContainer/UIBlockContainer/TracksList"]
+material = SubResource("ShaderMaterial_qj5ql")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(1, 1, 1, 0)
+
+[node name="ItemList" type="ItemList" parent="MarginContainer/UIBlockContainer/TracksList"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_vertical = 3
+mouse_default_cursor_shape = 2
+
+[node name="AtomGUIBlurredBgndMenuButton_Go" type="Control" parent="MarginContainer/UIBlockContainer"]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("2_qj5ql")
+text = "Go !"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"

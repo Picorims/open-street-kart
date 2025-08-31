@@ -74,7 +74,7 @@ environment = ExtResource("1_idtbq")
 mesh = SubResource("BoxMesh_yr0dy")
 
 [node name="Camera3D" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.989311, 0.145824, 0, -0.145824, 0.989311, 0, 2.36505, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.36505, 0)
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, -0.949426, 0.313992, 0, -0.313992, -0.949426, 0, 2.84555, 0)

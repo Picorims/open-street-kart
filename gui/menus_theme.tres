@@ -1,20 +1,18 @@
-[gd_resource type="Theme" load_steps=10 format=3 uid="uid://mcxm36operox"]
+[gd_resource type="Theme" load_steps=12 format=3 uid="uid://mcxm36operox"]
 
 [ext_resource type="FontFile" uid="uid://erdgllynwqkw" path="res://examples_dd3d/Roboto-Bold.ttf" id="1_7b3l3"]
 [ext_resource type="FontFile" uid="uid://cobf8uu2gyoeh" path="res://gui/fonts/roboto/Roboto-Black.ttf" id="2_us7in"]
 [ext_resource type="FontFile" uid="uid://b83o565cmsq10" path="res://gui/fonts/roboto/Roboto-Regular.ttf" id="2_w8ek5"]
+[ext_resource type="StyleBox" uid="uid://de1vce14ssvww" path="res://gui/styles/hovered_style_box_flat.tres" id="3_r6883"]
+[ext_resource type="StyleBox" uid="uid://cck2lcfj5xbwg" path="res://gui/styles/focused_style_box_flat.tres" id="3_us7in"]
+[ext_resource type="StyleBox" uid="uid://cwlryt4jqirc4" path="res://gui/styles/active_style_box_flat.tres" id="4_h3354"]
+[ext_resource type="StyleBox" uid="uid://cj4n7hycp6o0x" path="res://gui/styles/panel_background_style_box_flat.tres" id="6_cx6e3"]
 
 [sub_resource type="FontVariation" id="FontVariation_us7in"]
 base_font = ExtResource("1_7b3l3")
 
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_fw71b"]
-bg_color = Color(0.184314, 0.682353, 0.658824, 0.490196)
-
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_2koeb"]
 bg_color = Color(0.0941176, 0.231373, 0.258824, 0.501961)
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_7b3l3"]
-bg_color = Color(0.0901961, 0.807843, 0.572549, 0.764706)
 
 [sub_resource type="FontVariation" id="FontVariation_150qp"]
 base_font = ExtResource("2_us7in")
@@ -27,13 +25,29 @@ default_font = SubResource("FontVariation_r5svu")
 Button/colors/font_color = Color(1, 1, 1, 1)
 Button/font_sizes/font_size = 22
 Button/fonts/font = SubResource("FontVariation_us7in")
-Button/styles/hover = SubResource("StyleBoxFlat_fw71b")
+Button/styles/focus = ExtResource("3_us7in")
+Button/styles/hover = ExtResource("3_r6883")
 Button/styles/normal = SubResource("StyleBoxFlat_2koeb")
-Button/styles/pressed = SubResource("StyleBoxFlat_7b3l3")
+Button/styles/pressed = ExtResource("4_h3354")
 HeaderLarge/colors/font_color = Color(0, 0.928864, 0.795231, 1)
 HeaderLarge/colors/font_outline_color = Color(1.85003e-07, 0.0966188, 0.0760253, 1)
 HeaderLarge/constants/outline_size = 16
 HeaderLarge/font_sizes/font_size = 48
 HeaderLarge/fonts/font = SubResource("FontVariation_150qp")
+ItemList/colors/font_color = Color(1, 1, 1, 1)
+ItemList/colors/font_hovered_color = Color(1, 1, 1, 1)
+ItemList/colors/font_outline_color = Color(0.165116, 0.213118, 0.242333, 0.717647)
+ItemList/colors/guide_color = Color(0.51693, 0.759647, 0.6801, 0.25)
+ItemList/constants/h_separation = 8
+ItemList/constants/outline_size = 4
+ItemList/constants/v_separation = 8
+ItemList/font_sizes/font_size = 20
+ItemList/styles/focus = ExtResource("3_us7in")
+ItemList/styles/hovered = ExtResource("3_r6883")
+ItemList/styles/hovered_selected = ExtResource("3_r6883")
+ItemList/styles/hovered_selected_focus = ExtResource("3_r6883")
+ItemList/styles/panel = ExtResource("6_cx6e3")
+ItemList/styles/selected = ExtResource("4_h3354")
+ItemList/styles/selected_focus = ExtResource("4_h3354")
 TitleLabel/base_type = &"Label"
 TitleLabel/font_sizes/font_size = 32

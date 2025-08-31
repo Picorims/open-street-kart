@@ -30,15 +30,37 @@ var carRootNodes: Array[CarCustomPhysics2] = []
 
 signal go
 
+var TrackSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
+	TrackState.SpeedMode.CHILL: 15,
+	TrackState.SpeedMode.CASUAL: 20,
+	TrackState.SpeedMode.CHALLENGING: 25,
+	TrackState.SpeedMode.CRAZY: 32
+}
+var OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
+	TrackState.SpeedMode.CHILL: 4,
+	TrackState.SpeedMode.CASUAL: 6,
+	TrackState.SpeedMode.CHALLENGING: 8,
+	TrackState.SpeedMode.CRAZY: 10
+}
+
 func _ready() -> void:
 	assert(racePath != null, "ERROR: racePath not configured on player spawner.")
-	for i in range(CARS_COUNT):
+
+func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
+	print("Initializing player spawner...")
+	var count: int = 0
+	if (mode == TrackState.GameMode.AGAINST_CLOCK):
+		count = 1
+	elif (mode == TrackState.GameMode.VERSUS):
+		count = CARS_COUNT
+	
+	for i in range(count):
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 		self.add_child(car)
 		car.displayName = "p{0}".format([i+1])
 		car.material = StandardMaterial3D.new()
 		car.material.albedo_color = Color(randf(), randf(), randf())
-		if (i == CARS_COUNT-1):
+		if (i == count-1):
 			car.mode = CarCustomPhysics2.CarMode.USER
 			car.displayName = "you"
 			var cam: Camera3D = car.get_node("CarRigidBody/Camera3D")
@@ -50,7 +72,9 @@ func _ready() -> void:
 		else:
 			car.mode = CarCustomPhysics2.CarMode.BOT
 		car.path = racePath
-		car.speedMultiplier = 1.5
+		car.speedMultiplier = 1.0
+		car.maxSpeedMetersPerSecond = TrackSpeedDict.get(speed)
+		car.maxSpeedOutOfBoundsMetersPerSecond = OutOfBoundsSpeedDict.get(speed)
 		car.basis = self.basis
 		car.global_transform = self.global_transform
 		car.global_position += self.basis.x * -i + self.basis.z * (i % 4) + self.basis.y * 5
@@ -67,7 +91,7 @@ func _ready() -> void:
 		
 		cars.append(rigidBody)
 		carRootNodes.append(car)
-
+	print("Initializing player spawner done.")
 
 func _process(delta: float) -> void:
 	if (_inCountdown):
