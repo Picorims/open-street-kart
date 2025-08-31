@@ -1,0 +1,47 @@
+[gd_scene load_steps=2 format=3 uid="uid://cenq0e4kh1j11"]
+
+[ext_resource type="Script" uid="uid://bblfpdryk8p7q" path="res://gui/screens/pick_track_screen.gd" id="1_bqhs8"]
+
+[node name="PickTrackScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_bqhs8")
+
+[node name="MarginContainer" type="MarginContainer" parent="."]
+layout_mode = 1
+anchors_preset = 4
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_top = -206.5
+offset_right = 384.0
+offset_bottom = 206.5
+grow_vertical = 2
+theme_override_constants/margin_left = 64
+
+[node name="UIBlockContainer" type="VBoxContainer" parent="MarginContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="TitleMarginContainer" type="MarginContainer" parent="MarginContainer/UIBlockContainer"]
+layout_mode = 2
+size_flags_horizontal = 0
+theme_override_constants/margin_bottom = 64
+
+[node name="Label" type="Label" parent="MarginContainer/UIBlockContainer/TitleMarginContainer"]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Choose a track"
+horizontal_alignment = 1
+
+[node name="ItemList" type="ItemList" parent="MarginContainer/UIBlockContainer"]
+layout_mode = 2
+size_flags_vertical = 3
+item_count = 2
+item_0/text = "a"
+item_1/text = "b"

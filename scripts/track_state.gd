@@ -25,9 +25,16 @@ var _raceFinishedGUI: RaceFinishedGUI
 var _lastEstimatedRankings: Array[_OffsetEntry] = []
 var _raceFinished: bool = false
 
-enum Mode {
+enum GameMode {
 	AGAINST_CLOCK,
 	VERSUS
+}
+
+enum SpeedMode {
+	CHILL,
+	CASUAL,
+	CHALLENGING,
+	CRAZY
 }
 
 func _ready() -> void:
@@ -40,9 +47,9 @@ func _ready() -> void:
 	DebugDraw2D.set_text("Total", "-", 0, Color(1,1,0), 1_000_000_000)
 	DebugDraw2D.end_text_group()
 	
-	init(Mode.VERSUS)
+	init(GameMode.VERSUS)
 
-func init(mode: Mode):
+func init(mode: GameMode):
 	for i in range(loopCheckpoints.size()):
 		var c: LoopCheckpoint = loopCheckpoints[i]
 		c.car_entered.connect(func (car: CarCustomPhysics2):

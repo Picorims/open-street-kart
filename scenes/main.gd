@@ -5,11 +5,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-extends Node3D
+class_name Main extends Node3D
 
 const _3D_MENU_BACKGROUND: PackedScene = preload("res://scenes/backgrounds/gui_background_menus.tscn")
 
 const _SCREEN_PICK_MODE: PackedScene = preload("res://gui/screens/pick_mode_screen.tscn")
+const _SCREEN_PICK_SPEED: PackedScene = preload("res://gui/screens/pick_speed_screen.tscn")
+const _SCREEN_PICK_TRACK: PackedScene = preload("res://gui/screens/pick_track_screen.tscn")
 
 enum _BackgroundKind {
 	UNSET,
@@ -18,16 +20,27 @@ enum _BackgroundKind {
 
 enum _Screen {
 	NONE,
-	PICK_MODE
+	PICK_MODE,
+	PICK_SPEED,
+	PICK_TRACK,
+}
+
+enum Track {
+	NONE,
+	ORSAY
 }
 
 var _currentBackground: _BackgroundKind = _BackgroundKind.UNSET
 var _currentScreen: _Screen = _Screen.NONE
 
+var _selectedMode: TrackState.GameMode
+var _selectedSpeed: TrackState.SpeedMode
+var _selectedTrack: Track = Track.NONE
+
 func _ready():
 	print("Loading...")
 	_show_mode_menu()
-	print("done.")
+	print("Loading done.")
 
 func _show_mode_menu():
 	_apply_background(_BackgroundKind.MENU_BACKGROUND_3D)
@@ -37,9 +50,32 @@ func _show_mode_menu():
 func _apply_screen(screenKind: _Screen):
 	if (_currentScreen != screenKind):
 		if (screenKind == _Screen.PICK_MODE):
+			print("opening pick mode screen")
 			_clear_gui()
-			var newScreen: Control = _SCREEN_PICK_MODE.instantiate()
+			var newScreen: PickModeScreen = _SCREEN_PICK_MODE.instantiate()
 			$GUI.add_child(newScreen)
+			newScreen.mode_selected.connect(func(mode: TrackState.GameMode):
+				_selectedMode = mode
+				_apply_screen(_Screen.PICK_SPEED)
+			)
+		if (screenKind == _Screen.PICK_SPEED):
+			print("opening pick speed screen")
+			_clear_gui()
+			var newScreen: PickSpeedScreen = _SCREEN_PICK_SPEED.instantiate()
+			$GUI.add_child(newScreen)
+			newScreen.mode_selected.connect(func(mode: TrackState.SpeedMode):
+				_selectedSpeed = mode
+				_apply_screen(_Screen.PICK_TRACK)
+			)
+		if (screenKind == _Screen.PICK_TRACK):
+			print("opening pick track screen")
+			_clear_gui()
+			var newScreen: PickTrackScreen = _SCREEN_PICK_TRACK.instantiate()
+			$GUI.add_child(newScreen)
+			newScreen.track_selected.connect(func(track: Track):
+				_selectedTrack = track
+				print(_selectedTrack)
+			)
 
 ## If background is different, apply it.
 func _apply_background(backgroundKind: _BackgroundKind):

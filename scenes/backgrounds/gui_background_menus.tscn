@@ -25,8 +25,8 @@ curve_y = SubResource("Curve_l16to")
 curve_z = SubResource("Curve_yr0dy")
 
 [sub_resource type="Curve" id="Curve_c8x6q"]
-_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(0.860887, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
-point_count = 3
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.100287, 1), 0.0, 0.0, 0, 0, Vector2(0.860887, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
 
 [sub_resource type="CurveTexture" id="CurveTexture_d6gkp"]
 curve = SubResource("Curve_c8x6q")
@@ -57,7 +57,7 @@ turbulence_initial_displacement_max = 21.6
 albedo_color = Color(0.458522, 0.992682, 0.140141, 1)
 emission_enabled = true
 emission = Color(0.0691666, 0.83, 0, 1)
-emission_energy_multiplier = 64.0
+emission_energy_multiplier = 16.0
 rim = 0.0
 
 [sub_resource type="SphereMesh" id="SphereMesh_yr0dy"]

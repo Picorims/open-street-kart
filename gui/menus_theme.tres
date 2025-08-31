@@ -35,4 +35,5 @@ HeaderLarge/colors/font_outline_color = Color(1.85003e-07, 0.0966188, 0.0760253,
 HeaderLarge/constants/outline_size = 16
 HeaderLarge/font_sizes/font_size = 48
 HeaderLarge/fonts/font = SubResource("FontVariation_150qp")
+TitleLabel/base_type = &"Label"
 TitleLabel/font_sizes/font_size = 32

@@ -9,6 +9,7 @@
 class_name AtomGUIBlurredBgndMenuButton extends Control
 
 var _button: Button = Button.new()
+signal pressed
 
 @export var text: String = "?":
 	set(v):
@@ -33,4 +34,6 @@ func _ready() -> void:
 	self.add_child(_button)
 	_button.set_anchors_preset(Control.PRESET_FULL_RECT, true)
 	_button.text = text
-	#_button.add_theme_stylebox_override("normal", StyleBoxEmpty.new())
+	_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
+	
+	_button.pressed.connect(func(): pressed.emit())
