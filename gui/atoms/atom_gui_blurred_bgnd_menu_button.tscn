@@ -1,0 +1,36 @@
+[gd_scene load_steps=4 format=3 uid="uid://bqhm44dila0ap"]
+
+[ext_resource type="Shader" uid="uid://bhdo7hy443n7o" path="res://shaders/blur_menu_button_background.gdshader" id="1_42uvu"]
+[ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="1_vlr6o"]
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_g1t1q"]
+shader = ExtResource("1_42uvu")
+shader_parameter/samples = 35
+shader_parameter/lod = 2
+shader_parameter/tint_color = Color(0, 0, 0, 0)
+
+[node name="AtomGUIBlurredBgndMenuButton" type="Control"]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 3
+anchors_preset = 0
+offset_right = 256.0
+offset_bottom = 48.0
+script = ExtResource("1_vlr6o")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+material = SubResource("ShaderMaterial_g1t1q")
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+metadata/_edit_use_anchors_ = true
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+text = "?"
+flat = true
