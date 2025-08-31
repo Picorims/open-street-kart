@@ -5,9 +5,32 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-extends Control
+@tool
+class_name AtomGUIBlurredBgndMenuButton extends Control
 
-@export var text: String:
+var _button: Button = Button.new()
+
+@export var text: String = "?":
 	set(v):
 		text = v
-		$Button.text = v
+		_button.text = v
+
+func _ready() -> void:
+	self.custom_minimum_size = Vector2(256,48)
+	
+	var colorRect: ColorRect = ColorRect.new()
+	self.add_child(colorRect)
+	colorRect.set_anchors_preset(Control.PRESET_FULL_RECT, true)
+	colorRect.color = Color.TRANSPARENT
+	
+	var shaderMat: ShaderMaterial = ShaderMaterial.new()
+	shaderMat.shader = preload("res://shaders/blur_menu_button_background.gdshader")
+	#shaderMat.set_shader_parameter("tint_color", Vector4(0,0,0,0.2))
+	shaderMat.set_shader_parameter("samples", 4)
+	shaderMat.set_shader_parameter("lod", 1)
+	colorRect.material = shaderMat
+	
+	self.add_child(_button)
+	_button.set_anchors_preset(Control.PRESET_FULL_RECT, true)
+	_button.text = text
+	#_button.add_theme_stylebox_override("normal", StyleBoxEmpty.new())

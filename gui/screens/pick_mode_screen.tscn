@@ -1,10 +1,6 @@
-[gd_scene load_steps=3 format=3 uid="uid://cisuxbd6axgh8"]
+[gd_scene load_steps=2 format=3 uid="uid://cisuxbd6axgh8"]
 
-[ext_resource type="PackedScene" uid="uid://bqhm44dila0ap" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.tscn" id="1_h5tn5"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_iv8m2"]
-font_size = 32
-outline_size = 1
+[ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="1_h5tn5"]
 
 [node name="PickModeScreen" type="CenterContainer"]
 anchors_preset = 15
@@ -24,12 +20,16 @@ theme_override_constants/margin_bottom = 64
 
 [node name="Label" type="Label" parent="UIBlockContainer/TitleMarginContainer"]
 layout_mode = 2
+theme_type_variation = &"HeaderLarge"
 text = "Choose a mode"
-label_settings = SubResource("LabelSettings_iv8m2")
+horizontal_alignment = 1
 
 [node name="ButtonsVBoxContainer" type="VBoxContainer" parent="UIBlockContainer"]
 layout_mode = 2
 
-[node name="AtomGUIBlurredBgndMenuButton" parent="UIBlockContainer/ButtonsVBoxContainer" instance=ExtResource("1_h5tn5")]
+[node name="AtomGUIBlurredBgndMenuButton" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer"]
+custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
+script = ExtResource("1_h5tn5")
 text = "Against the clock"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"

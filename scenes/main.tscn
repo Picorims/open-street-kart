@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://cqejs1vq3nqq1"]
+[gd_scene load_steps=3 format=3 uid="uid://cqejs1vq3nqq1"]
 
 [ext_resource type="Script" uid="uid://dnclarav5w8h2" path="res://scenes/main.gd" id="1_o5qli"]
+[ext_resource type="Theme" uid="uid://mcxm36operox" path="res://gui/menus_theme.tres" id="2_0wfyh"]
 
 [node name="Main" type="Node3D"]
 script = ExtResource("1_o5qli")
@@ -14,3 +15,4 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_0wfyh")

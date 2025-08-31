@@ -14,7 +14,7 @@ float gaussian(vec2 i, float sigma) {
 
 vec4 blur(sampler2D text, vec2 uv, vec2 pixel_size) {
 	vec4 original_color = vec4(0.0);
-	
+
 	// the spread of the blur based on the number of samples.
 	float sigma = float(samples) * 0.25;
 
@@ -23,7 +23,7 @@ vec4 blur(sampler2D text, vec2 uv, vec2 pixel_size) {
 
 	for (int i = 0; i < s * s; i++) {
 		vec2 offset = vec2(float(i % s), float(i / s)) * float(sLOD) - float(samples) / 2.0;
-		
+
 		// Accumulate the color from the texture at the calculated offset
 		// weighted by the gaussian function
 		original_color += gaussian(offset, sigma) * textureLod(text, uv + pixel_size * offset, float(lod));
