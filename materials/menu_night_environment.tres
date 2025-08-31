@@ -1,0 +1,54 @@
+[gd_resource type="Environment" load_steps=7 format=3 uid="uid://cdrbw2frpojjg"]
+
+[sub_resource type="Curve" id="Curve_13y62"]
+_data = [Vector2(0, 0), 0.0, 1.0, 0, 1, Vector2(1, 1), 1.0, 0.0, 1, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_fpesy"]
+_data = [Vector2(0, 0), 0.0, 0.981742, 0, 0, Vector2(1, 0.842697), 1.22172, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="Curve" id="Curve_3oiwo"]
+_data = [Vector2(0, 0), 0.0, 1.0, 0, 1, Vector2(1, 1), 1.0, 0.0, 1, 0]
+point_count = 2
+
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_oe3vd"]
+curve_x = SubResource("Curve_13y62")
+curve_y = SubResource("Curve_fpesy")
+curve_z = SubResource("Curve_3oiwo")
+
+[sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_13y62"]
+rayleigh_coefficient = 1.09
+rayleigh_color = Color(0.00128264, 0.015648, 0.0705237, 1)
+mie_eccentricity = 0.94
+mie_color = Color(0.00929797, 0.0790355, 0.198581, 1)
+ground_color = Color(0.140103, 0.227615, 0.722658, 1)
+energy_multiplier = 0.4
+
+[sub_resource type="Sky" id="Sky_13y62"]
+sky_material = SubResource("PhysicalSkyMaterial_13y62")
+
+[resource]
+background_mode = 2
+background_energy_multiplier = 9.79
+sky = SubResource("Sky_13y62")
+ambient_light_source = 3
+ambient_light_color = Color(4.35343e-05, 0.13606, 0.458706, 1)
+ambient_light_sky_contribution = 0.51
+ambient_light_energy = 0.0
+ssil_enabled = true
+glow_enabled = true
+glow_strength = 1.75
+fog_enabled = true
+fog_light_color = Color(0, 0.1448, 0.289242, 1)
+fog_density = 0.02
+fog_sky_affect = 0.0
+volumetric_fog_density = 0.0958
+volumetric_fog_albedo = Color(0.0156996, 0.297675, 0.372985, 1)
+volumetric_fog_anisotropy = 0.39
+volumetric_fog_length = 470.47
+volumetric_fog_sky_affect = 0.0
+adjustment_enabled = true
+adjustment_brightness = 1.24
+adjustment_saturation = 1.12
+adjustment_color_correction = SubResource("CurveXYZTexture_oe3vd")

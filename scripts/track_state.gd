@@ -13,6 +13,7 @@ class_name TrackState extends Node
 const RACE_HUD_SCENE: PackedScene = preload("res://gui/race_hud.tscn")
 const RACE_FINISHED_GUI: PackedScene = preload("res://gui/race_finished_gui.tscn")
 
+var _started = false
 var _startUs: float = 0
 var _startLapUs: Dictionary[String, float]
 var _durationsUs: Dictionary[String, Array] # is Array[float]
@@ -25,9 +26,16 @@ var _raceFinishedGUI: RaceFinishedGUI
 var _lastEstimatedRankings: Array[_OffsetEntry] = []
 var _raceFinished: bool = false
 
-enum Mode {
+enum GameMode {
 	AGAINST_CLOCK,
 	VERSUS
+}
+
+enum SpeedMode {
+	CHILL,
+	CASUAL,
+	CHALLENGING,
+	CRAZY
 }
 
 func _ready() -> void:
@@ -39,10 +47,9 @@ func _ready() -> void:
 		DebugDraw2D.set_text("Lap {0}".format([i+1]), "-", 0, Color(1,1,0), 1_000_000_000)
 	DebugDraw2D.set_text("Total", "-", 0, Color(1,1,0), 1_000_000_000)
 	DebugDraw2D.end_text_group()
-	
-	init(Mode.VERSUS)
 
-func init(mode: Mode):
+func init(mode: GameMode, speed: SpeedMode):
+	print("Initializing track state...")
 	for i in range(loopCheckpoints.size()):
 		var c: LoopCheckpoint = loopCheckpoints[i]
 		c.car_entered.connect(func (car: CarCustomPhysics2):
@@ -79,16 +86,20 @@ func init(mode: Mode):
 	add_child(_raceHUD)
 	add_child(_raceFinishedGUI)
 	
+	playerSpawner.init(mode, speed)
 	for c in playerSpawner.carRootNodes:
 		_displayNames.set(c.name, c.displayName)
+
 	playerSpawner.countdown()
 	playerSpawner.go.connect(func ():
 		start()
 	)
+	print("Track state initialization done.")
 
 
 func start():
 	_startUs = Time.get_ticks_usec()
+	_started = true
 
 func _stop():
 	_raceFinished = true
@@ -137,7 +148,7 @@ func _pretty_duration_from_us(us: float) -> String:
 	return "{0}:{1}.{2} ({3} us)".format([minutes, seconds, milliseconds, microseconds])
 
 func _process(delta: float) -> void:
-	if not _raceFinished:
+	if (!_raceFinished && _started):
 		_process_live_ranking()
 
 class _OffsetEntry:
@@ -151,6 +162,10 @@ class _OffsetEntry:
 func _process_live_ranking() -> void:
 	## smaller to bigger
 	var rankings: Array[_OffsetEntry] = []
+	if (playerSpawner.carRootNodes.size() == 0):
+		# spawner not ready
+		return
+		
 	for c in playerSpawner.carRootNodes:
 		var entry: _OffsetEntry = _OffsetEntry.new()
 		entry.carName = c.name
@@ -163,6 +178,7 @@ func _process_live_ranking() -> void:
 	rankings.sort_custom(func(a: _OffsetEntry, b: _OffsetEntry) -> bool:
 		return a.carOffset < b.carOffset
 	)
+	assert(rankings.size() > 0, "rankings empty")
 	
 	_lastEstimatedRankings = rankings
 	

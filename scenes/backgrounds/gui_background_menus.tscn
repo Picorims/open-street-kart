@@ -1,0 +1,93 @@
+[gd_scene load_steps=13 format=3 uid="uid://chvhjn0fseid0"]
+
+[ext_resource type="Environment" uid="uid://cdrbw2frpojjg" path="res://materials/menu_night_environment.tres" id="1_idtbq"]
+[ext_resource type="Material" uid="uid://bwmmwf7nnqfjw" path="res://materials/environment/grass/grass.tres" id="2_l16to"]
+
+[sub_resource type="BoxMesh" id="BoxMesh_yr0dy"]
+material = ExtResource("2_l16to")
+size = Vector3(1000, 1, 1000)
+
+[sub_resource type="Curve" id="Curve_idtbq"]
+_data = [Vector2(0, 0.0399398), 0.0, 0.0, 0, 0, Vector2(0.104839, 0.12321), 0.0, 0.0, 0, 0, Vector2(0.229839, 0.0938207), 0.0, 0.0, 0, 0, Vector2(0.350806, 0.0301431), 0.0, 0.0, 0, 0, Vector2(0.429435, 0.12321), 0.0, 0.0, 0, 0, Vector2(0.548387, 0.137905), 0.0, 0.0, 0, 0, Vector2(0.677419, 0.044838), 0.117558, 0.117558, 0, 0, Vector2(0.877016, 0.103617), 0.0, 0.0, 0, 0, Vector2(0.991935, 0), 0.0, 0.0, 0, 0]
+point_count = 9
+
+[sub_resource type="Curve" id="Curve_l16to"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.173387, 0.1526), 0.0, 0.0, 0, 0, Vector2(0.282258, 0.0693293), 0.0, 0.0, 0, 0, Vector2(0.417339, 0.103617), 0.0, 0.0, 0, 0, Vector2(0.52621, 0.142803), 0.0, 0.0, 0, 0, Vector2(0.610887, 0.0938207), 0.0, 0.0, 0, 0, Vector2(0.794355, 0), 0.0, 0.0, 0, 0, Vector2(0.977823, 0.0644311), 0.0, 0.0, 0, 0]
+point_count = 8
+
+[sub_resource type="Curve" id="Curve_yr0dy"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.278226, 0.0987189), -0.0796568, -0.0796568, 0, 0, Vector2(0.405242, 0.0840241), 0.0, 0.0, 0, 0, Vector2(0.497984, 0.157498), 0.0, 0.0, 0, 0, Vector2(0.653226, 0.0742276), 0.0, 0.0, 0, 0, Vector2(0.832661, 0.113414), 0.0, 0.0, 0, 0, Vector2(0.983871, 0.1526), 0.0, 0.0, 0, 0]
+point_count = 7
+
+[sub_resource type="CurveXYZTexture" id="CurveXYZTexture_vx3ws"]
+curve_x = SubResource("Curve_idtbq")
+curve_y = SubResource("Curve_l16to")
+curve_z = SubResource("Curve_yr0dy")
+
+[sub_resource type="Curve" id="Curve_c8x6q"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(0.100287, 1), 0.0, 0.0, 0, 0, Vector2(0.860887, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 4
+
+[sub_resource type="CurveTexture" id="CurveTexture_d6gkp"]
+curve = SubResource("Curve_c8x6q")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_idtbq"]
+lifetime_randomness = 0.25
+emission_shape = 3
+emission_box_extents = Vector3(15, 1, 20)
+direction = Vector3(0, 0, 0)
+initial_velocity_max = 1.13
+directional_velocity_min = 0.499984
+directional_velocity_max = 0.999984
+directional_velocity_curve = SubResource("CurveXYZTexture_vx3ws")
+radial_velocity_min = -1.00002
+radial_velocity_max = 0.999978
+gravity = Vector3(0, 0, 0)
+tangential_accel_min = -2.23517e-06
+tangential_accel_max = -2.23517e-06
+scale_min = 0.5
+scale_curve = SubResource("CurveTexture_d6gkp")
+turbulence_enabled = true
+turbulence_noise_scale = 0.765
+turbulence_influence_max = 0.15
+turbulence_initial_displacement_min = -33.0
+turbulence_initial_displacement_max = 21.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_l16to"]
+albedo_color = Color(0.458522, 0.992682, 0.140141, 1)
+emission_enabled = true
+emission = Color(0.0691666, 0.83, 0, 1)
+emission_energy_multiplier = 16.0
+rim = 0.0
+
+[sub_resource type="SphereMesh" id="SphereMesh_yr0dy"]
+material = SubResource("StandardMaterial3D_l16to")
+radius = 0.02
+height = 0.04
+
+[node name="Node3D" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = ExtResource("1_idtbq")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = SubResource("BoxMesh_yr0dy")
+
+[node name="Camera3D" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.36505, 0)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, -0.949426, 0.313992, 0, -0.313992, -0.949426, 0, 2.84555, 0)
+light_color = Color(0.321859, 0.762367, 0.964098, 1)
+light_energy = 0.525
+light_angular_distance = 0.67
+light_specular = 2.304
+light_bake_mode = 1
+
+[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.705, -15)
+amount = 1024
+lifetime = 10.0
+preprocess = 10.0
+process_material = SubResource("ParticleProcessMaterial_idtbq")
+draw_pass_1 = SubResource("SphereMesh_yr0dy")

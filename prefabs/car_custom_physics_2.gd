@@ -12,14 +12,14 @@ extends RigidBody3D
 
 var currentDirection: Vector3 = Vector3(1,0,0)
 @export var showDebugArrows: bool = false
-@export var accelerationForce: float = 5000
+@export var accelerationForce: float = 6_000
 @export var rotationForce: float = 100
 @export var speedMultiplier: float = 1.0
-@export var springStrength: float = 250000 
-@export var springDamping: float = 21000 # coefficient
+@export var springStrength: float = 250_000 
+@export var springDamping: float = 21_000 # coefficient
 @export var restDistance: float = 2
 @export var maxSpeedMetersPerSecond: float = 25
-@export var maxSpeedOutOfBounds: float = 8
+@export var maxSpeedOutOfBoundsMetersPerSecond: float = 8
 @export var interface: CarCustomPhysics2
 @export var mode: CarCustomPhysics2.CarMode:
 	set(v):
@@ -163,7 +163,7 @@ func _disable_drift() -> void:
 	
 func _get_max_speed_squared(outOfBounds: bool):
 	if (outOfBounds):
-		return maxSpeedOutOfBounds * maxSpeedOutOfBounds
+		return maxSpeedOutOfBoundsMetersPerSecond * maxSpeedOutOfBoundsMetersPerSecond
 	else:
 		return maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
 

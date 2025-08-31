@@ -13,13 +13,17 @@ config_version=5
 config/name="Open Street Kart"
 config/version="1.0.0-alpha.2"
 config/tags=PackedStringArray("3d", "physics", "vehicle")
-run/main_scene="uid://snxec2n3dvd1"
+run/main_scene="uid://cqejs1vq3nqq1"
 config/features=PackedStringArray("4.4", "Mobile")
 config/icon="res://icon.svg"
 
 [debug_draw_3d]
 
 settings/addon_root_folder="res://addons/debug_draw_3d"
+
+[gui]
+
+theme/custom="uid://mcxm36operox"
 
 [input]
 
