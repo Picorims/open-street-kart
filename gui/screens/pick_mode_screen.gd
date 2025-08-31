@@ -18,7 +18,7 @@ func _ready() -> void:
 	)
 	
 	var versusButton = $UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Versus
-	assert(againstClockButton != null, "versus button undefined.")
+	assert(versusButton != null, "versus button undefined.")
 	versusButton.pressed.connect(func():
 		mode_selected.emit(TrackState.GameMode.VERSUS)
 	)

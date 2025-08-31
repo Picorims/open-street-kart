@@ -13,7 +13,7 @@ class_name TrackState extends Node
 const RACE_HUD_SCENE: PackedScene = preload("res://gui/race_hud.tscn")
 const RACE_FINISHED_GUI: PackedScene = preload("res://gui/race_finished_gui.tscn")
 
-var _started = true
+var _started = false
 var _startUs: float = 0
 var _startLapUs: Dictionary[String, float]
 var _durationsUs: Dictionary[String, Array] # is Array[float]
