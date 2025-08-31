@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Dates are in format YYYY-MM-DD (year, month, day)
 
+# [1.0.0-alpha.3] - 2025-08-31
+
+## Added
+
+- Added draft menus allowing to choose the mode, speed and track.
+- Added 3 additional speed modes ("challenging" being the initial speed mode")
+
+## Fixed
+
+- Fixed error spam "query_info(): The axis Vector3 (0.0, 0.0, 0.0) must be normalized"
+
 # [1.0.0-alpha.2] - 2025-08-24
 
 ## Added
