@@ -27,8 +27,8 @@ func _ready() -> void:
 	var shaderMat: ShaderMaterial = ShaderMaterial.new()
 	shaderMat.shader = preload("res://shaders/blur_menu_button_background.gdshader")
 	#shaderMat.set_shader_parameter("tint_color", Vector4(0,0,0,0.2))
-	shaderMat.set_shader_parameter("samples", 4)
-	shaderMat.set_shader_parameter("lod", 1)
+	shaderMat.set_shader_parameter("strength", 4)
+	shaderMat.set_shader_parameter("mix_percentage", 0)
 	colorRect.material = shaderMat
 	
 	self.add_child(_button)
