@@ -1,53 +1,46 @@
-// based off https://godotshaders.com/shader/background-blur-with-tint/ by pirateKaser - CC0
+// https://godotshaders.com/shader/web-safe-darkened-gaussian-blur/ - crisp_lad - CC0
 
 shader_type canvas_item;
 
-uniform sampler2D screen_texture : hint_screen_texture, filter_linear_mipmap;
+uniform sampler2D SCREEN_TEXTURE: hint_screen_texture,repeat_disable, filter_nearest;
+/**
+* How blurry the result should be.
+* Limited to 20 because of performance, if you want feel free to break it.
+*/
+uniform float strength : hint_range(0.1, 20.0) = 3.3;
+/**
+* How dark the blur will be
+*/
+uniform float mix_percentage: hint_range(0.0, 1.0) = 0.3;
 
-uniform int samples = 35;
-uniform int lod = 2;
-uniform vec4 tint_color : source_color = vec4(0.0, 0.0, 0.0, 0.0);
-
-float gaussian(vec2 i, float sigma) {
-	return exp(-0.5 * dot(i /= sigma, i)) / (6.28 * sigma * sigma);
+float gaussianDistribution(float x, float STD){ // STD stands for standard deviation
+	return exp(-(x*x)/(2.*STD*STD))/(sqrt(2.*PI)*STD);
 }
 
-vec4 blur(sampler2D text, vec2 uv, vec2 pixel_size) {
-	vec4 original_color = vec4(0.0);
-
-	// the spread of the blur based on the number of samples.
-	float sigma = float(samples) * 0.25;
-
-	int sLOD = 1 << lod;
-	int s = samples / sLOD;
-
-	for (int i = 0; i < s * s; i++) {
-		vec2 offset = vec2(float(i % s), float(i / s)) * float(sLOD) - float(samples) / 2.0;
-
-		// Accumulate the color from the texture at the calculated offset
-		// weighted by the gaussian function
-		original_color += gaussian(offset, sigma) * textureLod(text, uv + pixel_size * offset, float(lod));
-	}
-
-	// Normalize the final color by the accumulated alpha to prevent darkening + a check to prevent division by zero if fully transparent
-	return original_color.a > 0.0 ? original_color / original_color.a : vec4(0.0);
+vec3 gaussianblur(sampler2D sampler, vec2 pos, vec2 pixel_size, float sigmaUsed, int radius){
+    vec3 blurredPixel = vec3(0.0);
+    float total_weight = 0.0;
+	// Loop over the radius (technically its a square)
+    for(int i = -radius ; i <= radius; i++){ 
+        for(int j = -radius; j <= radius; j++){
+			// Calculate the offset from the current pixel
+			vec2 offset = vec2(float(i), float(j))*pixel_size;
+			vec2 changedPos = pos + offset;        
+			
+			// Calculate the weight based on the Gaussian distribution multiplying both dimensions (how far are X and Y from the center (pos))
+			float weight = gaussianDistribution(float(i), sigmaUsed)*gaussianDistribution(float(j), sigmaUsed);
+			// Add the weighted color value to the blurred pixel
+			blurredPixel += texture(SCREEN_TEXTURE, changedPos).rgb * weight;
+			total_weight += weight;
+        }
+    }
+	// Normalize the blurred pixel color by the total weight
+	blurredPixel/=total_weight;
+    return blurredPixel;
 }
-
 void fragment() {
-	vec4 blurred_color = blur(screen_texture, SCREEN_UV, SCREEN_PIXEL_SIZE);
-	vec3 mixed_rgb = mix(blurred_color.rgb, tint_color.rgb, tint_color.a);
-	COLOR = vec4(mixed_rgb, blurred_color.a);
+    vec3 PixelBlurred = gaussianblur(SCREEN_TEXTURE, SCREEN_UV, SCREEN_PIXEL_SIZE, strength, int(round(3.0 * strength)));
+	vec3 color = mix(PixelBlurred, vec3(0.0), mix_percentage);
+    // The radius is 3*strength because it is the point where the Gaussian weight is near zero.
+    COLOR = vec4(color, 1.);
 }
-
-//void vertex() {
-	//// Called for every vertex the material is visible on.
-//}
-
-//void fragment() {
-	//// Called for every pixel the material is visible on.
-//}
-
-//void light() {
-//	// Called for every pixel for every light affecting the CanvasItem.
-//	// Uncomment to replace the default light processing function with this one.
-//}
