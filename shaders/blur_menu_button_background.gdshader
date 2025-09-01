@@ -20,14 +20,14 @@ float gaussianDistribution(float x, float STD){ // STD stands for standard devia
 vec3 gaussianblur(sampler2D sampler, vec2 pos, vec2 pixel_size, float sigmaUsed, int radius){
     vec3 blurredPixel = vec3(0.0);
     float total_weight = 0.0;
-	// Loop over the radius (tecnically its a square)
+	// Loop over the radius (technically its a square)
     for(int i = -radius ; i <= radius; i++){ 
         for(int j = -radius; j <= radius; j++){
 			// Calculate the offset from the current pixel
 			vec2 offset = vec2(float(i), float(j))*pixel_size;
 			vec2 changedPos = pos + offset;        
 			
-			// Calculate the weight based on the Gaussian distribution multiplying both dimentions (how far are X and Y form the center (pos))
+			// Calculate the weight based on the Gaussian distribution multiplying both dimensions (how far are X and Y from the center (pos))
 			float weight = gaussianDistribution(float(i), sigmaUsed)*gaussianDistribution(float(j), sigmaUsed);
 			// Add the weighted color value to the blurred pixel
 			blurredPixel += texture(SCREEN_TEXTURE, changedPos).rgb * weight;
