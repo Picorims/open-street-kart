@@ -87,7 +87,7 @@ func init(mode: GameMode, speed: SpeedMode):
 	add_child(_raceFinishedGUI)
 	
 	playerSpawner.init(mode, speed)
-	for c in playerSpawner.carRootNodes:
+	for c in playerSpawner.car_root_nodes:
 		_displayNames.set(c.name, c.display_name)
 
 	playerSpawner.countdown()
@@ -162,11 +162,11 @@ class _OffsetEntry:
 func _process_live_ranking() -> void:
 	## smaller to bigger
 	var rankings: Array[_OffsetEntry] = []
-	if (playerSpawner.carRootNodes.size() == 0):
+	if (playerSpawner.car_root_nodes.size() == 0):
 		# spawner not ready
 		return
 		
-	for c in playerSpawner.carRootNodes:
+	for c in playerSpawner.car_root_nodes:
 		var entry: _OffsetEntry = _OffsetEntry.new()
 		entry.carName = c.name
 		entry.carDisplayName = c.display_name
@@ -183,7 +183,7 @@ func _process_live_ranking() -> void:
 	_lastEstimatedRankings = rankings
 	
 	var ratios: Dictionary[String, RaceHUD.RatioEntry] = {}
-	var pathLength: float = max(playerSpawner.racePath.curve.get_baked_length(), 0.01)
+	var pathLength: float = max(playerSpawner.race_path.curve.get_baked_length(), 0.01)
 	var distanceFirstToLast: float = rankings[-1].carOffset - rankings[0].carOffset
 	var i: int = rankings.size() # because we want to start ranking value at 1
 	for r in rankings:
