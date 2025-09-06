@@ -34,11 +34,11 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	var ratioPrevNext: float = 0
 	if (!prevNull && !nextNull):
 		ratioPrevNext = (q.closestOffset - q.prevOffset) / max(q.nextOffset - q.prevOffset, 0.01)
-		trackWidth = lerp(q.prev.rangeRadius, q.next.rangeRadius, ratioPrevNext)
+		trackWidth = lerp(q.prev.range_radius, q.next.range_radius, ratioPrevNext)
 	elif(!nextNull):
-		trackWidth = q.next.rangeRadius
+		trackWidth = q.next.range_radius
 	elif(!prevNull):
-		trackWidth = q.prev.rangeRadius
+		trackWidth = q.prev.range_radius
 	else:
 		trackWidth = 1
 	# without XZ, issues would be exacerbated with height difference, which is not important to know.
