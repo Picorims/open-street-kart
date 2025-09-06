@@ -34,21 +34,21 @@ const TRACK_SCENES: Dictionary[Main.Track, PackedScene] = {
 	Track.ORSAY_HILLS: preload("res://scenes/races/orsay.tscn")
 }
 
-var _currentBackground: _BackgroundKind = _BackgroundKind.UNSET
-var _currentScreen: _Screen = _Screen.NONE
+var _current_background: _BackgroundKind = _BackgroundKind.UNSET
+var _current_screen: _Screen = _Screen.NONE
 
-var _selectedMode: TrackState.GameMode
-var _selectedSpeed: TrackState.SpeedMode
-var _trackToLoad: Main.Track = Main.Track.NONE
-var _awaitingTrackToLoad: bool = false
-var _awaitingTrackToLoadSince: float = 0
+var _selected_mode: TrackState.GameMode
+var _selected_speed: TrackState.SpeedMode
+var _track_to_load: Main.Track = Main.Track.NONE
+var _awaiting_track_to_load: bool = false
+var _awaiting_track_to_load_since: float = 0
 const TRACK_LOAD_DELAY_MS = 100
 
 func get_selected_mode() -> TrackState.GameMode:
-	return _selectedMode
+	return _selected_mode
 
 func get_selected_speed() -> TrackState.SpeedMode:
-	return _selectedSpeed
+	return _selected_speed
 
 func _ready():
 	print("Loading...")
@@ -60,41 +60,41 @@ func _show_mode_menu():
 	_apply_screen(_Screen.PICK_MODE)
 
 ## If screen is different, apply it.
-func _apply_screen(screenKind: _Screen):
-	if (_currentScreen != screenKind):
-		if (screenKind == _Screen.PICK_MODE):
+func _apply_screen(screen_kind: _Screen):
+	if (_current_screen != screen_kind):
+		if (screen_kind == _Screen.PICK_MODE):
 			print("opening pick mode screen")
 			_clear_gui()
-			var newScreen: PickModeScreen = _SCREEN_PICK_MODE.instantiate()
-			$GUI.add_child(newScreen)
-			newScreen.mode_selected.connect(func(mode: TrackState.GameMode):
-				_selectedMode = mode
+			var new_screen: PickModeScreen = _SCREEN_PICK_MODE.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.mode_selected.connect(func(mode: TrackState.GameMode):
+				_selected_mode = mode
 				_apply_screen(_Screen.PICK_SPEED)
 			)
-		if (screenKind == _Screen.PICK_SPEED):
+		if (screen_kind == _Screen.PICK_SPEED):
 			print("opening pick speed screen")
 			_clear_gui()
-			var newScreen: PickSpeedScreen = _SCREEN_PICK_SPEED.instantiate()
-			$GUI.add_child(newScreen)
-			newScreen.mode_selected.connect(func(mode: TrackState.SpeedMode):
-				_selectedSpeed = mode
+			var new_screen: PickSpeedScreen = _SCREEN_PICK_SPEED.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.mode_selected.connect(func(mode: TrackState.SpeedMode):
+				_selected_speed = mode
 				_apply_screen(_Screen.PICK_TRACK)
 			)
-		if (screenKind == _Screen.PICK_TRACK):
+		if (screen_kind == _Screen.PICK_TRACK):
 			print("opening pick track screen")
 			_clear_gui()
-			var newScreen: PickTrackScreen = _SCREEN_PICK_TRACK.instantiate()
-			$GUI.add_child(newScreen)
-			newScreen.track_selected.connect(func(track: Main.Track):
+			var new_screen: PickTrackScreen = _SCREEN_PICK_TRACK.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.track_selected.connect(func(track: Main.Track):
 				_launch_track(track)
 			)
 
 ## If background is different, apply it.
-func _apply_background(backgroundKind: _BackgroundKind):
-	if (_currentBackground != backgroundKind):
-		if (backgroundKind == _BackgroundKind.MENU_BACKGROUND_3D):
+func _apply_background(background_kind: _BackgroundKind):
+	if (_current_background != background_kind):
+		if (background_kind == _BackgroundKind.MENU_BACKGROUND_3D):
 			_clear_world()
-			var env: Node3D = _3D_MENU_BACKGROUND.instantiate() 
+			var env: Node3D = _3D_MENU_BACKGROUND.instantiate()
 			$World.add_child(env)
 
 ## Remove all children of $World
@@ -109,15 +109,15 @@ func _clear_gui():
 		c.queue_free()
 
 func _launch_track(track: Main.Track):
-	if (!TRACK_SCENES.has(track)):
+	if (not TRACK_SCENES.has(track)):
 		push_error("Track {0} does not exist.".format([track]))
 		return
 	
 	_clear_gui()
 	_show_loading_screen()
-	_trackToLoad = track
-	_awaitingTrackToLoadSince = Time.get_ticks_msec()
-	_awaitingTrackToLoad = true
+	_track_to_load = track
+	_awaiting_track_to_load_since = Time.get_ticks_msec()
+	_awaiting_track_to_load = true
 	
 	# if not deferred to process, the game freezes before the loading screen shows up.
 	
@@ -127,13 +127,13 @@ func _show_loading_screen():
 func _hide_loading_screen():
 	$LoadingScreen.visible = false
 
-func _process(delta: float) -> void:
-	var awaitingTrackTimeDiff: float = Time.get_ticks_msec() - _awaitingTrackToLoadSince
-	if _awaitingTrackToLoad && awaitingTrackTimeDiff > TRACK_LOAD_DELAY_MS:
-		assert(_trackToLoad != Track.NONE, "no track to load.")
+func _process(_delta: float) -> void:
+	var awaiting_track_time_diff: float = Time.get_ticks_msec() - _awaiting_track_to_load_since
+	if _awaiting_track_to_load and awaiting_track_time_diff > TRACK_LOAD_DELAY_MS:
+		assert(_track_to_load != Track.NONE, "no track to load.")
 		_clear_world()
-		var trackScene: Track = TRACK_SCENES.get(_trackToLoad).instantiate()
-		$World.add_child(trackScene)
-		trackScene.launch(_selectedMode, _selectedSpeed)
+		var track_scene: Track = TRACK_SCENES.get(_track_to_load).instantiate()
+		$World.add_child(track_scene)
+		track_scene.launch(_selected_mode, _selected_speed)
 		_hide_loading_screen()
-		_awaitingTrackToLoad = false
+		_awaiting_track_to_load = false
