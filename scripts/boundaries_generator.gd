@@ -38,7 +38,7 @@ func _load_data() -> void:
 	# see https://docs.godotengine.org/en/stable/classes/class_json.html#class-json-method-parse
 	# see https://docs.godotengine.org/en/stable/classes/class_fileaccess.html
 
-	var file = FileAccess.open(loader.boundariesDataPath, FileAccess.READ)
+	var file = FileAccess.open(loader.boundaries_data_path, FileAccess.READ)
 	_data = JSON.parse_string(file.get_as_text())
 	assert(_data != null)
 	file.close()

@@ -24,7 +24,7 @@ var _is_loaded: bool = false
 		
 func _ready() -> void:
 	assert(loader != null, "Loader not defined.")
-	_material = loader.floorMaterial
+	_material = loader.floor_material
 
 func reload_action(mat: Material, dataHolder: Node3D) -> void:
 	assert(!(mat == null), "MapDataLoader: Missing material for elevation surface.")
@@ -69,7 +69,7 @@ func _load_data() -> void:
 	# see https://forum.godotengine.org/t/how-can-i-import-a-csv-or-txt-file/26027
 	# see https://docs.godotengine.org/en/stable/classes/class_fileaccess.html
 
-	var file = FileAccess.open(loader.topoDataPath, FileAccess.READ)
+	var file = FileAccess.open(loader.topo_data_path, FileAccess.READ)
 	var oldLat: float = -1000000.0
 	_rows = 1
 	_cols = 0
