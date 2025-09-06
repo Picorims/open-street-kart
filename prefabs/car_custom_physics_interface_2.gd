@@ -85,6 +85,6 @@ func respawn():
 		print("ERROR: player never encountered a checkpoint, cannot respawn!")
 		return
 	rb.global_position = last_checkpoint.get_respawn_global_pos()
-	var new_basis: Basis = Basis(Vector3.UP, deg_to_rad(last_checkpoint.lookTowardsDegrees)).orthonormalized()
+	var new_basis: Basis = Basis(Vector3.UP, deg_to_rad(last_checkpoint.look_towards_degrees)).orthonormalized()
 	$CarRigidBody.force_basis_on_next_physics_frame(new_basis)
 	rb.freeze = false
