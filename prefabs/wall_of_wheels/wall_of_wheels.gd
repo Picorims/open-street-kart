@@ -27,7 +27,7 @@ func _ready() -> void:
 	
 func _process(_delta: float) -> void:
 	var now: float = Time.get_ticks_msec()
-	if (now - _last_update_request > DELAY_AFTER_UPDATE_MS && _is_dirty):
+	if (now - _last_update_request > DELAY_AFTER_UPDATE_MS and _is_dirty):
 		_is_dirty = false
 		_update_wall()
 	
