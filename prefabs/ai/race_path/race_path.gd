@@ -11,47 +11,46 @@
 ## to each other
 class_name RacePath extends Path3D
 
-@export_tool_button("Bake Path", "Path3D") var bakePathAction: Callable = Callable(self, "_bake_path")
-@export var startingNode: RacePathNode
+@export_tool_button("Bake Path", "Path3D") var bake_path_action: Callable = Callable(self, "_bake_path")
+@export var starting_node: RacePathNode
 
 const MAX_POINTS: int = 10_000
 ## controls the intensity of bezier smoothing.
 const DISTANCE_DIVIDER: float = 3
 const FORWARD_VECTOR_TOO_SMALL_THRESHOLD = 0.01
 
-var _foundRacePathNodes: Array[RacePathNode] = []
-var _nodesOffset: Array[float] = []
+var _found_race_path_nodes: Array[RacePathNode] = []
+var _nodes_offset: Array[float] = []
 
 func _ready() -> void:
-	assert(self.global_position.is_equal_approx(Vector3(0,0,0)), "RacePath should be at the origin.")
+	assert(self.global_position.is_equal_approx(Vector3(0, 0, 0)), "RacePath should be at the origin.")
 	_bake_path() # necessary for runtime (otherwise found race path nodes and offsets are empty
 
 func _bake_path():
-	if (startingNode == null):
+	if (starting_node == null):
 		print("Please specify a starting node. This is necessary for baking the path. (Do not forget successors as well)")
 		return
-	if (startingNode.successor == null):
+	if (starting_node.successor == null):
 		print("No successor found for starting node, cannot bake path.")
 		return
 	print("Baking race path...")
-	var newCurve: Curve3D = Curve3D.new()
-	newCurve.bake_interval = 2
-	var newNodes: Array[RacePathNode] = []
-	var newNodesOffset: Array[float] = []
-	newCurve.add_point(startingNode.position)
-	newNodes.append(startingNode)
+	var new_curve: Curve3D = Curve3D.new()
+	new_curve.bake_interval = 2
+	var new_nodes: Array[RacePathNode] = []
+	var new_nodes_offset: Array[float] = []
+	new_curve.add_point(starting_node.position)
+	new_nodes.append(starting_node)
 
 
-	
 	var queue: Array[RacePathNode] = []
-	queue.append(startingNode.successor)
+	queue.append(starting_node.successor)
 	
 	var index: int = 0
 	
 	#TODO support branching
-	while queue.size()-1 >= index:
-		newNodes.append(queue[index])
-		newCurve.add_point(queue[index].position)
+	while queue.size() - 1 >= index:
+		new_nodes.append(queue[index])
+		new_curve.add_point(queue[index].position)
 		if (queue[index].successor != null):
 			queue.append(queue[index].successor)
 		index += 1
@@ -63,99 +62,99 @@ func _bake_path():
 	print("Smooth curve...")
 	# place in and out points at half distance to sibling
 	# along [prev,next] axis.
-	for i in range(1, newCurve.point_count - 1):
-		var prevPoint: Vector3 = newCurve.get_point_position(i-1)
-		var currPoint: Vector3 = newCurve.get_point_position(i)
-		var nextPoint: Vector3 = newCurve.get_point_position(i+1)
-		var prevDist: float = prevPoint.distance_to(currPoint)
-		var nextDist: float = currPoint.distance_to(nextPoint)
-		var axis: Vector3 = (nextPoint - prevPoint).normalized()
-		newCurve.set_point_in(i, -(axis * (prevDist / DISTANCE_DIVIDER)))
-		newCurve.set_point_out(i, (axis * (nextDist / DISTANCE_DIVIDER)))
+	for i in range(1, new_curve.point_count - 1):
+		var prev_point: Vector3 = new_curve.get_point_position(i - 1)
+		var curr_point: Vector3 = new_curve.get_point_position(i)
+		var next_point: Vector3 = new_curve.get_point_position(i + 1)
+		var prev_dist: float = prev_point.distance_to(curr_point)
+		var next_dist: float = curr_point.distance_to(next_point)
+		var axis: Vector3 = (next_point - prev_point).normalized()
+		new_curve.set_point_in(i, - (axis * (prev_dist / DISTANCE_DIVIDER)))
+		new_curve.set_point_out(i, (axis * (next_dist / DISTANCE_DIVIDER)))
 		
-	for i in range(0, newCurve.point_count):
-		newNodesOffset.append(newCurve.get_closest_offset(newCurve.get_point_position(i)))
+	for i in range(0, new_curve.point_count):
+		new_nodes_offset.append(new_curve.get_closest_offset(new_curve.get_point_position(i)))
 	
 	assert(
-		newNodes.size() == newNodesOffset.size() && newNodesOffset.size() == newCurve.point_count,
-		"ERROR: path data is not consistent: {0} {1} {2}".format([newNodes.size(), newNodesOffset.size(), newCurve.point_count]))
+		new_nodes.size() == new_nodes_offset.size() && new_nodes_offset.size() == new_curve.point_count,
+		"ERROR: path data is not consistent: {0} {1} {2}".format([new_nodes.size(), new_nodes_offset.size(), new_curve.point_count]))
 	
-	self.curve = newCurve
-	_foundRacePathNodes = newNodes
-	_nodesOffset = newNodesOffset
+	self.curve = new_curve
+	_found_race_path_nodes = new_nodes
+	_nodes_offset = new_nodes_offset
 	print("done")
 
 class QueryInfo:
 	var prev: RacePathNode
 	var next: RacePathNode
-	var closestOffset: float
-	var closestPoint: Vector3
-	var prevOffset: float
-	var nextOffset: float
+	var closest_offset: float
+	var closest_point: Vector3
+	var prev_offset: float
+	var next_offset: float
 	## z is forward, x is left, y is top.
-	var forwardBasis: Basis
+	var forward_basis: Basis
 
-static var closestOffsetAccumulatedUs: float = 0
-static var closestPointAccumulatedUs: float = 0
-static var basisAccumulatedUs: float = 0
-static var loopsAccumulatedUs: float = 0
-var checkpointUs: float = 0
+static var closest_offset_accumulated_us: float = 0
+static var closest_point_accumulated_us: float = 0
+static var basis_accumulated_us: float = 0
+static var loops_accumulated_us: float = 0
+var checkpoint_us: float = 0
 
 func query_info(pos: Vector3) -> QueryInfo:
 	var q: QueryInfo = QueryInfo.new()
 
-	checkpointUs = Time.get_ticks_usec()
+	checkpoint_us = Time.get_ticks_usec()
 	# Very expensive
-	q.closestOffset = curve.get_closest_offset(pos)
-	closestOffsetAccumulatedUs += Time.get_ticks_usec() - checkpointUs
+	q.closest_offset = curve.get_closest_offset(pos)
+	closest_offset_accumulated_us += Time.get_ticks_usec() - checkpoint_us
 
-	checkpointUs = Time.get_ticks_usec()
-	q.closestPoint = curve.sample_baked(q.closestOffset)
-	closestPointAccumulatedUs += Time.get_ticks_usec() - checkpointUs
+	checkpoint_us = Time.get_ticks_usec()
+	q.closest_point = curve.sample_baked(q.closest_offset)
+	closest_point_accumulated_us += Time.get_ticks_usec() - checkpoint_us
 
-	var aBitForwardPoint: Vector3 = curve.sample_baked(q.closestOffset + 2 * curve.bake_interval)
-	var forwardNormalized = (aBitForwardPoint - q.closestPoint).normalized()
+	var a_bit_forward_point: Vector3 = curve.sample_baked(q.closest_offset + 2 * curve.bake_interval)
+	var forward_normalized = (a_bit_forward_point - q.closest_point).normalized()
 	
-	checkpointUs = Time.get_ticks_usec()
-	var foundNext: bool = false
+	checkpoint_us = Time.get_ticks_usec()
+	var found_next: bool = false
 	var i: int = 0
-	while (!foundNext && i < _nodesOffset.size()):
-		if (_nodesOffset[i] > q.closestOffset):
-			q.next = _foundRacePathNodes[i]
-			q.nextOffset = _nodesOffset[i]
+	while (!found_next && i < _nodes_offset.size()):
+		if (_nodes_offset[i] > q.closest_offset):
+			q.next = _found_race_path_nodes[i]
+			q.next_offset = _nodes_offset[i]
 			if (i > 0):
-				q.prev = _foundRacePathNodes[i-1]
-				q.prevOffset = _nodesOffset[i-1]
-			foundNext = true
+				q.prev = _found_race_path_nodes[i - 1]
+				q.prev_offset = _nodes_offset[i - 1]
+			found_next = true
 		i += 1
-	loopsAccumulatedUs += Time.get_ticks_usec() - checkpointUs
+	loops_accumulated_us += Time.get_ticks_usec() - checkpoint_us
 	
-	checkpointUs = Time.get_ticks_usec()
-	var failedBasis: bool = false
-	if (forwardNormalized.length_squared() < FORWARD_VECTOR_TOO_SMALL_THRESHOLD):
-		forwardNormalized = curve.sample_baked(q.closestOffset + 6 * curve.bake_interval)
-		forwardNormalized = (forwardNormalized - q.closestPoint).normalized()
-		if (forwardNormalized.length_squared() < FORWARD_VECTOR_TOO_SMALL_THRESHOLD):
-			failedBasis = true
+	checkpoint_us = Time.get_ticks_usec()
+	var failed_basis: bool = false
+	if (forward_normalized.length_squared() < FORWARD_VECTOR_TOO_SMALL_THRESHOLD):
+		forward_normalized = curve.sample_baked(q.closest_offset + 6 * curve.bake_interval)
+		forward_normalized = (forward_normalized - q.closest_point).normalized()
+		if (forward_normalized.length_squared() < FORWARD_VECTOR_TOO_SMALL_THRESHOLD):
+			failed_basis = true
 		else:
-			q.forwardBasis = Basis(forwardNormalized, 0)
+			q.forward_basis = Basis(forward_normalized, 0)
 	else:
-		q.forwardBasis = Basis(forwardNormalized, 0)
+		q.forward_basis = Basis(forward_normalized, 0)
 
 	# try to approximate with control points as a last resort
-	if (failedBasis):
+	if (failed_basis):
 		if (q.prev != null && q.next != null):
-			q.forwardBasis = Basis((q.next.global_position - q.prev.global_position).normalized(), 0)
+			q.forward_basis = Basis((q.next.global_position - q.prev.global_position).normalized(), 0)
 		else:
 			# failed.
-			q.forwardBasis = Basis()
-	basisAccumulatedUs += Time.get_ticks_usec() - checkpointUs
+			q.forward_basis = Basis()
+	basis_accumulated_us += Time.get_ticks_usec() - checkpoint_us
 	
 	return q
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	pass
-	#DebugDraw2D.set_text("closestOffsetAccumulatedUs", closestOffsetAccumulatedUs)
-	#DebugDraw2D.set_text("closestPointAccumulatedUs", closestPointAccumulatedUs)
-	#DebugDraw2D.set_text("basisAccumulatedUs", basisAccumulatedUs)
-	#DebugDraw2D.set_text("loopsAccumulatedUs", loopsAccumulatedUs)
+	#DebugDraw2D.set_text("closest_offset_accumulated_us", closest_offset_accumulated_us)
+	#DebugDraw2D.set_text("closest_point_accumulated_us", closest_point_accumulated_us)
+	#DebugDraw2D.set_text("basis_accumulated_us", basis_accumulated_us)
+	#DebugDraw2D.set_text("loops_accumulated_us", loops_accumulated_us)

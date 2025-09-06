@@ -33,7 +33,7 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	var nextNull = q.next == null
 	var ratioPrevNext: float = 0
 	if (!prevNull && !nextNull):
-		ratioPrevNext = (q.closestOffset - q.prevOffset) / max(q.nextOffset - q.prevOffset, 0.01)
+		ratioPrevNext = (q.closest_offset - q.prev_offset) / max(q.next_offset - q.prev_offset, 0.01)
 		trackWidth = lerp(q.prev.range_radius, q.next.range_radius, ratioPrevNext)
 	elif(!nextNull):
 		trackWidth = q.next.range_radius
@@ -43,16 +43,16 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 		trackWidth = 1
 	# without XZ, issues would be exacerbated with height difference, which is not important to know.
 	# So we do everything on a 2D plane at 0.
-	var distanceFromCenter: float = _xz(globalPos).distance_to(_xz(q.closestPoint)) 
+	var distanceFromCenter: float = _xz(globalPos).distance_to(_xz(q.closest_point)) 
 	# TODO account for car width
 	var targetOffsetAhead: int = max(12, 0.6 * speed + 8)
-	var targetPosAhead: Vector3 = _xz(path.curve.sample_baked(q.closestOffset + targetOffsetAhead))
+	var targetPosAhead: Vector3 = _xz(path.curve.sample_baked(q.closest_offset + targetOffsetAhead))
 	# try to take into account the car's distance from the center by offseting according to the closest
 	# offset (different from ahead offest). The goal is to limit the left to right yoyo effect.
 	# Side effects on correctly handling turns should be relatively small.
-	var trackSide: float = sign(q.forwardBasis.x.dot(globalPosXZ - _xz(q.closestPoint)))
+	var trackSide: float = sign(q.forward_basis.x.dot(globalPosXZ - _xz(q.closest_point)))
 	var adjustedOffset: float = (trackSide * min(distanceFromCenter, trackWidth * 0.15))
-	targetPosAhead += _xz(q.forwardBasis.x).normalized() * adjustedOffset
+	targetPosAhead += _xz(q.forward_basis.x).normalized() * adjustedOffset
 	var wantedDirNormalized: Vector3 = _xz(targetPosAhead - globalPos).normalized()
 	var currentDirNormalized: Vector3 = _xz(populatedLinVel).normalized()
 	## angle between -PI and PI.
@@ -66,7 +66,7 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	#if (xAxisWantedVSCurrentDiff < 0):
 		#wantedVSCurrentDiff += xAxisWantedVSCurrentDiff * -1
 	## 0 if aligned, growing the more it is not. Between 0 and PI
-	var notAlignedToPath: float = abs(_xz(q.forwardBasis.z).signed_angle_to(_xz(globalBasis.z), Vector3.UP))
+	var notAlignedToPath: float = abs(_xz(q.forward_basis.z).signed_angle_to(_xz(globalBasis.z), Vector3.UP))
 	var preparedLeftRight: float = wantedVSCurrentDiff * 4 # much more agressive decision to turn
 	if (distanceFromCenter < trackWidth):
 		preparedLeftRight *= notAlignedToPath
@@ -95,9 +95,9 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	# === FOR DEBUGGING VARIABLES ^^^^ ===
 	
 	if (showDebugArrows):
-		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forwardBasis.z, Color(0.8,0.8,1), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forwardBasis.x, Color(0.8,0.8,1), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + (globalPos - lastQueryInfo.closestPoint), Color(1,1,0), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forward_basis.z, Color(0.8,0.8,1), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forward_basis.x, Color(0.8,0.8,1), 0.1)
+		DebugDraw3D.draw_arrow(debugPos, debugPos + (globalPos - lastQueryInfo.closest_point), Color(1,1,0), 0.1)
 		DebugDraw3D.draw_arrow(debugPos, debugPos + wantedDirNormalized, Color(1,0.85,0.85), 0.1)
 		DebugDraw3D.draw_line(targetPosAhead + Vector3(0,-100,0), targetPosAhead + Vector3(0,100,0), Color(0,0,0))
 	

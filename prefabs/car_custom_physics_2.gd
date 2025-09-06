@@ -69,7 +69,7 @@ var _brain: ACarBrain
 var _cam: Camera3D
 
 func get_race_path_offset() -> float:
-	return _brain.lastQueryInfo.closestOffset
+	return _brain.lastQueryInfo.closest_offset
 
 func _ready() -> void:
 	_cam = $Camera3D
