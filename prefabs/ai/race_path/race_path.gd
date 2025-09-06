@@ -76,7 +76,7 @@ func _bake_path():
 		new_nodes_offset.append(new_curve.get_closest_offset(new_curve.get_point_position(i)))
 	
 	assert(
-		new_nodes.size() == new_nodes_offset.size() && new_nodes_offset.size() == new_curve.point_count,
+		new_nodes.size() == new_nodes_offset.size() and new_nodes_offset.size() == new_curve.point_count,
 		"ERROR: path data is not consistent: {0} {1} {2}".format([new_nodes.size(), new_nodes_offset.size(), new_curve.point_count]))
 	
 	self.curve = new_curve
@@ -118,7 +118,7 @@ func query_info(pos: Vector3) -> QueryInfo:
 	checkpoint_us = Time.get_ticks_usec()
 	var found_next: bool = false
 	var i: int = 0
-	while (!found_next && i < _nodes_offset.size()):
+	while (not found_next and i < _nodes_offset.size()):
 		if (_nodes_offset[i] > q.closest_offset):
 			q.next = _found_race_path_nodes[i]
 			q.next_offset = _nodes_offset[i]
@@ -143,7 +143,7 @@ func query_info(pos: Vector3) -> QueryInfo:
 
 	# try to approximate with control points as a last resort
 	if (failed_basis):
-		if (q.prev != null && q.next != null):
+		if (q.prev != null and q.next != null):
 			q.forward_basis = Basis((q.next.global_position - q.prev.global_position).normalized(), 0)
 		else:
 			# failed.
