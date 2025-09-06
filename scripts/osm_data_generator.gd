@@ -356,7 +356,7 @@ func _setup_snapping_road(target: RoadPointPlaceholder):
 func _setup_snapping(target: Node3D, alignToNormal: bool = false, offset: float = 0.4):
 	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
 	snapRayCast.offset = offset
-	snapRayCast.alignToNormal = alignToNormal
+	snapRayCast.align_to_normal = alignToNormal
 	target.add_child(snapRayCast)
 	loader.persist_in_current_scene(snapRayCast)
 	snapRayCast.target = target

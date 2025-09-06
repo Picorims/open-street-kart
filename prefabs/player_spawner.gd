@@ -83,7 +83,7 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 		
 		var snap_ray_cast = SnapToGroundRayCast3D.new()
 		self.add_child(snap_ray_cast)
-		snap_ray_cast.alignToNormal = true
+		snap_ray_cast.align_to_normal = true
 		snap_ray_cast.offset = -0.5
 		snap_ray_cast.target_position = Vector3(0, -1000, 0)
 		snap_ray_cast.target = car
