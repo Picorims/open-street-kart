@@ -75,7 +75,7 @@ func init(mode: GameMode, speed: SpeedMode):
 			if (i == loopCheckpoints.size()-1):
 				_totalUs.set(id, now - _startUs)
 				DebugDraw2D.set_text("Total", _pretty_duration_from_us(now - _startUs), 0, Color(1,1,0), 1_000_000_000)
-				if (car.displayName == "you"):
+				if (car.display_name == "you"):
 					_stop()
 
 		)
@@ -88,7 +88,7 @@ func init(mode: GameMode, speed: SpeedMode):
 	
 	playerSpawner.init(mode, speed)
 	for c in playerSpawner.carRootNodes:
-		_displayNames.set(c.name, c.displayName)
+		_displayNames.set(c.name, c.display_name)
 
 	playerSpawner.countdown()
 	playerSpawner.go.connect(func ():
@@ -169,7 +169,7 @@ func _process_live_ranking() -> void:
 	for c in playerSpawner.carRootNodes:
 		var entry: _OffsetEntry = _OffsetEntry.new()
 		entry.carName = c.name
-		entry.carDisplayName = c.displayName
+		entry.carDisplayName = c.display_name
 		entry.carOffset = c.get_race_path_offset()
 		entry.color = c.material.albedo_color
 		rankings.append(entry)

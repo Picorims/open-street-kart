@@ -62,7 +62,7 @@ var _ground_raycast: RayCast3D
 var _drifting = false:
 	set(v):
 		_drifting = v
-		interface.driftingEffects = v
+		interface.drifting_effects = v
 var _drifting_direction: float = 0 # 1 or -1, see signf()
 var _brain: ACarBrain
 var _cam: Camera3D

@@ -57,24 +57,24 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	for i in range(count):
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 		self.add_child(car)
-		car.displayName = "p{0}".format([i+1])
+		car.display_name = "p{0}".format([i+1])
 		car.material = StandardMaterial3D.new()
 		car.material.albedo_color = Color(randf(), randf(), randf())
 		if (i == count-1):
 			car.mode = CarCustomPhysics2.CarMode.USER
-			car.displayName = "you"
+			car.display_name = "you"
 			var cam: Camera3D = car.get_node("CarRigidBody/Camera3D")
 			if (cam != null):
 				cam.current = true
-				car.showDebugArrows = true
+				car.show_debug_arrows = true
 			else:
 				push_error("ERROR: Could not set user as main camera focus.")
 		else:
 			car.mode = CarCustomPhysics2.CarMode.BOT
 		car.path = racePath
-		car.speedMultiplier = 1.0
-		car.maxSpeedMetersPerSecond = TrackSpeedDict.get(speed)
-		car.maxSpeedOutOfBoundsMetersPerSecond = OutOfBoundsSpeedDict.get(speed)
+		car.speed_multiplier = 1.0
+		car.max_speed_meters_per_second = TrackSpeedDict.get(speed)
+		car.max_speed_out_of_bounds_meters_per_second = OutOfBoundsSpeedDict.get(speed)
 		car.basis = self.basis
 		car.global_transform = self.global_transform
 		car.global_position += self.basis.x * -i + self.basis.z * (i % 4) + self.basis.y * 5

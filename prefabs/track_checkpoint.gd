@@ -46,7 +46,7 @@ func _ready() -> void:
 	_area.body_entered.connect(func (body: Node3D):
 		var car: Node3D = body.get_parent_node_3d()
 		if (car != null && is_instance_of(car, CarCustomPhysics2)):
-			car.lastCheckpoint = self
+			car.last_checkpoint = self
 			car_entered.emit(car)
 	)
 	_area.monitoring = true
