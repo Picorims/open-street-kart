@@ -70,6 +70,10 @@ enum CarMode {
 		newMesh.material = material
 		$CarRigidBody/DebugFrame.mesh = newMesh
 
+func _ready() -> void:
+	# /!\ Necessary for checkpoints to work!
+	assert(get_node("CarRigidBody") != null, "Car rigid body must be a direct child of the root CarCustomPhysics node.")
+
 func get_race_path_offset() -> float:
 	return $CarRigidBody.get_race_path_offset()
 
