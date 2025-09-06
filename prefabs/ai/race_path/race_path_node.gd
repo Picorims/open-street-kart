@@ -27,7 +27,7 @@ class_name RacePathNode extends Node3D
 var _range_bar_mesh: MeshInstance3D = MeshInstance3D.new()
 
 func _ready() -> void:
-	if (Engine.is_editor_hint() && self.get_child_count() == 0):
+	if (Engine.is_editor_hint() and self.get_child_count() == 0):
 		var point_mesh: MeshInstance3D = MeshInstance3D.new()
 		var shape_point: SphereMesh = SphereMesh.new()
 		shape_point.radius = 0.5
