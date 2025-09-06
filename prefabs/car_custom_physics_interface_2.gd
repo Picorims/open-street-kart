@@ -17,15 +17,15 @@ enum CarMode {
 @export var speedMultiplier: float = 1.0:
 	set(v):
 		speedMultiplier = v
-		$CarRigidBody.speedMultiplier = v
+		$CarRigidBody.speed_multiplier = v
 @export var maxSpeedMetersPerSecond: float:
 	set(v):
 		maxSpeedMetersPerSecond = v
-		$CarRigidBody.maxSpeedMetersPerSecond = v
+		$CarRigidBody.max_speed_meters_per_second = v
 @export var maxSpeedOutOfBoundsMetersPerSecond: float:
 	set(v):
 		maxSpeedOutOfBoundsMetersPerSecond = v
-		$CarRigidBody.maxSpeedOutOfBoundsMetersPerSecond = v
+		$CarRigidBody.max_speed_out_of_bounds_meters_per_second = v
 
 @export var lastCheckpoint: TrackCheckpoint = null:
 	set(v):
@@ -54,7 +54,7 @@ enum CarMode {
 @export var showDebugArrows: bool:
 	set(v):
 		showDebugArrows = v
-		$CarRigidBody.showDebugArrows = v
+		$CarRigidBody.show_debug_arrows = v
 
 @export var displayName: String:
 	set(v):
