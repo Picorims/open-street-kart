@@ -88,7 +88,7 @@ func _ready() -> void:
 	$ManagedFreezeWakeUpArea3D.body_entered.connect(func(body: Node3D):
 		if (is_instance_of(body, FreezeManagedRigidBody3D)):
 			var typedBody: FreezeManagedRigidBody3D = body
-			typedBody.managedFreeze = false
+			typedBody.managed_freeze = false
 	)
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
