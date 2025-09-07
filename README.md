@@ -44,4 +44,4 @@ For more information, see: https://www.openstreetmap.org/copyright
 Addons are used in this project. For more information, have a look at the `addons` directory, where each add-on specify their license.
 
 - Debug Draw 3D: MIT License
-- Road Generaotr: MIT License
+- Road Generator: MIT License
