@@ -16,7 +16,7 @@ var current_direction: Vector3 = Vector3(1, 0, 0)
 @export var speed_multiplier: float = 1.0
 @export var spring_strength: float = 250_000
 @export var spring_damping: float = 21_000 # coefficient
-@export var rest_distance: float = 0.35
+@export var rest_distance: float = 0.5
 @export var max_speed_meters_per_second: float = 25
 @export var max_speed_out_of_bounds_meters_per_second: float = 8
 @export var interface: CarCustomPhysics2

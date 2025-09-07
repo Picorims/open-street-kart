@@ -15,6 +15,7 @@ config/version="1.0.0-alpha.3"
 config/tags=PackedStringArray("3d", "physics", "vehicle")
 run/main_scene="uid://cqejs1vq3nqq1"
 config/features=PackedStringArray("4.4", "Mobile")
+run/max_fps=60
 config/icon="res://icon.svg"
 
 [debug_draw_3d]
@@ -89,7 +90,7 @@ use={
 
 [physics]
 
-common/physics_ticks_per_second=180
+common/physics_ticks_per_second=240
 common/physics_jitter_fix=0.0
 3d/physics_engine="GodotPhysics3D"
 common/physics_interpolation=true
