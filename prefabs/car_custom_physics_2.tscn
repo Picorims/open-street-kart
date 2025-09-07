@@ -106,7 +106,6 @@ continuous_cd = true
 linear_damp = 0.3
 angular_damp = 2.0
 script = ExtResource("2_pkjqb")
-restDistance = 0.35
 interface = NodePath("..")
 
 [node name="WheelFR" type="CollisionShape3D" parent="CarRigidBody"]

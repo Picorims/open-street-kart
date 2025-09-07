@@ -15,44 +15,43 @@ signal freezeChanged(freeze: bool)
 signal timeout
 
 ## Use this instead of `freeze` for the signal and other logic to work.
-@export var managedFreeze: bool:
+@export var managed_freeze: bool:
 	get:
 		return freeze
 	set(v):
-		managedFreeze = v
+		managed_freeze = v
 		freeze = v
 		freezeChanged.emit(v)
-		if (!freeze):
-			_lastUnfreezeMs = Time.get_ticks_msec()
-		_timeoutEmitted = false
+		if (not freeze):
+			_last_unfreeze_ms = Time.get_ticks_msec()
+		_timeout_emitted = false
 
 ## Timeout before the timeout signal is emitted.
-@export var timeoutMs: float = 15_000
+@export var timeout_ms: float = 15_000
 ## Minimum timeout before freezing can happen again.
-@export var minTimeoutMs: float = 1_000
+@export var min_timeout_ms: float = 1_000
 
-## Together with the `freezeNotMovingThreshold`, freeze if the linear velocity
+## Together with the `freeze_not_moving_threshold`, freeze if the linear velocity
 ## is below this value
-@export var freezeIfNotMoving: bool = true
+@export var freeze_if_not_moving: bool = true
 
-## If `freezeIfNotMoving` and linear velocity is below this value, freeze.
-@export var freezeNotMovingThreshold: float = 0.05:
+## If `freeze_if_not_moving` and linear velocity is below this value, freeze.
+@export var freeze_not_moving_threshold: float = 0.05:
 	set(v):
-		freezeNotMovingThreshold = v
-		_freezeNotMovingThresholdSquared = v*v
+		freeze_not_moving_threshold = v
+		_freeze_not_moving_threshold_squared = v * v
 
-var _lastUnfreezeMs: float = 0
-var _freezeNotMovingThresholdSquared: float = freezeNotMovingThreshold * freezeNotMovingThreshold
-var _timeoutEmitted: bool = false
+var _last_unfreeze_ms: float = 0
+var _freeze_not_moving_threshold_squared: float = freeze_not_moving_threshold * freeze_not_moving_threshold
+var _timeout_emitted: bool = false
 
 func _ready() -> void:
-	
 	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
-	managedFreeze = true
+	managed_freeze = true
 
 var _elapsed: float = 0
 func _physics_process(delta: float) -> void:
-	if (!get_collision_layer_value(6)):
+	if (not get_collision_layer_value(6)):
 		set_collision_layer_value(6, true)
 	
 	# avoid running too often
@@ -62,9 +61,9 @@ func _physics_process(delta: float) -> void:
 	else:
 		_elapsed = 0
 	
-	var nowMs: float = Time.get_ticks_msec()
-	var unfrozenElapsed: float = nowMs - _lastUnfreezeMs
-	if (unfrozenElapsed > timeoutMs && !freeze && !_timeoutEmitted):
+	var now_ms: float = Time.get_ticks_msec()
+	var unfrozen_elapsed: float = now_ms - _last_unfreeze_ms
+	if (unfrozen_elapsed > timeout_ms and not freeze and not _timeout_emitted):
 		timeout.emit()
-	if (linear_velocity.length_squared() < _freezeNotMovingThresholdSquared && !freeze) && unfrozenElapsed > minTimeoutMs:
-		managedFreeze = true
+	if (linear_velocity.length_squared() < _freeze_not_moving_threshold_squared and not freeze) and unfrozen_elapsed > min_timeout_ms:
+		managed_freeze = true

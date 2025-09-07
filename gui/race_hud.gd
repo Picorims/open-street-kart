@@ -9,7 +9,7 @@ class_name RaceHUD extends Control
 
 const CURSOR_HUD: PackedScene = preload("res://gui/atoms/atom_hud_race_player_pos.tscn")
 
-@export var cursorsHolder: Control
+@export var cursors_holder: Control
 
 var _cursors: Dictionary[String, AtomHUDRacePlayerPos] = {}
 
@@ -18,7 +18,7 @@ class RatioEntry:
 	var color: Color
 
 func _ready() -> void:
-	assert(cursorsHolder.has_node("GroupPosition"), "ERROR: Missing GroupPosition in cursorsHolder")
+	assert(cursors_holder.has_node("GroupPosition"), "ERROR: Missing GroupPosition in cursors_holder")
 
 func display_ratios(ratios: Dictionary[String, RatioEntry]) -> void:
 	for k in ratios.keys():
@@ -29,18 +29,18 @@ func display_ratios(ratios: Dictionary[String, RatioEntry]) -> void:
 			cursor = CURSOR_HUD.instantiate()
 			cursor.label = k
 			cursor.color = ratios[k].color
-			cursor.emphasis = k == "you" #FIXME proper system once naming spec is in place
-			cursorsHolder.add_child(cursor)
+			cursor.emphasis = k == "you" # FIXME proper system once naming spec is in place
+			cursors_holder.add_child(cursor)
 			_cursors.set(k, cursor)
-		cursor.set_position(Vector2((ratios[k].ratio * cursorsHolder.size.x) - (cursor.size.x / 2), - cursor.size.y + cursorsHolder.size.y), true)
+		cursor.set_position(Vector2((ratios[k].ratio * cursors_holder.size.x) - (cursor.size.x / 2), -cursor.size.y + cursors_holder.size.y), true)
 
-func update_group_pos(ratioFrom: float, ratioTo: float):
-	DebugDraw2D.set_text("ratioFrom", ratioFrom)
-	DebugDraw2D.set_text("ratioTo", ratioTo)
+func update_group_pos(ratio_from: float, ratio_to: float):
+	DebugDraw2D.set_text("ratio_from", ratio_from)
+	DebugDraw2D.set_text("ratio_to", ratio_to)
 	
-	var bar: ColorRect = cursorsHolder.get_node("GroupPosition")
-	bar.set_position(Vector2(ratioFrom * cursorsHolder.size.x, bar.position.y), true)
-	bar.set_size(Vector2((ratioTo - ratioFrom) * cursorsHolder.size.x, bar.size.y), true)
+	var bar: ColorRect = cursors_holder.get_node("GroupPosition")
+	bar.set_position(Vector2(ratio_from * cursors_holder.size.x, bar.position.y), true)
+	bar.set_size(Vector2((ratio_to - ratio_from) * cursors_holder.size.x, bar.size.y), true)
 
 func set_self_ranking(ranking: int) -> void:
 	$SelfRankingContainer/SelfRanking.text = "{0}".format([ranking])

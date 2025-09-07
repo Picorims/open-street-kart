@@ -19,18 +19,18 @@ class_name AtomHUDRacePlayerPos extends Control
 
 @export var emphasis: bool = false:
 	set(v):
-		var arrowSettings: LabelSettings = $MarginContainer/arrow.label_settings
-		var nameSettings: LabelSettings = $MarginContainer/name.label_settings
+		var arrow_settings: LabelSettings = $MarginContainer/arrow.label_settings
+		var name_settings: LabelSettings = $MarginContainer/name.label_settings
 		emphasis = v
 		if (emphasis):
-			arrowSettings.font_color = Color(1,0.5,0.5)
-			arrowSettings.font_size = 12
-			nameSettings.font_color = Color(1,0.5,0.5)
-			nameSettings.font_size = 16
-			nameSettings.outline_size = 4
+			arrow_settings.font_color = Color(1, 0.5, 0.5)
+			arrow_settings.font_size = 12
+			name_settings.font_color = Color(1, 0.5, 0.5)
+			name_settings.font_size = 16
+			name_settings.outline_size = 4
 		else:
-			arrowSettings.font_color = Color(1,1,1)
-			arrowSettings.font_size = 8
-			nameSettings.font_color = Color(1,1,1)
-			nameSettings.font_size = 12
-			nameSettings.outline_size = 2
+			arrow_settings.font_color = Color(1, 1, 1)
+			arrow_settings.font_size = 8
+			name_settings.font_color = Color(1, 1, 1)
+			name_settings.font_size = 12
+			name_settings.outline_size = 2

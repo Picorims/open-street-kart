@@ -10,7 +10,7 @@ class_name LocalRaceBoundary extends Area3D
 
 func _ready() -> void:
 	self.monitoring = true
-	self.body_entered.connect(func (body: Node3D):
+	self.body_entered.connect(func(body: Node3D):
 		var car: Node3D = body.get_parent_node_3d()
 		if (car != null && is_instance_of(car, CarCustomPhysics2)):
 			car.respawn()

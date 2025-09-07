@@ -22,8 +22,6 @@ func _ready() -> void:
 	assert($Walls != null, "No walls root.")
 	assert($Arrows != null, "No arrows root.")
 
-var _shallLaunch: bool = false
-var _launchAtTime: float = 0
 
 func launch(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	var state: TrackState = $TrackState

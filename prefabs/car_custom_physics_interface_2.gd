@@ -14,30 +14,30 @@ enum CarMode {
 	BOT,
 }
 
-@export var speedMultiplier: float = 1.0:
+@export var speed_multiplier: float = 1.0:
 	set(v):
-		speedMultiplier = v
-		$CarRigidBody.speedMultiplier = v
-@export var maxSpeedMetersPerSecond: float:
+		speed_multiplier = v
+		$CarRigidBody.speed_multiplier = v
+@export var max_speed_meters_per_second: float:
 	set(v):
-		maxSpeedMetersPerSecond = v
-		$CarRigidBody.maxSpeedMetersPerSecond = v
-@export var maxSpeedOutOfBoundsMetersPerSecond: float:
+		max_speed_meters_per_second = v
+		$CarRigidBody.max_speed_meters_per_second = v
+@export var max_speed_out_of_bounds_meters_per_second: float:
 	set(v):
-		maxSpeedOutOfBoundsMetersPerSecond = v
-		$CarRigidBody.maxSpeedOutOfBoundsMetersPerSecond = v
+		max_speed_out_of_bounds_meters_per_second = v
+		$CarRigidBody.max_speed_out_of_bounds_meters_per_second = v
 
-@export var lastCheckpoint: TrackCheckpoint = null:
+@export var last_checkpoint: TrackCheckpoint = null:
 	set(v):
-		lastCheckpoint = v
+		last_checkpoint = v
 		if (v != null):
 			print("New checkpoint: ", v.name)
 		else:
 			print("Checkpoint removed.")
 
-@export var driftingEffects: bool = false:
+@export var drifting_effects: bool = false:
 	set(v):
-		driftingEffects = v
+		drifting_effects = v
 		$CarRigidBody/WheelBLGPUParticles3D.emitting = v
 		$CarRigidBody/WheelBRGPUParticles3D.emitting = v
 
@@ -51,24 +51,24 @@ enum CarMode {
 		path = v
 		$CarRigidBody.path = v
 
-@export var showDebugArrows: bool:
+@export var show_debug_arrows: bool:
 	set(v):
-		showDebugArrows = v
-		$CarRigidBody.showDebugArrows = v
+		show_debug_arrows = v
+		$CarRigidBody.show_debug_arrows = v
 
-@export var displayName: String:
+@export var display_name: String:
 	set(v):
-		displayName = v
+		display_name = v
 		$CarRigidBody/Label3D.text = v
 
 @export var material: StandardMaterial3D:
 	set(v):
 		material = v
 		var mesh: BoxMesh = $CarRigidBody/DebugFrame.mesh
-		var newMesh: BoxMesh = BoxMesh.new()
-		newMesh.size = mesh.size
-		newMesh.material = material
-		$CarRigidBody/DebugFrame.mesh = newMesh
+		var new_mesh: BoxMesh = BoxMesh.new()
+		new_mesh.size = mesh.size
+		new_mesh.material = material
+		$CarRigidBody/DebugFrame.mesh = new_mesh
 
 func _ready() -> void:
 	# /!\ Necessary for checkpoints to work!
@@ -81,10 +81,10 @@ func respawn():
 	print("Respawning car...")
 	var rb: RigidBody3D = $CarRigidBody
 	rb.freeze = true
-	if (lastCheckpoint == null):
+	if (last_checkpoint == null):
 		print("ERROR: player never encountered a checkpoint, cannot respawn!")
 		return
-	rb.global_position = lastCheckpoint.get_respawn_global_pos()
-	var newBasis: Basis = Basis(Vector3.UP, deg_to_rad(lastCheckpoint.lookTowardsDegrees)).orthonormalized()
-	$CarRigidBody.force_basis_on_next_physics_frame(newBasis)
+	rb.global_position = last_checkpoint.get_respawn_global_pos()
+	var new_basis: Basis = Basis(Vector3.UP, deg_to_rad(last_checkpoint.look_towards_degrees)).orthonormalized()
+	$CarRigidBody.force_basis_on_next_physics_frame(new_basis)
 	rb.freeze = false

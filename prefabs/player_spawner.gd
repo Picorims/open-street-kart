@@ -8,7 +8,7 @@
 
 class_name PlayerSpawner extends Node3D
 
-@export var racePath: RacePath
+@export var race_path: RacePath
 
 enum CountdownState {
 	THREE = 3,
@@ -22,11 +22,11 @@ const CAR_SCENE: PackedScene = preload("res://prefabs/car_custom_physics_2.tscn"
 const COUNTDOWN_DURATION: CountdownState = CountdownState.THREE
 const CARS_COUNT = 16
 
-var _inCountdown: bool = false
-var _countDownState = 0
-var _countdownElapsed: float = 0
+var _in_countdown: bool = false
+var _countdown_state = 0
+var _countdown_elapsed: float = 0
 var cars: Array[RigidBody3D] = []
-var carRootNodes: Array[CarCustomPhysics2] = []
+var car_root_nodes: Array[CarCustomPhysics2] = []
 
 signal go
 
@@ -44,7 +44,7 @@ var OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
 }
 
 func _ready() -> void:
-	assert(racePath != null, "ERROR: racePath not configured on player spawner.")
+	assert(race_path != null, "ERROR: race_path not configured on player spawner.")
 
 func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	print("Initializing player spawner...")
@@ -57,67 +57,67 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	for i in range(count):
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 		self.add_child(car)
-		car.displayName = "p{0}".format([i+1])
+		car.display_name = "p{0}".format([i + 1])
 		car.material = StandardMaterial3D.new()
 		car.material.albedo_color = Color(randf(), randf(), randf())
-		if (i == count-1):
+		if (i == count - 1):
 			car.mode = CarCustomPhysics2.CarMode.USER
-			car.displayName = "you"
+			car.display_name = "you"
 			var cam: Camera3D = car.get_node("CarRigidBody/Camera3D")
 			if (cam != null):
 				cam.current = true
-				car.showDebugArrows = true
+				car.show_debug_arrows = true
 			else:
 				push_error("ERROR: Could not set user as main camera focus.")
 		else:
 			car.mode = CarCustomPhysics2.CarMode.BOT
-		car.path = racePath
-		car.speedMultiplier = 1.0
-		car.maxSpeedMetersPerSecond = TrackSpeedDict.get(speed)
-		car.maxSpeedOutOfBoundsMetersPerSecond = OutOfBoundsSpeedDict.get(speed)
+		car.path = race_path
+		car.speed_multiplier = 1.0
+		car.max_speed_meters_per_second = TrackSpeedDict.get(speed)
+		car.max_speed_out_of_bounds_meters_per_second = OutOfBoundsSpeedDict.get(speed)
 		car.basis = self.basis
 		car.global_transform = self.global_transform
 		car.global_position += self.basis.x * -i + self.basis.z * (i % 4) + self.basis.y * 5
-		var rigidBody: RigidBody3D = car.get_node("CarRigidBody")
-		rigidBody.freeze = true
+		var rigid_body: RigidBody3D = car.get_node("CarRigidBody")
+		rigid_body.freeze = true
 		
-		var snapRayCast = SnapToGroundRayCast3D.new()
-		self.add_child(snapRayCast)
-		snapRayCast.alignToNormal = true
-		snapRayCast.offset = -0.5
-		snapRayCast.target_position = Vector3(0, -1000, 0)
-		snapRayCast.target = car
-		snapRayCast.force_raycast_update()
+		var snap_ray_cast = SnapToGroundRayCast3D.new()
+		self.add_child(snap_ray_cast)
+		snap_ray_cast.align_to_normal = true
+		snap_ray_cast.offset = -0.5
+		snap_ray_cast.target_position = Vector3(0, -1000, 0)
+		snap_ray_cast.target = car
+		snap_ray_cast.force_raycast_update()
 		
-		cars.append(rigidBody)
-		carRootNodes.append(car)
+		cars.append(rigid_body)
+		car_root_nodes.append(car)
 	print("Initializing player spawner done.")
 
 func _process(delta: float) -> void:
-	if (_inCountdown):
-		_countdownElapsed += delta
+	if (_in_countdown):
+		_countdown_elapsed += delta
 		
-		if (_countDownState == CountdownState.IDLE): # initialize
+		if (_countdown_state == CountdownState.IDLE): # initialize
 			print("3...")
-			_countDownState = CountdownState.THREE
-		elif (_countDownState == CountdownState.THREE && _countdownElapsed > 1):
+			_countdown_state = CountdownState.THREE
+		elif (_countdown_state == CountdownState.THREE and _countdown_elapsed > 1):
 			print("2...")
-			_countDownState = CountdownState.TWO
-		elif (_countDownState == CountdownState.TWO && _countdownElapsed > 2):
+			_countdown_state = CountdownState.TWO
+		elif (_countdown_state == CountdownState.TWO and _countdown_elapsed > 2):
 			print("1...")
-			_countDownState = CountdownState.ONE
-		elif (_countDownState == CountdownState.ONE && _countdownElapsed > 3):
+			_countdown_state = CountdownState.ONE
+		elif (_countdown_state == CountdownState.ONE and _countdown_elapsed > 3):
 			print("GO!")
-			_countDownState = CountdownState.GO
+			_countdown_state = CountdownState.GO
 			go.emit()
 		
-		if (_countdownElapsed > COUNTDOWN_DURATION):
+		if (_countdown_elapsed > COUNTDOWN_DURATION):
 			for c in cars:
 				c.freeze = false
-			_inCountdown = false
-			_countDownState = CountdownState.IDLE
+			_in_countdown = false
+			_countdown_state = CountdownState.IDLE
 
 func countdown():
-	_countdownElapsed = 0
-	_countDownState = CountdownState.IDLE
-	_inCountdown = true
+	_countdown_elapsed = 0
+	_countdown_state = CountdownState.IDLE
+	_in_countdown = true

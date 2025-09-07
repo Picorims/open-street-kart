@@ -9,17 +9,16 @@
 extends RigidBody3D
 
 
-
-var currentDirection: Vector3 = Vector3(1,0,0)
-@export var showDebugArrows: bool = false
-@export var accelerationForce: float = 6_000
-@export var rotationForce: float = 100
-@export var speedMultiplier: float = 1.0
-@export var springStrength: float = 250_000 
-@export var springDamping: float = 21_000 # coefficient
-@export var restDistance: float = 2
-@export var maxSpeedMetersPerSecond: float = 25
-@export var maxSpeedOutOfBoundsMetersPerSecond: float = 8
+var current_direction: Vector3 = Vector3(1, 0, 0)
+@export var show_debug_arrows: bool = false
+@export var acceleration_force: float = 6_000
+@export var rotation_force: float = 100
+@export var speed_multiplier: float = 1.0
+@export var spring_strength: float = 250_000
+@export var spring_damping: float = 21_000 # coefficient
+@export var rest_distance: float = 0.35
+@export var max_speed_meters_per_second: float = 25
+@export var max_speed_out_of_bounds_meters_per_second: float = 8
 @export var interface: CarCustomPhysics2
 @export var mode: CarCustomPhysics2.CarMode:
 	set(v):
@@ -28,7 +27,7 @@ var currentDirection: Vector3 = Vector3(1,0,0)
 			_brain = UserBrain.new()
 		if (v == CarCustomPhysics2.CarMode.BOT):
 			_brain = BotBrain.new()
-		_brain.showDebugArrows = showDebugArrows
+		_brain.show_debug_arrows = show_debug_arrows
 @export var path: RacePath:
 	set(v):
 		path = v
@@ -52,162 +51,161 @@ const MIN_INERTIA_RADIUS_LIMIT = 0.001
 const MAX_INERTIA_RADIUS_LIMIT = 10_000
 const MIN_ANGLE_THRESHOLD = 0.01
 
-var _debugCentrifugusForce: Vector3
-var _debugSlidingForce: Vector3
-var _debugSlidingForceCompensated: Vector3
-var _debugSoftClampSpeedForce: Vector3
-var _forcedBasis: Basis
-var _mustForceBasis: bool = false
-var wheelRayCasts: Array[RayCast3D]
-var _groundRaycast: RayCast3D
+var _debug_centrifugal_force: Vector3
+var _debug_sliding_force: Vector3
+var _debug_sliding_force_compensated: Vector3
+var _debug_soft_clamp_speed_force: Vector3
+var _forced_basis: Basis
+var _must_force_basis: bool = false
+var wheel_ray_casts: Array[RayCast3D]
+var _ground_raycast: RayCast3D
 var _drifting = false:
 	set(v):
 		_drifting = v
-		interface.driftingEffects = v
-var _driftingDirection: float = 0 # 1 or -1, see signf()
+		interface.drifting_effects = v
+var _drifting_direction: float = 0 # 1 or -1, see signf()
 var _brain: ACarBrain
 var _cam: Camera3D
 
 func get_race_path_offset() -> float:
-	return _brain.lastQueryInfo.closestOffset
+	return _brain.last_query_info.closest_offset
 
 func _ready() -> void:
 	_cam = $Camera3D
 	assert(_cam != null, "ERROR: No cam configured on the car.")
 	assert(interface != null, "ERROR: interface not assigned.")
-	wheelRayCasts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
-	for r in wheelRayCasts:
+	wheel_ray_casts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
+	for r in wheel_ray_casts:
 		assert(r != null, "ERROR: a wheel raycast was not found.")
-	_groundRaycast = $GroundRayCast3D
-	assert(_groundRaycast != null, "ERROR: ground raycast not found.")
+	_ground_raycast = $GroundRayCast3D
+	assert(_ground_raycast != null, "ERROR: ground raycast not found.")
 	# actual damping / critical damping (critical = best)
 	assert(mass > 0, "ERROR: mass should not be greater than zero.")
-	assert(springStrength > 0, "ERROR: springSrength should be greater than zero.")
-	var dampingRatio: float = springDamping / (2 * sqrt(mass * springStrength))
-	print("current vehicle damping ratio (1 is best/critical damping, <1 is underdamped, >1 is overdamped): ", dampingRatio)
+	assert(spring_strength > 0, "ERROR: springSrength should be greater than zero.")
+	var damping_ratio: float = spring_damping / (2 * sqrt(mass * spring_strength))
+	print("current vehicle damping ratio (1 is best/critical damping, <1 is under-damped, >1 is over-damped): ", damping_ratio)
 	
-	$ManagedFreezeWakeUpArea3D.body_entered.connect(func (body: Node3D):
+	$ManagedFreezeWakeUpArea3D.body_entered.connect(func(body: Node3D):
 		if (is_instance_of(body, FreezeManagedRigidBody3D)):
 			var typedBody: FreezeManagedRigidBody3D = body
-			typedBody.managedFreeze = false
+			typedBody.managed_freeze = false
 	)
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_brain == null):
 		return
 			
-	if (_mustForceBasis):
-		_mustForceBasis = false
-		state.transform.basis = _forcedBasis.orthonormalized()
+	if (_must_force_basis):
+		_must_force_basis = false
+		state.transform.basis = _forced_basis.orthonormalized()
 		_disable_drift()
-		state.linear_velocity = Vector3(0,0,0)
-		state.angular_velocity = Vector3(0,0,0)
-	var forwardBackward: float = _brain.get_forward_backward_axis()
-	if (forwardBackward < 0): # if backwards force
-		var goingForward: bool
+		state.linear_velocity = Vector3(0, 0, 0)
+		state.angular_velocity = Vector3(0, 0, 0)
+	var forward_backward: float = _brain.get_forward_backward_axis()
+	if (forward_backward < 0): # if backwards force
+		var going_forward: bool
 		# we want to avoid an invalid vector with (0,0,0).normalized()
 		if (state.linear_velocity.length_squared() > 0.01):
-			goingForward = global_basis.x.dot(state.linear_velocity.normalized()) > 0
+			going_forward = global_basis.x.dot(state.linear_velocity.normalized()) > 0
 		else:
-			goingForward = false
-		var goingFast: bool = state.linear_velocity.length_squared() > MIN_SPEED_FOR_BEING_BRAKE_SQUARED
-		var isBraking: bool = goingForward && goingFast
-		if (isBraking):
-			forwardBackward *= BRAKE_FORCE_FACTOR # softer brake and slow backward speed
+			going_forward = false
+		var going_fast: bool = state.linear_velocity.length_squared() > MIN_SPEED_FOR_BEING_BRAKE_SQUARED
+		var is_braking: bool = going_forward and going_fast
+		if (is_braking):
+			forward_backward *= BRAKE_FORCE_FACTOR # softer brake and slow backward speed
 		else:
-			forwardBackward *= BACKWARDS_FORCE_FACTOR
-	var leftRight: float = _brain.get_left_right_axis()
-	var onGround: bool = _groundRaycast.is_colliding()
-	var outOfBounds = false
-	if (onGround):
-		var collider: CollisionObject3D = _get_collider_of_colliding_raycast(_groundRaycast)
+			forward_backward *= BACKWARDS_FORCE_FACTOR
+	var left_right: float = _brain.get_left_right_axis()
+	var on_ground: bool = _ground_raycast.is_colliding()
+	var out_of_bounds = false
+	if (on_ground):
+		var collider: CollisionObject3D = _get_collider_of_colliding_raycast(_ground_raycast)
 		if (collider != null):
-			var collidesOutOfBoundsMask: bool = !collider.get_collision_layer_value(5)
-			outOfBounds = collidesOutOfBoundsMask
+			var collidesOutOfBoundsMask: bool = not collider.get_collision_layer_value(5)
+			out_of_bounds = collidesOutOfBoundsMask
 	
-	var wantToDrift = _brain.drift_input_active()
+	var want_to_drift = _brain.drift_input_active()
 	# cannot drift when not turning, or if already drifting in a direction.
-	if wantToDrift && abs(leftRight) > 0 && _driftingDirection == 0 && onGround:
+	if want_to_drift and abs(left_right) > 0 and _drifting_direction == 0 and on_ground:
 		_drifting = true
-		_driftingDirection = signf(leftRight)
-	if !wantToDrift && _drifting:
+		_drifting_direction = signf(left_right)
+	if (not want_to_drift) and _drifting:
 		_disable_drift()
 	if _drifting:
 		# example: if left right factor is 0.75 and added direction multiplier is 1, the range is:
 		# 0.25 to 1.75 in given direction
-		leftRight = (leftRight * DRIFT_LEFT_RIGHT_FACTOR) + DRIFT_ADDED_DIRECTION_MULTIPLIER * _driftingDirection
+		left_right = (left_right * DRIFT_LEFT_RIGHT_FACTOR) + DRIFT_ADDED_DIRECTION_MULTIPLIER * _drifting_direction
 
-	if !onGround:
-		leftRight *= DIRECTION_NERF_IN_AIR
-		forwardBackward *= FORWARD_BACKWARD_NERF_IN_AIR
+	if not on_ground:
+		left_right *= DIRECTION_NERF_IN_AIR
+		forward_backward *= FORWARD_BACKWARD_NERF_IN_AIR
 
 	if (Input.is_action_just_pressed("debug_jump")):
-		state.apply_impulse(Vector3(0,DEBUG_JUMP_FORCE,0))
+		state.apply_impulse(Vector3(0, DEBUG_JUMP_FORCE, 0))
 
 	_cancel_inertia(state)
 	_apply_wheel_adherence(state)
 
-	state.apply_central_force((forwardBackward * accelerationForce * speedMultiplier * global_basis.x))
-	state.apply_torque(leftRight * rotationForce * Vector3(0,-1,0))
+	state.apply_central_force((forward_backward * acceleration_force * speed_multiplier * global_basis.x))
+	state.apply_torque(left_right * rotation_force * Vector3(0, -1, 0))
 	
-	for wheelRayCast in wheelRayCasts:
+	for wheelRayCast in wheel_ray_casts:
 		_apply_single_wheel_suspension(wheelRayCast)
 
-	_soft_clamp_speed(state, outOfBounds)
-	_brain.populatedLinVel = state.linear_velocity
-	_brain.populatedAngVel = state.angular_velocity
+	_soft_clamp_speed(state, out_of_bounds)
+	_brain.populated_lin_vel = state.linear_velocity
+	_brain.populated_ang_vel = state.angular_velocity
 
 func _disable_drift() -> void:
 	_drifting = false
-	_driftingDirection = 0
+	_drifting_direction = 0
 	
-func _get_max_speed_squared(outOfBounds: bool):
-	if (outOfBounds):
-		return maxSpeedOutOfBoundsMetersPerSecond * maxSpeedOutOfBoundsMetersPerSecond
+func _get_max_speed_squared(out_of_bounds: bool):
+	if (out_of_bounds):
+		return max_speed_out_of_bounds_meters_per_second * max_speed_out_of_bounds_meters_per_second
 	else:
-		return maxSpeedMetersPerSecond * maxSpeedMetersPerSecond
+		return max_speed_meters_per_second * max_speed_meters_per_second
 
-func _soft_clamp_speed(state: PhysicsDirectBodyState3D, outOfBounds: bool):
-	var velSquaredXZ: float = (state.linear_velocity * Vector3(1,0,1)).length_squared()
-	var maxSpeedSquared = _get_max_speed_squared(outOfBounds)
-	if (velSquaredXZ > maxSpeedSquared):
-		var normProjectedOnXZ: Vector3 = state.linear_velocity.normalized() * Vector3(1,0,1)
-		var diff: float = (velSquaredXZ - maxSpeedSquared)
+func _soft_clamp_speed(state: PhysicsDirectBodyState3D, out_of_bounds: bool):
+	var vel_squared_xz: float = (state.linear_velocity * Vector3(1, 0, 1)).length_squared()
+	var max_speed_squared = _get_max_speed_squared(out_of_bounds)
+	if (vel_squared_xz > max_speed_squared):
+		var norm_projected_on_xz: Vector3 = state.linear_velocity.normalized() * Vector3(1, 0, 1)
+		var diff: float = (vel_squared_xz - max_speed_squared)
 		# This is a physics based "clamp", being quadratic to be as close as possible to a hard limit.
 		# We do not use clamp as it causes unexpected behavior, such as making the car drift in air.
 		# It does not affect fall speed.
-		_debugSoftClampSpeedForce = -normProjectedOnXZ * diff * diff
-		state.apply_central_force(_debugSoftClampSpeedForce)
-		#state.linear_velocity = state.linear_velocity.clamp(norm, norm * maxSpeedMetersPerSecond)
+		_debug_soft_clamp_speed_force = - norm_projected_on_xz * diff * diff
+		state.apply_central_force(_debug_soft_clamp_speed_force)
+		#state.linear_velocity = state.linear_velocity.clamp(norm, norm * max_speed_meters_per_second)
 	else:
-		_debugSoftClampSpeedForce = Vector3(0,0,0)
+		_debug_soft_clamp_speed_force = Vector3(0, 0, 0)
 
 func _get_point_velocity(point: Vector3) -> Vector3:
 	# physics formula
 	return linear_velocity + angular_velocity.cross(point - global_position)
 
 # CHECK THIS FOR SUSPENSION: https://www.youtube.com/watch?v=9MqmFSn1Rlw
-func _apply_single_wheel_suspension(suspensionRay: RayCast3D) -> void:
-	if suspensionRay.is_colliding():
-		var contactPoint: Vector3 = suspensionRay.get_collision_point()
-		var springUpDirection: Vector3 = suspensionRay.global_transform.basis.y # from wheel perspective, not world
-		var springCurrentLength: float = suspensionRay.global_position.distance_to(contactPoint)
-		var offset: float = restDistance - springCurrentLength
+func _apply_single_wheel_suspension(suspension_ray: RayCast3D) -> void:
+	if suspension_ray.is_colliding():
+		var contact_point: Vector3 = suspension_ray.get_collision_point()
+		var spring_up_direction: Vector3 = suspension_ray.global_transform.basis.y # from wheel perspective, not world
+		var spring_current_length: float = suspension_ray.global_position.distance_to(contact_point)
+		var offset: float = rest_distance - spring_current_length
 		
 		# push if compressed, pull if extended and within ray range
-		var springForce: float = springStrength * offset
+		var spring_force: float = spring_strength * offset
 		
 		# damping force = damping * relative velocity
-		var worldVelocity: Vector3 = _get_point_velocity(contactPoint)
-		var relativeVelocity: float = springUpDirection.dot(worldVelocity)
-		var springDampingForce: float = springDamping * relativeVelocity
+		var world_velocity: Vector3 = _get_point_velocity(contact_point)
+		var relative_velocity: float = spring_up_direction.dot(world_velocity)
+		var spring_damping_force: float = spring_damping * relative_velocity
 		
 		# convert to 3d directional vector (align force along the push/pull axis of the spring/raycast
-		var springForceVector: Vector3 = (springForce - springDampingForce) * springUpDirection
+		var spring_force_vector: Vector3 = (spring_force - spring_damping_force) * spring_up_direction
 		
-		var forcePositionOffset = contactPoint - global_position # at raycast collision point
-		apply_force(springForceVector, forcePositionOffset)
-
+		var force_position_offset = contact_point - global_position # at raycast collision point
+		apply_force(spring_force_vector, force_position_offset)
 
 
 # applied on x,z plan
@@ -215,18 +213,18 @@ func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var radius: float = _get_radius_of_rotation(state)
 	# Projecting the linear velocity onto the forward / backward axis to know in which direction the car
 	# goes, assuming wheel adherence.
-	var forwardBackwardLinVelDirection: float = sign(state.linear_velocity.dot(global_basis.x))
-	var rotationDirection: float = sign(state.angular_velocity.y)
-	var centrifugusDirection: Vector3 = global_basis.z.normalized() * rotationDirection * forwardBackwardLinVelDirection
-	if (centrifugusDirection.length() < 0.01):
+	var forward_backward_lin_vel_direction: float = sign(state.linear_velocity.dot(global_basis.x))
+	var rotation_direction: float = sign(state.angular_velocity.y)
+	var centrifugal_direction: Vector3 = global_basis.z.normalized() * rotation_direction * forward_backward_lin_vel_direction
+	if (centrifugal_direction.length() < 0.01):
 		return
-	var cappedRadius: float = min(max(radius, MIN_INERTIA_RADIUS_LIMIT), MAX_INERTIA_RADIUS_LIMIT)
-	var centrifugusForce: Vector3 = centrifugusDirection * (mass * state.linear_velocity.length_squared() / cappedRadius)
-	var counterForce: Vector3 = -centrifugusForce
+	var capped_radius: float = min(max(radius, MIN_INERTIA_RADIUS_LIMIT), MAX_INERTIA_RADIUS_LIMIT)
+	var centrifugal_force: Vector3 = centrifugal_direction * (mass * state.linear_velocity.length_squared() / capped_radius)
+	var counter_force: Vector3 = - centrifugal_force
 	if (_drifting):
-		counterForce *= 0.7
-	state.apply_central_force(counterForce)
-	_debugCentrifugusForce = centrifugusForce
+		counter_force *= 0.7
+	state.apply_central_force(counter_force)
+	_debug_centrifugal_force = centrifugal_force
 
 # applied on x,z plan
 func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
@@ -234,70 +232,70 @@ func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
 	# of angle length equal to previous angular velocity,
 	# we compute the circumference of the entire circle,
 	# and deduct a radius from there
-	var length = (state.linear_velocity * Vector3(1,0,1)).length()
+	var length = (state.linear_velocity * Vector3(1, 0, 1)).length()
 	var angle = max(abs(state.angular_velocity.y), MIN_ANGLE_THRESHOLD) # avoid 0 to avoid division by zero crash
-	var circumference = (2*PI / angle) * length
-	var radius = circumference / (2*PI)
+	var circumference = (2 * PI / angle) * length
+	var radius = circumference / (2 * PI)
 	return radius
 
 # FIXME broken!!!
 func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
 	if (_wheels_on_ground() < 2):
-		_debugSlidingForce = Vector3(0,0,0)
+		_debug_sliding_force = Vector3(0, 0, 0)
 		return
-	var normalToGround: Vector3 = global_basis.y.normalized()
-	assert(normalToGround.length_squared() > 0)
-	var groundCounterForce: Vector3 = normalToGround * (get_gravity()).length()
-	var slidingForce: Vector3 = (get_gravity() + groundCounterForce) * mass
-	_debugSlidingForce = slidingForce
+	var normal_to_ground: Vector3 = global_basis.y.normalized()
+	assert(normal_to_ground.length_squared() > 0)
+	var ground_counter_force: Vector3 = normal_to_ground * (get_gravity()).length()
+	var sliding_force: Vector3 = (get_gravity() + ground_counter_force) * mass
+	_debug_sliding_force = sliding_force
 	var z: Vector3 = global_basis.z.normalized()
-	var compensatingForce: Vector3 = z * -slidingForce.dot(z)
-	_debugSlidingForceCompensated = compensatingForce
-	state.apply_central_force(compensatingForce)
+	var compensating_force: Vector3 = z * -sliding_force.dot(z)
+	_debug_sliding_force_compensated = compensating_force
+	state.apply_central_force(compensating_force)
 
 func _wheels_on_ground() -> int:
-	var wheelsOnGround: int = 0
+	var wheels_on_ground: int = 0
 	if ($WheelFRRayCast3D.is_colliding()):
-		wheelsOnGround += 1
+		wheels_on_ground += 1
 	if ($WheelBLRayCast3D.is_colliding()):
-		wheelsOnGround += 1
+		wheels_on_ground += 1
 	if ($WheelBRRayCast3D.is_colliding()):
-		wheelsOnGround += 1
+		wheels_on_ground += 1
 	if ($WheelFLRayCast3D.is_colliding()):
-		wheelsOnGround += 1
+		wheels_on_ground += 1
 		
-	return wheelsOnGround
+	return wheels_on_ground
 
 func _input(event):
 	if (event.is_action_pressed("toggle_cam")):
-		$Camera3D.current = !$Camera3D.current
+		$Camera3D.current = not $Camera3D.current
 
 func _process(_delta: float) -> void:
 	# debug
-	var debugPos = global_position + Vector3(0,3,0)
+	var debug_pos = global_position + Vector3(0, 3, 0)
 	
 	if (_cam.current):
 		DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
 		DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
-	if (showDebugArrows):
-		DebugDraw3D.draw_arrow(debugPos, debugPos + linear_velocity, Color(0,0,1), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugCentrifugusForce, Color(0,1,0), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForce, Color(1,0,0), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSlidingForceCompensated, Color(1,0,0.5), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + _debugSoftClampSpeedForce, Color(1,0,1), 0.1)
+	if (show_debug_arrows):
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + linear_velocity, Color(0, 0, 1), 0.1)
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_centrifugal_force, Color(0, 1, 0), 0.1)
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_sliding_force, Color(1, 0, 0), 0.1)
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_sliding_force_compensated, Color(1, 0, 0.5), 0.1)
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_soft_clamp_speed_force, Color(1, 0, 1), 0.1)
 
 var elapsed: float = 0
 func _physics_process(delta: float) -> void:
 	elapsed += delta
 	if (elapsed > 0.02):
 		elapsed = 0
-		var debugPos = global_position + Vector3(0,3,0)
-		_brain.tick(global_position, debugPos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
+		var debug_pos = global_position + Vector3(0, 3, 0)
+		_brain.tick(global_position, debug_pos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
 
 
-func force_basis_on_next_physics_frame(basis: Basis):
-	_forcedBasis = basis
-	_mustForceBasis = true
+func force_basis_on_next_physics_frame(new_basis: Basis):
+	_forced_basis = new_basis
+	_must_force_basis = true
 	
 ## Returns null if the type do not match.
 func _get_collider_of_colliding_raycast(raycast: RayCast3D) -> CollisionObject3D:

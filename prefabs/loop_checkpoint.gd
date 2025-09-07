@@ -9,7 +9,7 @@
 class_name LoopCheckpoint extends TrackCheckpoint
 
 func _ready() -> void:
-	super()
-	self.debugDrawBoxColor = Color(1, 0.5, 0)
-	self.debugDrawArrowColor = Color(0.6, 0.3, 0)
-	self.debugShapeFillColor = Color(1, 0.5, 0, 0.4)
+	super ()
+	self.debug_draw_box_color = Color(1, 0.5, 0)
+	self.debug_draw_arrow_color = Color(0.6, 0.3, 0)
+	self.debug_shape_fill_color = Color(1, 0.5, 0, 0.4)

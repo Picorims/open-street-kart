@@ -16,20 +16,20 @@ const TRACKS_DICTIONARY: Dictionary[String, Main.Track] = {
 
 func _ready() -> void:
 	var list: ItemList = $MarginContainer/UIBlockContainer/TracksList/ItemList
-	assert (list != null, "track list is undefined.")
+	assert(list != null, "track list is undefined.")
 	assert(TRACKS_DICTIONARY.keys().size() > 0, "no track in list.")
 	for track in TRACKS_DICTIONARY.keys():
 		list.add_item(track)
 	list.select(0)
 	
-	var validateButton: AtomGUIBlurredBgndMenuButton = $MarginContainer/UIBlockContainer/AtomGUIBlurredBgndMenuButton_Go
-	assert(validateButton != null, "validate button for track list is undefined.")
-	validateButton.pressed.connect(func():
+	var validate_button: AtomGUIBlurredBgndMenuButton = $MarginContainer/UIBlockContainer/AtomGUIBlurredBgndMenuButton_Go
+	assert(validate_button != null, "validate button for track list is undefined.")
+	validate_button.pressed.connect(func():
 		var items: PackedInt32Array = list.get_selected_items()
 		if (items.size() != 1):
 			push_error("unexpected item count (not 1) for track list selected item(s)")
 			return
 	
-		var keyFromIndex: String = TRACKS_DICTIONARY.keys().get(items[0])
-		track_selected.emit(TRACKS_DICTIONARY.get(keyFromIndex))
+		var key_from_index: String = TRACKS_DICTIONARY.keys().get(items[0])
+		track_selected.emit(TRACKS_DICTIONARY.get(key_from_index))
 	)

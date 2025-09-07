@@ -12,49 +12,49 @@ extends Node3D
 const ROOT_NODE_NAME: String = "OSMData"
 
 @export var loader: MapDataLoader
-@export var boundariesGenerator: BoundariesGenerator
-@export var elevationGenerator: ElevationMeshGenerator
-@export var roadMaterial: Material
-@export var buildingMaterial: Material
+@export var boundaries_generator: BoundariesGenerator
+@export var elevation_generator: ElevationMeshGenerator
+@export var road_material: Material
+@export var building_material: Material
 
-var _roadKinds: Array[String]
-var _buildingKinds: Array[String]
-var _rootNode: Node3D
-var _deferredRaycasts: Array[SnapToGroundRayCast3D]
+var _road_kinds: Array[String]
+var _building_kinds: Array[String]
+var _root_node: Node3D
+var _deferred_raycasts: Array[SnapToGroundRayCast3D]
 ## It is important to append in the order of building.
 ## The previousRP of a point should always be placed somewhere before.
-var _roadsToBuild: Array[RoadPointPlaceholder] = []
-var _canBuildRoads: bool = true
-var _roadManager: RoadManager = null
-var snapsLeftRoad: int = 0
-var snapsLeft: int = 0
-static var snapToGroundRayCast3DScene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
+var _roads_to_build: Array[RoadPointPlaceholder] = []
+var _can_build_roads: bool = true
+var _road_manager: RoadManager = null
+var snaps_left_road: int = 0
+var snaps_left: int = 0
+static var snap_to_ground_ray_cast_3d_scene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
 const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
 
 class RoadPointPlaceholder extends Node3D:
-	var laneWidth: float = 0
-	var gutterProfile: Vector2 = Vector2(0,0)
-	var trafficDir: Array[RoadPoint.LaneDir] = []
-	var isRoadStart: bool = false
-	var isRoadEnd: bool = false
-	var previousRP: RoadPointPlaceholder = null
-	var priorMag: float = 0
-	var nextMag: float = 0
+	var lane_width: float = 0
+	var gutter_profile: Vector2 = Vector2(0, 0)
+	var traffic_dir: Array[RoadPoint.LaneDir] = []
+	var is_road_start: bool = false
+	var is_road_end: bool = false
+	var previous_rp: RoadPointPlaceholder = null
+	var prior_mag: float = 0
+	var next_mag: float = 0
 	
-	func copy_settings_from(other: RoadPointPlaceholder, withTransform: bool):
-		self.laneWidth = other.laneWidth
-		self.gutterProfile = other.gutterProfile
-		self.trafficDir = other.trafficDir
-		if withTransform:
+	func copy_settings_from(other: RoadPointPlaceholder, with_transform: bool):
+		self.lane_width = other.lane_width
+		self.gutter_profile = other.gutter_profile
+		self.traffic_dir = other.traffic_dir
+		if with_transform:
 			self.global_transform = other.global_transform
 			
 		
 func _ready() -> void:
 	assert(loader != null)
-	assert(boundariesGenerator != null)
-	assert(roadMaterial != null)
-	assert(elevationGenerator != null)
-	_roadKinds = [
+	assert(boundaries_generator != null)
+	assert(road_material != null)
+	assert(elevation_generator != null)
+	_road_kinds = [
 		"motorway",
 		"trunk",
 		"primary",
@@ -88,7 +88,7 @@ func _ready() -> void:
 	]
 	
 	# https://wiki.openstreetmap.org/wiki/Key:building
-	_buildingKinds = [
+	_building_kinds = [
 		"yes",
 		"apartments",
 		"barracks",
@@ -207,112 +207,107 @@ var _data
 func _load_data() -> void:
 	# see https://docs.godotengine.org/en/stable/classes/class_json.html#class-json-method-parse
 	# see https://docs.godotengine.org/en/stable/classes/class_fileaccess.html
-
-	var file = FileAccess.open(loader.osmDataPath, FileAccess.READ)
+	var file = FileAccess.open(loader.osm_data_path, FileAccess.READ)
 	_data = JSON.parse_string(file.get_as_text())
 	assert(_data != null)
 	file.close()
 
 
-
-
-
 func reload_action(dataHolder: Node3D) -> void:
-	if !boundariesGenerator.is_loaded:
+	if not boundaries_generator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
-	elif !elevationGenerator.is_loaded:
+	elif not elevation_generator.is_loaded:
 		print("Cannot continue, elevation not loaded.")
 	else:
-		
 		_regenerate_data(dataHolder)
-		_canBuildRoads = true
+		_can_build_roads = true
 
-var _lastLog: float = 0
+var _last_log: float = 0
 func _physics_process(delta: float) -> void:
 	# need to wait for boundaries or no road will be kept!
-	if (snapsLeftRoad > 0 || snapsLeft > 0):# && !Engine.is_editor_hint():
-		_lastLog += delta
-		if  _lastLog > 10:
-			print("snaps left for roads: ", snapsLeftRoad)
-			print("snaps left for other things: ", snapsLeft)
-			_lastLog = 0
-		if (_deferredRaycasts.size() > 0):
-			var raycast: SnapToGroundRayCast3D = _deferredRaycasts.back()
+	if (snaps_left_road > 0 or snaps_left > 0): # and not Engine.is_editor_hint():
+		_last_log += delta
+		if _last_log > 10:
+			print("snaps left for roads: ", snaps_left_road)
+			print("snaps left for other things: ", snaps_left)
+			_last_log = 0
+		if (_deferred_raycasts.size() > 0):
+			var raycast: SnapToGroundRayCast3D = _deferred_raycasts.back()
 			if (raycast != null):
 				raycast.force_raycast_update()
-				_deferredRaycasts.pop_back()
-	if (_canBuildRoads && _roadsToBuild.size() > 0 && snapsLeftRoad == 0):
+				_deferred_raycasts.pop_back()
+	if (_can_build_roads and _roads_to_build.size() > 0 and snaps_left_road == 0):
 		print("Building roads...")
-		print("points: ", _roadsToBuild.size())
+		print("points: ", _roads_to_build.size())
 		# see: https://github.com/TheDuckCow/godot-road-generator/blob/main/demo/procedural_generator/procedural_generator.gd
 		# see: https://github.com/TheDuckCow/godot-road-generator/wiki/Class:-RoadPoint
 	
 		# separate function?
 		# build
-		for r in _roadsToBuild:
-			if r.isRoadEnd:
+		for r in _roads_to_build:
+			if r.is_road_end:
 				# stored from end to start
-				var roadPoints = [r]
-				var currP: RoadPointPlaceholder = r
-				while (currP.previousRP != null):
-					roadPoints.append(currP.previousRP)
-					currP = currP.previousRP
+				var road_points = [r]
+				var curr_p: RoadPointPlaceholder = r
+				while (curr_p.previous_rp != null):
+					road_points.append(curr_p.previous_rp)
+					curr_p = curr_p.previous_rp
 				
-				var roadContainer: RoadContainer = RoadContainer.new()
-				_roadManager.add_child(roadContainer)
-				loader.persist_in_current_scene(roadContainer)
+				var road_container: RoadContainer = RoadContainer.new()
+				_road_manager.add_child(road_container)
+				loader.persist_in_current_scene(road_container)
 				
-				var prevRP: RoadPoint = null
-				print("Building road of size: ", roadPoints.size())
-				for i in range(roadPoints.size()-1, -1, -1):
-					var placeholder: RoadPointPlaceholder = roadPoints[i]
+				var prev_rp: RoadPoint = null
+				print("Building road of size: ", road_points.size())
+				for i in range(road_points.size() - 1, -1, -1):
+					var placeholder: RoadPointPlaceholder = road_points[i]
 					var rp: RoadPoint = RoadPoint.new()
-					roadContainer.add_child(rp)
-					rp.lane_width = placeholder.laneWidth
-					rp.gutter_profile = placeholder.gutterProfile
-					rp.traffic_dir = placeholder.trafficDir
-					rp.next_mag = placeholder.nextMag
-					rp.prior_mag = placeholder.priorMag
+					road_container.add_child(rp)
+					rp.lane_width = placeholder.lane_width
+					rp.gutter_profile = placeholder.gutter_profile
+					rp.traffic_dir = placeholder.traffic_dir
+					rp.next_mag = placeholder.next_mag
+					rp.prior_mag = placeholder.prior_mag
 					rp.global_position = placeholder.global_position
 					rp.transform = placeholder.transform
-					rp.container = roadContainer
+					rp.container = road_container
 					loader.persist_in_current_scene(rp)
 					
-					if (prevRP != null):
-						var thisDir = RoadPoint.PointInit.PRIOR
-						var targetDir = RoadPoint.PointInit.NEXT
-						rp.connect_roadpoint(thisDir, prevRP, targetDir)
-					prevRP = rp
+					if (prev_rp != null):
+						var this_dir = RoadPoint.PointInit.PRIOR
+						var target_dir = RoadPoint.PointInit.NEXT
+						rp.connect_roadpoint(this_dir, prev_rp, target_dir)
+					prev_rp = rp
 		#separate function?
 		# flush
-		for r in _roadsToBuild:
+		for r in _roads_to_build:
 			r.queue_free()
-		_roadsToBuild = []
+		_roads_to_build = []
 		print("Building roads done.")
 
 
 func _is_road(properties: Dictionary) -> bool:
-	if (!properties.has("highway")): return false
+	if (not properties.has("highway")): return false
 	
 	var id: String = properties.get("@id")
-	if (!id.begins_with("way")): return false
+	if (not id.begins_with("way")): return false
 	
 	var kind: String = properties.get("highway")
-	if _roadKinds.has(kind): return true
+	if _road_kinds.has(kind): return true
 	return false
 	
 func _is_building(properties: Dictionary) -> bool:
-	if (!properties.has("building")): return false
+	if (not properties.has("building")): return false
 	
 	var id: String = properties.get("@id")
-	if (!id.begins_with("way")): return false
+	if (not id.begins_with("way")): return false
 	
 	var kind: String = properties.get("building")
-	if _buildingKinds.has(kind): return true
+	if _building_kinds.has(kind): return true
 	return false
 	
 
-func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Vector3) -> Transform3D:
+func _rotated_point(from_transform: Transform3D, from: Vector3, curr: Vector3, to: Vector3) -> Transform3D:
 	# given this:
 	# A--M--C
 	# |\ | /
@@ -324,10 +319,10 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 	# For a smooth transition, we want to look in the direction of the
 	# [AC] axis, parallel to [BL] axis. We thus need to look at L.
 	# L = B - (A-M)
-	var segmentMiddle = (from+to)/2
+	var segment_middle = (from + to) / 2
 	# var shouldLookAt = segmentMiddle + (to - segmentMiddle) + (curr - segmentMiddle)
-	var shouldLookAt = curr + (from - segmentMiddle) 
-	return transform.looking_at(shouldLookAt)
+	var should_look_at = curr + (from - segment_middle)
+	return from_transform.looking_at(should_look_at)
 
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
 ## and move at the collision point the target. It then deletes itself.
@@ -335,128 +330,128 @@ func _rotated_point(transform: Transform3D, from: Vector3, curr: Vector3, to: Ve
 ##
 ## This variant is designed to account for road processing requirements
 func _setup_snapping_road(target: RoadPointPlaceholder):
-	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
-	snapRayCast.offset = -0.4
-	target.add_child(snapRayCast)
-	loader.persist_in_current_scene(snapRayCast)
-	snapRayCast.target = target
-	snapsLeftRoad += 1
-	snapRayCast.snapped_target.connect(func(): # not kept on scene save / reload
-		snapsLeftRoad -= 1
+	var snap_ray_cast: SnapToGroundRayCast3D = snap_to_ground_ray_cast_3d_scene.instantiate()
+	snap_ray_cast.offset = -0.4
+	target.add_child(snap_ray_cast)
+	loader.persist_in_current_scene(snap_ray_cast)
+	snap_ray_cast.target = target
+	snaps_left_road += 1
+	snap_ray_cast.snapped_target.connect(func(): # not kept on scene save / reload
+		snaps_left_road -= 1
 		# this is NOT the right place to refresh segments:
 		# - there is a function on the road manager to bulk refresh everything.
 		# - there would be as many refresh as points in the road: waste of resources!
 	)
-	snapRayCast.force_raycast_update() # crashes Godot with RoadPoint; road add-on perf issue?
-	#_deferredRaycasts.append(snapRayCast)
+	snap_ray_cast.force_raycast_update() # crashes Godot with RoadPoint; road add-on perf issue?
+	#_deferred_raycasts.append(snapRayCast)
 	
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
 ## and move at the collision point the target. It then deletes itself.
 ## The collision layers must match.
-func _setup_snapping(target: Node3D, alignToNormal: bool = false, offset: float = 0.4):
-	var snapRayCast: SnapToGroundRayCast3D = snapToGroundRayCast3DScene.instantiate()
-	snapRayCast.offset = offset
-	snapRayCast.alignToNormal = alignToNormal
-	target.add_child(snapRayCast)
-	loader.persist_in_current_scene(snapRayCast)
-	snapRayCast.target = target
-	snapRayCast.rotation -= target.rotation # ignore rotation
-	snapsLeft += 1
-	snapRayCast.snapped_target.connect(func(): # not kept on scene save / reload
-		snapsLeft -= 1
+func _setup_snapping(target: Node3D, align_to_normal: bool = false, offset: float = 0.4):
+	var snap_ray_cast: SnapToGroundRayCast3D = snap_to_ground_ray_cast_3d_scene.instantiate()
+	snap_ray_cast.offset = offset
+	snap_ray_cast.align_to_normal = align_to_normal
+	target.add_child(snap_ray_cast)
+	loader.persist_in_current_scene(snap_ray_cast)
+	snap_ray_cast.target = target
+	snap_ray_cast.rotation -= target.rotation # ignore rotation
+	snaps_left += 1
+	snap_ray_cast.snapped_target.connect(func(): # not kept on scene save / reload
+		snaps_left -= 1
 	)
-	snapRayCast.force_raycast_update()
+	snap_ray_cast.force_raycast_update()
 
 ## inserts at the end of the array interpolated values between from and to
 ## so that the length between each of them is below max length between points (constant)
 func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector3]):
 	var maxLen: float = _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS
-	var len: float = from.distance_to(to)
-	var pointsTotal: int = ceil(len / maxLen) 
+	var length: float = from.distance_to(to)
+	var pointsTotal: int = ceil(length / maxLen)
 	var pointsToAdd: int = pointsTotal - 2 # exclude start and end
-	var step: float = len / pointsTotal
-	var stepRatio: float = step / len
+	var step: float = length / pointsTotal
+	var stepRatio: float = step / length
 	# add points at equal distance
-	for i in range (0, pointsToAdd):
-		array.append(lerp(from, to, (i+1)*stepRatio))
+	for i in range(0, pointsToAdd):
+		array.append(lerp(from, to, (i + 1) * stepRatio))
 
-func _build_road(feature: Dictionary, roadsContainer: Node3D) -> bool:
-	if (!feature.has("geometry")): return false
+func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
+	if (not feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
-	if (!geometry.has("coordinates")): return false
+	if (not geometry.has("coordinates")): return false
 	var coordinates: Array = geometry.get("coordinates")
 	if (coordinates.size() < 2): return false
 	
-	var prevMeters: Vector3
-	var prevExists: bool = false
-	var metersCoords: Array[Vector3] = []
+	var prev_meters: Vector3
+	var prev_exists: bool = false
+	var meters_coords: Array[Vector3] = []
 	for c in coordinates:
 		# high altitude to be able to snap no matter how sloppy the land is.
-		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 1000, c[1]))
-		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
-			#var elevation = elevationGenerator.get_elevation(Vector2(cMeters.x, cMeters.z))
+		var c_meters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 1000, c[1]))
+		if boundaries_generator.is_point_within_race_area(Vector2(c_meters.x, c_meters.z)):
+			#var elevation = elevation_generator.get_elevation(Vector2(cMeters.x, cMeters.z))
 			#cMeters.y += elevation
-			if (prevExists):
-				var distance: float = prevMeters.distance_to(cMeters)
+			if (prev_exists):
+				var distance: float = prev_meters.distance_to(c_meters)
 				if (distance > _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS):
-					_append_interpolated_points(prevMeters, cMeters, metersCoords)
-			metersCoords.append(cMeters)
-			prevMeters = cMeters
-			prevExists = true
+					_append_interpolated_points(prev_meters, c_meters, meters_coords)
+			meters_coords.append(c_meters)
+			prev_meters = c_meters
+			prev_exists = true
 	
-	if (metersCoords.size() < 2):
+	if (meters_coords.size() < 2):
 		return false
 	
-	var initPoint: RoadPointPlaceholder = RoadPointPlaceholder.new()
-	roadsContainer.add_child(initPoint)
-	loader.persist_in_current_scene(initPoint)
-	initPoint.laneWidth = 3
-	initPoint.gutterProfile = Vector2(3,-0.5)
-	var trafficDir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
-	initPoint.trafficDir = trafficDir
-	initPoint.global_position = metersCoords[0]
+	var init_point: RoadPointPlaceholder = RoadPointPlaceholder.new()
+	roads_container.add_child(init_point)
+	loader.persist_in_current_scene(init_point)
+	init_point.lane_width = 3
+	init_point.gutter_profile = Vector2(3, -0.5)
+	var traffic_dir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
+	init_point.traffic_dir = traffic_dir
+	init_point.global_position = meters_coords[0]
 	
 	# we need to do a 180 turn, to face opposite direction
 	# we do not use rotated because it does it around the origin, not itself
-	var toMirrored = metersCoords[0] + 2 * (metersCoords[0] - metersCoords[1])
+	var to_mirrored = meters_coords[0] + 2 * (meters_coords[0] - meters_coords[1])
 	#initPoint.transform = initPoint.transform.looking_at(metersCoords[1])
-	initPoint.transform = _rotated_point(initPoint.transform, toMirrored, metersCoords[0], metersCoords[1])
+	init_point.transform = _rotated_point(init_point.transform, to_mirrored, meters_coords[0], meters_coords[1])
 	
-	initPoint.isRoadStart = true
-	initPoint.isRoadEnd = false
-	loader.persist_in_current_scene(initPoint)
-	_setup_snapping_road(initPoint)
-	_roadsToBuild.append(initPoint)
+	init_point.is_road_start = true
+	init_point.is_road_end = false
+	loader.persist_in_current_scene(init_point)
+	_setup_snapping_road(init_point)
+	_roads_to_build.append(init_point)
 	
-	var previousRP = initPoint
-	for i in range(1, metersCoords.size()):
-		var nextRP: RoadPointPlaceholder = RoadPointPlaceholder.new()
-		roadsContainer.add_child(nextRP)
-		loader.persist_in_current_scene(nextRP)
-		var prev = metersCoords[i-1]
-		var curr = metersCoords[i]
-		nextRP.isRoadStart = false
-		nextRP.isRoadEnd = false
-		loader.persist_in_current_scene(nextRP)
-		nextRP.copy_settings_from(initPoint, true) # issue here to copy transform
-		nextRP.global_position = curr
-		_setup_snapping_road(nextRP)
-		if (i == metersCoords.size() - 1):
-			nextRP.isRoadEnd = true
+	var previous_rp = init_point
+	for i in range(1, meters_coords.size()):
+		var next_rp: RoadPointPlaceholder = RoadPointPlaceholder.new()
+		roads_container.add_child(next_rp)
+		loader.persist_in_current_scene(next_rp)
+		var prev = meters_coords[i - 1]
+		var curr = meters_coords[i]
+		next_rp.is_road_start = false
+		next_rp.is_road_end = false
+		loader.persist_in_current_scene(next_rp)
+		next_rp.copy_settings_from(init_point, true) # issue here to copy transform
+		next_rp.global_position = curr
+		_setup_snapping_road(next_rp)
+		if (i == meters_coords.size() - 1):
+			next_rp.is_road_end = true
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
-			var prevMirrored = prev + 2 * (curr - prev)
+			var prev_mirrored = prev + 2 * (curr - prev)
 			#nextRP.transform = nextRP.transform.looking_at(lookingOpposite)
-			nextRP.transform = _rotated_point(nextRP.transform, prev, curr, prevMirrored)
-			nextRP.priorMag = metersCoords[i-1].distance_to(metersCoords[i]) / 2
+			next_rp.transform = _rotated_point(next_rp.transform, prev, curr, prev_mirrored)
+			next_rp.prior_mag = meters_coords[i - 1].distance_to(meters_coords[i]) / 2
 		else:
-			nextRP.transform = _rotated_point(nextRP.transform, metersCoords[i-1], metersCoords[i], metersCoords[i+1])
-			nextRP.priorMag = metersCoords[i-1].distance_to(metersCoords[i]) / 2
-			nextRP.nextMag = metersCoords[i].distance_to(metersCoords[i+1]) / 2
+			next_rp.transform = _rotated_point(next_rp.transform, meters_coords[i - 1], meters_coords[i], meters_coords[i + 1])
+			next_rp.prior_mag = meters_coords[i - 1].distance_to(meters_coords[i]) / 2
+			next_rp.next_mag = meters_coords[i].distance_to(meters_coords[i + 1]) / 2
 		
-		nextRP.previousRP = previousRP
-		_roadsToBuild.append(nextRP)
-		previousRP = nextRP
+		next_rp.previous_rp = previous_rp
+		_roads_to_build.append(next_rp)
+		previous_rp = next_rp
 		
 	return true
 
@@ -469,15 +464,15 @@ func _array_xz(a: Array[Vector3]) -> Array[Vector2]:
 		arr.append(_xz(v))
 	return arr
 
-func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: bool = false) -> bool:
+func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: bool = false) -> bool:
 	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
 	if (verbose): print("_build_building: inspecting building data...")
 	
-	if (!feature.has("geometry")):
+	if (not feature.has("geometry")):
 		if (verbose): print("building has no geometry, cancel.")
 		return false
 	var geometry: Dictionary = feature.get("geometry")
-	if (!geometry.has("coordinates")):
+	if (not geometry.has("coordinates")):
 		if (verbose): print("building has no coordinates, cancel.")
 		return false
 	var coordinates: Array = geometry.get("coordinates")
@@ -494,187 +489,187 @@ func _build_building(feature: Dictionary, buildingsContainer: Node3D, verbose: b
 	
 	if (verbose): print("building accepted.")
 	
-	var prevMeters: Vector3
-	var prevExists: bool = false
-	var metersCoords: Array[Vector3] = []
+	var _prev_meters: Vector3
+	var _prev_exists: bool = false
+	var meters_coords: Array[Vector3] = []
 	for c in coordinates:
 		# high altitude to be able to snap no matter how sloppy the land is.
-		var cMeters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], INIT_HEIGHT, c[1]))
-		if boundariesGenerator.is_point_within_race_area(Vector2(cMeters.x, cMeters.z)):
-			metersCoords.append(cMeters)
-			prevMeters = cMeters
-			prevExists = true
+		var c_meters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], INIT_HEIGHT, c[1]))
+		if boundaries_generator.is_point_within_race_area(Vector2(c_meters.x, c_meters.z)):
+			meters_coords.append(c_meters)
+			_prev_meters = c_meters
+			_prev_exists = true
 	
-	if (metersCoords.size() < 3):
-		if (verbose): print("building has too few points (",metersCoords.size(),").")
+	if (meters_coords.size() < 3):
+		if (verbose): print("building has too few points (", meters_coords.size(), ").")
 		return false
 
-	var inGroundHeight: float = 5
-	var aboveGroundHeight: float = 10
+	var in_ground_height: float = 5
+	var above_ground_height: float = 10
 	const MAX_VALUE: float = 1000000
 	var origin: Vector3 = Vector3(MAX_VALUE, 0, MAX_VALUE)
 	# find smallest x and z to define the origin (the corner of the building bounding box)
-	for c in metersCoords:
+	for c in meters_coords:
 		origin.x = min(origin.x, c.x)
 		origin.z = min(origin.z, c.z)
 
 	# translate all points to origin
-	for i in range(metersCoords.size()):
-		metersCoords[i] -= origin
-		metersCoords[i].y = 0 # disable offset
+	for i in range(meters_coords.size()):
+		meters_coords[i] -= origin
+		meters_coords[i].y = 0 # disable offset
 
 	# build mesh
-	var surfaceTool = SurfaceTool.new()
-	surfaceTool.begin(Mesh.PRIMITIVE_TRIANGLES)
+	var surface_tool = SurfaceTool.new()
+	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 
 	# we create an extruded polygon, with only the wall and ceiling
 
 	# walls (also corresponds to occluder)
-	var occluderVertices: PackedVector3Array = []
-	var occluderIndices: PackedInt32Array = []
+	var occluder_vertices: PackedVector3Array = []
+	var occluder_indices: PackedInt32Array = []
 		
-	for i in range(metersCoords.size()):
-		var nextIdx = (i + 1) % metersCoords.size()
-		var bottomL = metersCoords[i]
-		var bottomR = metersCoords[nextIdx]
-		var topL = bottomL + Vector3(0, inGroundHeight + aboveGroundHeight, 0)
-		var topR = bottomR + Vector3(0, inGroundHeight + aboveGroundHeight, 0)
+	for i in range(meters_coords.size()):
+		var next_index = (i + 1) % meters_coords.size()
+		var bottom_l = meters_coords[i]
+		var bottom_r = meters_coords[next_index]
+		var top_l = bottom_l + Vector3(0, in_ground_height + above_ground_height, 0)
+		var top_r = bottom_r + Vector3(0, in_ground_height + above_ground_height, 0)
 
 		# first triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
-		surfaceTool.add_vertex(topL)
-		surfaceTool.add_vertex(bottomR)
-		surfaceTool.add_vertex(bottomL)
+		surface_tool.add_vertex(top_l)
+		surface_tool.add_vertex(bottom_r)
+		surface_tool.add_vertex(bottom_l)
 
 		# second triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
-		surfaceTool.add_vertex(topR)
-		surfaceTool.add_vertex(bottomR)
-		surfaceTool.add_vertex(topL)
+		surface_tool.add_vertex(top_r)
+		surface_tool.add_vertex(bottom_r)
+		surface_tool.add_vertex(top_l)
 		
 		# occluder
 		if (i == 0):
-			occluderVertices.append_array([bottomL, topL])
-		if (i != metersCoords.size() - 1):
-			occluderVertices.append_array([bottomR, topR])
+			occluder_vertices.append_array([bottom_l, top_l])
+		if (i != meters_coords.size() - 1):
+			occluder_vertices.append_array([bottom_r, top_r])
 			
 		# indices are even at the bottom, odd at the top, growing towards R
-		var topLIdx: int
-		var bottomLIdx: int
-		var topRIdx: int
-		var bottomRIdx: int
+		var top_l_index: int
+		var bottom_l_index: int
+		var top_r_index: int
+		var bottom_r_index: int
 			
-		topLIdx = (2*i) + 1
-		bottomLIdx = 2*i
-		if (i != metersCoords.size() - 1):
-			topRIdx = topLIdx + 2
-			bottomRIdx = bottomLIdx + 2
+		top_l_index = (2 * i) + 1
+		bottom_l_index = 2 * i
+		if (i != meters_coords.size() - 1):
+			top_r_index = top_l_index + 2
+			bottom_r_index = bottom_l_index + 2
 		else:
-			topRIdx = 1
-			bottomRIdx = 0
-		occluderIndices.append_array([topLIdx, bottomRIdx, bottomLIdx, topRIdx, bottomRIdx, topLIdx])
+			top_r_index = 1
+			bottom_r_index = 0
+		occluder_indices.append_array([top_l_index, bottom_r_index, bottom_l_index, top_r_index, bottom_r_index, top_l_index])
 	
-	surfaceTool.generate_normals()
-	var mesh: Mesh = surfaceTool.commit()
+	surface_tool.generate_normals()
+	var mesh: Mesh = surface_tool.commit()
 	if (mesh == null):
 		if (verbose): print("Failed to create mesh for building, cancel.")
 		return false
 	
-	var meshNode: MeshInstance3D = MeshInstance3D.new()
-	meshNode.mesh = mesh
-	var surfacesCount = meshNode.mesh.get_surface_count()
-	for i in surfacesCount:
-		meshNode.set_surface_override_material(i, buildingMaterial)
+	var mesh_node: MeshInstance3D = MeshInstance3D.new()
+	mesh_node.mesh = mesh
+	var surfaces_count = mesh_node.mesh.get_surface_count()
+	for i in surfaces_count:
+		mesh_node.set_surface_override_material(i, building_material)
 
-	var meshCollisionNode: CollisionShape3D = CollisionShape3D.new()
-	meshCollisionNode.shape = mesh.create_trimesh_shape()
+	var mesh_collision_node: CollisionShape3D = CollisionShape3D.new()
+	mesh_collision_node.shape = mesh.create_trimesh_shape()
 
-	var staticBody: StaticBody3D = StaticBody3D.new()
-	buildingsContainer.add_child(staticBody)
-	loader.persist_in_current_scene(staticBody)
-	staticBody.add_child(meshNode)
-	loader.persist_in_current_scene(meshNode)
-	staticBody.add_child(meshCollisionNode)
-	loader.persist_in_current_scene(meshCollisionNode)
-	staticBody.position = origin + Vector3(0, INIT_HEIGHT, 0)
+	var static_body: StaticBody3D = StaticBody3D.new()
+	buildings_container.add_child(static_body)
+	loader.persist_in_current_scene(static_body)
+	static_body.add_child(mesh_node)
+	loader.persist_in_current_scene(mesh_node)
+	static_body.add_child(mesh_collision_node)
+	loader.persist_in_current_scene(mesh_collision_node)
+	static_body.position = origin + Vector3(0, INIT_HEIGHT, 0)
 
-	_setup_snapping(staticBody, false, inGroundHeight)
+	_setup_snapping(static_body, false, in_ground_height)
 	
-	var occluderInstance: OccluderInstance3D = OccluderInstance3D.new()
-	staticBody.add_child(occluderInstance)
-	loader.persist_in_current_scene(occluderInstance)
-	var occluder3DPolygon: ArrayOccluder3D = ArrayOccluder3D.new()
-	occluder3DPolygon.set_arrays(occluderVertices, occluderIndices)
-	occluderInstance.occluder = occluder3DPolygon
+	var occluder_instance: OccluderInstance3D = OccluderInstance3D.new()
+	static_body.add_child(occluder_instance)
+	loader.persist_in_current_scene(occluder_instance)
+	var occluder_3d_polygon: ArrayOccluder3D = ArrayOccluder3D.new()
+	occluder_3d_polygon.set_arrays(occluder_vertices, occluder_indices)
+	occluder_instance.occluder = occluder_3d_polygon
 
 	return true
 
-func _regenerate_data(dataHolder: Node3D) -> void:
-	snapsLeftRoad = 0
-	snapsLeft = 0
-	_canBuildRoads = false
-	_roadsToBuild = []
+func _regenerate_data(data_holder: Node3D) -> void:
+	snaps_left_road = 0
+	snaps_left = 0
+	_can_build_roads = false
+	_roads_to_build = []
 		
 	print("Loading OSM data for road generation...")
 	_load_data()
 
-	_rootNode = Node3D.new()
-	_rootNode.name = ROOT_NODE_NAME
+	_root_node = Node3D.new()
+	_root_node.name = ROOT_NODE_NAME
 	
-	if (dataHolder.has_node(ROOT_NODE_NAME)):
-		dataHolder.get_node(ROOT_NODE_NAME).free()
+	if (data_holder.has_node(ROOT_NODE_NAME)):
+		data_holder.get_node(ROOT_NODE_NAME).free()
 	
-	dataHolder.add_child(_rootNode)
-	loader.persist_in_current_scene(_rootNode)
+	data_holder.add_child(_root_node)
+	loader.persist_in_current_scene(_root_node)
 		
 	print("Setup road generator...")
-	var roadsContainer = Node3D.new()
-	roadsContainer.name = "Roads"
-	_rootNode.add_child(roadsContainer)
-	loader.persist_in_current_scene(roadsContainer)
-	var roadManager = RoadManager.new()
-	_roadManager = roadManager
-	roadManager.auto_refresh = false
-	roadManager.material_resource = roadMaterial
-	roadManager.density = 8
-	roadManager.collision_layer += 16 # layer 5
-	roadsContainer.add_child(roadManager)
-	loader.persist_in_current_scene(roadManager)
+	var roads_container = Node3D.new()
+	roads_container.name = "Roads"
+	_root_node.add_child(roads_container)
+	loader.persist_in_current_scene(roads_container)
+	var road_manager = RoadManager.new()
+	_road_manager = road_manager
+	road_manager.auto_refresh = false
+	road_manager.material_resource = road_material
+	road_manager.density = 8
+	road_manager.collision_layer += 16 # layer 5
+	roads_container.add_child(road_manager)
+	loader.persist_in_current_scene(road_manager)
 	
-	var buildingsContainer = Node3D.new()
-	_rootNode.add_child(buildingsContainer)
-	buildingsContainer.name = "Buildings"
-	loader.persist_in_current_scene(buildingsContainer)
+	var buildings_container = Node3D.new()
+	_root_node.add_child(buildings_container)
+	buildings_container.name = "Buildings"
+	loader.persist_in_current_scene(buildings_container)
 	
 	print("Creating structures")
 	assert(_data.features != null)
 	var features: Array = _data.features
 	print("features: ", features.size())
 	
-	var roadsCount: int = 0
-	var roadsCountSuccess: int = 0
+	var roads_count: int = 0
+	var roads_count_success: int = 0
 	
-	var buildsCount: int = 0
-	var buildsCountSuccess: int = 0
+	var builds_count: int = 0
+	var builds_count_success: int = 0
 	for f: Dictionary in features:
-		if (f.has("properties")): #&& roadsCount < 1000):
+		if (f.has("properties")): # and roadsCount < 1000):
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
 			if _is_road(properties):
-				var success: bool = _build_road(f, roadsContainer)
-				roadsCount += 1
+				var success: bool = _build_road(f, roads_container)
+				roads_count += 1
 				if success:
-					roadsCountSuccess += 1
+					roads_count_success += 1
 			elif _is_building(properties):
-				var success: bool = _build_building(f, buildingsContainer)
-				buildsCount += 1
+				var success: bool = _build_building(f, buildings_container)
+				builds_count += 1
 				if success:
-					buildsCountSuccess += 1
+					builds_count_success += 1
 	
 	print("Refreshing road segments...")
 	
-	print("Created ", roadsCountSuccess, " roads. Tried: ", roadsCount)
-	print("Created ", buildsCountSuccess, " buildings. Tried: ", buildsCount)
+	print("Created ", roads_count_success, " roads. Tried: ", roads_count)
+	print("Created ", builds_count_success, " buildings. Tried: ", builds_count)
 	
-	print("Nodes: ", _rootNode.get_child_count())
+	print("Nodes: ", _root_node.get_child_count())
 
 	print("Done, snapping and road building excluded.")
-	_canBuildRoads = true
+	_can_build_roads = true
