@@ -12,14 +12,18 @@ const _3D_MENU_BACKGROUND: PackedScene = preload("res://scenes/backgrounds/gui_b
 const _SCREEN_PICK_MODE: PackedScene = preload("res://gui/screens/pick_mode_screen.tscn")
 const _SCREEN_PICK_SPEED: PackedScene = preload("res://gui/screens/pick_speed_screen.tscn")
 const _SCREEN_PICK_TRACK: PackedScene = preload("res://gui/screens/pick_track_screen.tscn")
+const _SCREEN_CREDITS: PackedScene = preload("res://gui/screens/credits_screen.tscn")
+const _SCREEN_HOME: PackedScene = preload("res://gui/screens/home_screen.tscn")
 
 enum _BackgroundKind {
 	UNSET,
-	MENU_BACKGROUND_3D
+	MENU_BACKGROUND_3D,
 }
 
 enum _Screen {
 	NONE,
+	CREDITS,
+	HOME,
 	PICK_MODE,
 	PICK_SPEED,
 	PICK_TRACK,
@@ -52,12 +56,9 @@ func get_selected_speed() -> TrackState.SpeedMode:
 
 func _ready():
 	print("Loading...")
-	_show_mode_menu()
-	print("Loading done.")
-
-func _show_mode_menu():
 	_apply_background(_BackgroundKind.MENU_BACKGROUND_3D)
-	_apply_screen(_Screen.PICK_MODE)
+	_apply_screen(_Screen.HOME)
+	print("Loading done.")
 
 ## If screen is different, apply it.
 func _apply_screen(screen_kind: _Screen):
@@ -87,6 +88,29 @@ func _apply_screen(screen_kind: _Screen):
 			$GUI.add_child(new_screen)
 			new_screen.track_selected.connect(func(track: Main.Track):
 				_launch_track(track)
+			)
+		if (screen_kind == _Screen.CREDITS):
+			print("opening credits screen")
+			_clear_gui()
+			var new_screen: CreditsScreen = _SCREEN_CREDITS.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.back_requested.connect(func():
+				_apply_screen(_Screen.HOME)
+			)
+		if (screen_kind == _Screen.HOME):
+			print("opening home screen")
+			_clear_gui()
+			var new_screen: HomeScreen = _SCREEN_HOME.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.play.connect(func():
+				_apply_screen(_Screen.PICK_MODE)
+			)
+			new_screen.open_credits.connect(func():
+				_apply_screen(_Screen.CREDITS)
+			)
+			new_screen.quit.connect(func():
+				get_tree().root.propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
+				get_tree().quit()
 			)
 
 ## If background is different, apply it.

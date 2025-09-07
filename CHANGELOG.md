@@ -9,6 +9,15 @@ Dates are in format YYYY-MM-DD (year, month, day)
 
 # [1.0.0-alpha.4] - ????
 
+## Added
+
+- Added a home screen.
+- Added a credits screen.
+
+## Changed
+
+- Cars are less likely to bump into the ground.
+
 ## Fixed
 
 - Fixed UI blur backdrop filter shader.

@@ -1,0 +1,60 @@
+[gd_scene load_steps=3 format=3 uid="uid://boaf0ey2lmpgm"]
+
+[ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="1_pt1c6"]
+[ext_resource type="Script" uid="uid://difeeojerq335" path="res://gui/screens/home_screen.gd" id="1_yra6q"]
+
+[node name="HomeScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_yra6q")
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -20.0
+offset_top = -20.0
+offset_right = 20.0
+offset_bottom = 20.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 64
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+theme_type_variation = &"TitleLabel"
+text = "Open Street Kart"
+horizontal_alignment = 1
+
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+theme_override_constants/separation = 16
+
+[node name="PlayButton" type="Control" parent="VBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("1_pt1c6")
+text = "Play"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="CreditsButton" type="Control" parent="VBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("1_pt1c6")
+text = "Credits"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="QuitButton" type="Control" parent="VBoxContainer/VBoxContainer"]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("1_pt1c6")
+text = "Quit"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
