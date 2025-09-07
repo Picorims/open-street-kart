@@ -7,7 +7,7 @@ font_size = 64
 outline_size = 8
 outline_color = Color(0, 0, 0, 1)
 
-[node name="RaceHUD" type="Control" node_paths=PackedStringArray("cursorsHolder")]
+[node name="RaceHUD" type="Control" node_paths=PackedStringArray("cursors_holder")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -15,7 +15,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_y0ggb")
-cursorsHolder = NodePath("ProgressBarContainer/ProgressBarMargin/ProgressBarSubContainer")
+cursors_holder = NodePath("ProgressBarContainer/ProgressBarMargin/ProgressBarSubContainer")
 
 [node name="ProgressBarContainer" type="Control" parent="."]
 custom_minimum_size = Vector2(0, 256)
