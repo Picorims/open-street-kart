@@ -7,17 +7,17 @@
 
 class_name AtomGUIRaceRankingLine extends Control
 
-@export var positionStr: String:
+@export var position_str: String:
 	set(v):
-		positionStr = v
+		position_str = v
 		$MarginContainer/position.text = v
 
-@export var nameStr: String:
+@export var name_str: String:
 	set(v):
-		nameStr = v
+		name_str = v
 		$MarginContainer/name.text = v
 
-@export var timeStr: String:
+@export var time_str: String:
 	set(v):
-		timeStr = v
+		time_str = v
 		$MarginContainer/time.text = v

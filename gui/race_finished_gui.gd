@@ -10,9 +10,9 @@ class_name RaceFinishedGUI extends Control
 
 const ATOM_GUI_RACE_RANKING_LINE_SCENE: PackedScene = preload("res://gui/atoms/atom_gui_race_ranking_line.tscn")
 
-func append_line(position: String, name: String, time: String) -> void:
+func append_line(rank_position: String, player_name: String, time: String) -> void:
 	var line: AtomGUIRaceRankingLine = ATOM_GUI_RACE_RANKING_LINE_SCENE.instantiate()
-	line.nameStr = name
-	line.positionStr = position
-	line.timeStr = time
+	line.name_str = player_name
+	line.position_str = rank_position
+	line.time_str = time
 	$MainContainer/VBoxContainer.add_child(line)

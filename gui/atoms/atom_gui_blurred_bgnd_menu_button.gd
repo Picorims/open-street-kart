@@ -17,19 +17,19 @@ signal pressed
 		_button.text = v
 
 func _ready() -> void:
-	self.custom_minimum_size = Vector2(256,48)
+	self.custom_minimum_size = Vector2(256, 48)
 	
-	var colorRect: ColorRect = ColorRect.new()
-	self.add_child(colorRect)
-	colorRect.set_anchors_preset(Control.PRESET_FULL_RECT, true)
-	colorRect.color = Color.TRANSPARENT
+	var color_rect: ColorRect = ColorRect.new()
+	self.add_child(color_rect)
+	color_rect.set_anchors_preset(Control.PRESET_FULL_RECT, true)
+	color_rect.color = Color.TRANSPARENT
 	
-	var shaderMat: ShaderMaterial = ShaderMaterial.new()
-	shaderMat.shader = preload("res://shaders/blur_menu_button_background.gdshader")
+	var shader_mat: ShaderMaterial = ShaderMaterial.new()
+	shader_mat.shader = preload("res://shaders/blur_menu_button_background.gdshader")
 	#shaderMat.set_shader_parameter("tint_color", Vector4(0,0,0,0.2))
-	shaderMat.set_shader_parameter("strength", 4)
-	shaderMat.set_shader_parameter("mix_percentage", 0)
-	colorRect.material = shaderMat
+	shader_mat.set_shader_parameter("strength", 4)
+	shader_mat.set_shader_parameter("mix_percentage", 0)
+	color_rect.material = shader_mat
 	
 	self.add_child(_button)
 	_button.set_anchors_preset(Control.PRESET_FULL_RECT, true)

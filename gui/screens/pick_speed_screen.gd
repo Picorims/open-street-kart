@@ -35,8 +35,8 @@ func _ready() -> void:
 		TrackState.SpeedMode.CRAZY
 	)
 
-func _connect_button_to_mode(node: AtomGUIBlurredBgndMenuButton, name: String, mode: TrackState.SpeedMode):
-	assert(node != null, "{0} button undefined.".format([name]))
+func _connect_button_to_mode(node: AtomGUIBlurredBgndMenuButton, button_name: String, mode: TrackState.SpeedMode):
+	assert(node != null, "{0} button undefined.".format([button_name]))
 	node.pressed.connect(func():
 		mode_selected.emit(mode)
 	)
