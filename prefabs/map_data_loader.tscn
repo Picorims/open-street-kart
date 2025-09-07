@@ -27,13 +27,13 @@ collision_layer = 3
 shape = SubResource("ConcavePolygonShape3D_eypua")
 debug_color = Color(0, 0.6, 0.701961, 0)
 
-[node name="OSMDataGenerator" type="Node3D" parent="." node_paths=PackedStringArray("loader", "boundariesGenerator", "elevationGenerator")]
+[node name="OSMDataGenerator" type="Node3D" parent="." node_paths=PackedStringArray("loader", "boundaries_generator", "elevation_generator")]
 script = ExtResource("3_h0kh0")
 loader = NodePath("..")
-boundariesGenerator = NodePath("../BoundariesGenerator")
-elevationGenerator = NodePath("../Surface")
-roadMaterial = ExtResource("4_sy242")
-buildingMaterial = ExtResource("5_sy242")
+boundaries_generator = NodePath("../BoundariesGenerator")
+elevation_generator = NodePath("../Surface")
+road_material = ExtResource("4_sy242")
+building_material = ExtResource("5_sy242")
 
 [node name="BoundariesGenerator" type="Node3D" parent="." node_paths=PackedStringArray("loader")]
 script = ExtResource("5_eypua")
