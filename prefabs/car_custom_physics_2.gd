@@ -27,7 +27,7 @@ var current_direction: Vector3 = Vector3(1, 0, 0)
 			_brain = UserBrain.new()
 		if (v == CarCustomPhysics2.CarMode.BOT):
 			_brain = BotBrain.new()
-		_brain.showDebugArrows = show_debug_arrows
+		_brain.show_debug_arrows = show_debug_arrows
 @export var path: RacePath:
 	set(v):
 		path = v
@@ -68,7 +68,7 @@ var _brain: ACarBrain
 var _cam: Camera3D
 
 func get_race_path_offset() -> float:
-	return _brain.lastQueryInfo.closest_offset
+	return _brain.last_query_info.closest_offset
 
 func _ready() -> void:
 	_cam = $Camera3D
@@ -153,8 +153,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_apply_single_wheel_suspension(wheelRayCast)
 
 	_soft_clamp_speed(state, out_of_bounds)
-	_brain.populatedLinVel = state.linear_velocity
-	_brain.populatedAngVel = state.angular_velocity
+	_brain.populated_lin_vel = state.linear_velocity
+	_brain.populated_ang_vel = state.angular_velocity
 
 func _disable_drift() -> void:
 	_drifting = false

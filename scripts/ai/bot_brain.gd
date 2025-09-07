@@ -9,54 +9,54 @@
 class_name BotBrain extends ACarBrain
 
 const RECOVERY_DURATION_MS: float = 2_000
-var _lastRecoveryWantedTimestamp: float = -RECOVERY_DURATION_MS
+var _last_recovery_wanted_timestamp: float = - RECOVERY_DURATION_MS
 
-func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis: Basis, frontColliding: bool, onGround: bool) -> void:
-	super(globalPos, debugPos, globalBasis, localBasis, frontColliding, onGround)
+func tick(global_pos: Vector3, debug_pos: Vector3, global_basis: Basis, local_basis: Basis, front_colliding: bool, on_ground: bool) -> void:
+	super (global_pos, debug_pos, global_basis, local_basis, front_colliding, on_ground)
 	if (path == null):
 		return
 
-	_forwardBackward = 1
-	var speed: float = populatedLinVel.length()
+	_forward_backward = 1
+	var speed: float = populated_lin_vel.length()
 	
 	# HACK second part of the if only there while there is the weird drive on wall bug.
-	if ((frontColliding && speed < 1) || (speed < 0.1 && localBasis.y.dot(Vector3.UP) < 0.2)):
-		_lastRecoveryWantedTimestamp = Time.get_ticks_msec()
+	if ((front_colliding and speed < 1) or (speed < 0.1 and local_basis.y.dot(Vector3.UP) < 0.2)):
+		_last_recovery_wanted_timestamp = Time.get_ticks_msec()
 	
-	var q: RacePath.QueryInfo = lastQueryInfo
+	var q: RacePath.QueryInfo = last_query_info
 	
-	var globalPosXZ = _xz(globalPos)
+	var global_pos_xz = _xz(global_pos)
 	# The path needs to be extended beyond start and stop limits for the bot
 	# to behave correctly.
-	var trackWidth: float = 0
-	var prevNull = q.prev == null
-	var nextNull = q.next == null
-	var ratioPrevNext: float = 0
-	if (!prevNull && !nextNull):
-		ratioPrevNext = (q.closest_offset - q.prev_offset) / max(q.next_offset - q.prev_offset, 0.01)
-		trackWidth = lerp(q.prev.range_radius, q.next.range_radius, ratioPrevNext)
-	elif(!nextNull):
-		trackWidth = q.next.range_radius
-	elif(!prevNull):
-		trackWidth = q.prev.range_radius
+	var track_width: float = 0
+	var prev_null = q.prev == null
+	var next_null = q.next == null
+	var ratio_prev_next: float = 0
+	if (not prev_null and not next_null):
+		ratio_prev_next = (q.closest_offset - q.prev_offset) / max(q.next_offset - q.prev_offset, 0.01)
+		track_width = lerp(q.prev.range_radius, q.next.range_radius, ratio_prev_next)
+	elif (not next_null):
+		track_width = q.next.range_radius
+	elif (not prev_null):
+		track_width = q.prev.range_radius
 	else:
-		trackWidth = 1
+		track_width = 1
 	# without XZ, issues would be exacerbated with height difference, which is not important to know.
 	# So we do everything on a 2D plane at 0.
-	var distanceFromCenter: float = _xz(globalPos).distance_to(_xz(q.closest_point)) 
+	var distance_from_center: float = _xz(global_pos).distance_to(_xz(q.closest_point))
 	# TODO account for car width
-	var targetOffsetAhead: int = max(12, 0.6 * speed + 8)
-	var targetPosAhead: Vector3 = _xz(path.curve.sample_baked(q.closest_offset + targetOffsetAhead))
+	var target_offset_ahead: int = max(12, 0.6 * speed + 8)
+	var target_pos_ahead: Vector3 = _xz(path.curve.sample_baked(q.closest_offset + target_offset_ahead))
 	# try to take into account the car's distance from the center by offseting according to the closest
 	# offset (different from ahead offest). The goal is to limit the left to right yoyo effect.
 	# Side effects on correctly handling turns should be relatively small.
-	var trackSide: float = sign(q.forward_basis.x.dot(globalPosXZ - _xz(q.closest_point)))
-	var adjustedOffset: float = (trackSide * min(distanceFromCenter, trackWidth * 0.15))
-	targetPosAhead += _xz(q.forward_basis.x).normalized() * adjustedOffset
-	var wantedDirNormalized: Vector3 = _xz(targetPosAhead - globalPos).normalized()
-	var currentDirNormalized: Vector3 = _xz(populatedLinVel).normalized()
+	var track_side: float = sign(q.forward_basis.x.dot(global_pos_xz - _xz(q.closest_point)))
+	var adjusted_offset: float = (track_side * min(distance_from_center, track_width * 0.15))
+	target_pos_ahead += _xz(q.forward_basis.x).normalized() * adjusted_offset
+	var wanted_dir_normalized: Vector3 = _xz(target_pos_ahead - global_pos).normalized()
+	var current_dir_normalized: Vector3 = _xz(populated_lin_vel).normalized()
 	## angle between -PI and PI.
-	var wantedVSCurrentDiff: float = wantedDirNormalized.signed_angle_to(currentDirNormalized, Vector3.UP)
+	var wanted_vs_current_diff: float = wanted_dir_normalized.signed_angle_to(current_dir_normalized, Vector3.UP)
 	## We go forward on X, so to have 0 if right direction (and a signed diff otherwise),
 	## we need an angle of 90°. To do so we use the Z axis of the basis.
 	#var wantedVSCurrentDiff: float = wantedDirNormalized.dot(globalBasis.z)
@@ -66,21 +66,21 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	#if (xAxisWantedVSCurrentDiff < 0):
 		#wantedVSCurrentDiff += xAxisWantedVSCurrentDiff * -1
 	## 0 if aligned, growing the more it is not. Between 0 and PI
-	var notAlignedToPath: float = abs(_xz(q.forward_basis.z).signed_angle_to(_xz(globalBasis.z), Vector3.UP))
-	var preparedLeftRight: float = wantedVSCurrentDiff * 4 # much more agressive decision to turn
-	if (distanceFromCenter < trackWidth):
-		preparedLeftRight *= notAlignedToPath
+	var not_aligned_to_path: float = abs(_xz(q.forward_basis.z).signed_angle_to(_xz(global_basis.z), Vector3.UP))
+	var prepared_left_right: float = wanted_vs_current_diff * 4 # much more agressive decision to turn
+	if (distance_from_center < track_width):
+		prepared_left_right *= not_aligned_to_path
 	
-	var prevLeftRight = _leftRight
-	_leftRight = clampf(preparedLeftRight, -1, 1)
+	var prev_left_right = _left_right
+	_left_right = clampf(prepared_left_right, -1, 1)
 	
 	# HACK temporarily disable turning in air due to addociated physics bug
-	if (!onGround):
-		_leftRight = 0
+	if (not on_ground):
+		_left_right = 0
 	
 	# sign check avoid bot being stuck going forward while wanting to turn.
 	# The bot is not able to take advantage of slow turn mechanism of drift.
-	_driftActive = abs(_leftRight) > 0.9 && sign(prevLeftRight) == sign(_leftRight)
+	_drift_active = abs(_left_right) > 0.9 and sign(prev_left_right) == sign(_left_right)
 	
 	# === FOR DEBUGGING VARIABLES vvvv ===
 	#DebugDraw2D.set_text("_forwardBackward", _forwardBackward)
@@ -94,20 +94,20 @@ func tick(globalPos: Vector3, debugPos: Vector3, globalBasis: Basis, localBasis:
 	#DebugDraw2D.set_text("adjustedOffset", adjustedOffset)
 	# === FOR DEBUGGING VARIABLES ^^^^ ===
 	
-	if (showDebugArrows):
-		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forward_basis.z, Color(0.8,0.8,1), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + lastQueryInfo.forward_basis.x, Color(0.8,0.8,1), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + (globalPos - lastQueryInfo.closest_point), Color(1,1,0), 0.1)
-		DebugDraw3D.draw_arrow(debugPos, debugPos + wantedDirNormalized, Color(1,0.85,0.85), 0.1)
-		DebugDraw3D.draw_line(targetPosAhead + Vector3(0,-100,0), targetPosAhead + Vector3(0,100,0), Color(0,0,0))
+	if (show_debug_arrows):
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + last_query_info.forward_basis.z, Color(0.8, 0.8, 1), 0.1)
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + last_query_info.forward_basis.x, Color(0.8, 0.8, 1), 0.1)
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + (global_pos - last_query_info.closest_point), Color(1, 1, 0), 0.1)
+		DebugDraw3D.draw_arrow(debug_pos, debug_pos + wanted_dir_normalized, Color(1, 0.85, 0.85), 0.1)
+		DebugDraw3D.draw_line(target_pos_ahead + Vector3(0, -100, 0), target_pos_ahead + Vector3(0, 100, 0), Color(0, 0, 0))
 	
 	if (_recovering()):
-		_forwardBackward = -1
-		_leftRight *= -1
+		_forward_backward = -1
+		_left_right *= -1
 		
 func _recovering() -> bool:
 	var now: float = Time.get_ticks_msec()
-	return now - _lastRecoveryWantedTimestamp < RECOVERY_DURATION_MS
+	return now - _last_recovery_wanted_timestamp < RECOVERY_DURATION_MS
 
 func _xz(v: Vector3) -> Vector3:
 	return Vector3(v.x, 0, v.z)
