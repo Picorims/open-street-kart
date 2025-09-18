@@ -7,6 +7,7 @@
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_nblgo"]
 friction = 0.0
+absorbent = true
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2wjoa"]
 radius = 0.1
@@ -103,6 +104,8 @@ gravity_scale = 2.0
 center_of_mass_mode = 1
 center_of_mass = Vector3(0, -1, 0)
 continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 1
 linear_damp = 0.3
 angular_damp = 2.0
 script = ExtResource("2_pkjqb")
