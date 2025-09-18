@@ -1,7 +1,7 @@
 [gd_scene load_steps=5 format=3 uid="uid://cenq0e4kh1j11"]
 
 [ext_resource type="Script" uid="uid://bblfpdryk8p7q" path="res://gui/screens/pick_track_screen.gd" id="1_bqhs8"]
-[ext_resource type="Shader" uid="uid://bhdo7hy443n7o" path="res://shaders/blur_menu_button_background.gdshader" id="2_8c8eu"]
+[ext_resource type="Shader" uid="uid://bhdo7hy443n7o" path="res://shaders/blur_with_radius_background.gdshader" id="2_8c8eu"]
 [ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="2_qj5ql"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qj5ql"]

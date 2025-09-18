@@ -1,13 +1,17 @@
 [gd_scene load_steps=5 format=3 uid="uid://b3vknechm3qrh"]
 
 [ext_resource type="Script" uid="uid://chj682upigr44" path="res://gui/screens/credits_screen.gd" id="1_10m51"]
-[ext_resource type="Shader" uid="uid://bhdo7hy443n7o" path="res://shaders/blur_menu_button_background.gdshader" id="1_siwcc"]
+[ext_resource type="Shader" uid="uid://bhdo7hy443n7o" path="res://shaders/blur_with_radius_background.gdshader" id="1_siwcc"]
 [ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="2_ejaqg"]
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_ejaqg"]
 shader = ExtResource("1_siwcc")
+shader_parameter/corner_radius = 120.0
+shader_parameter/texture_width = 1.0
+shader_parameter/texture_height = 1.0
 shader_parameter/strength = 3.3
 shader_parameter/mix_percentage = 0.3
+shader_parameter/mix_color = Color(0, 0, 0, 0)
 
 [node name="CreditsScreen" type="Control"]
 layout_mode = 3

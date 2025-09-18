@@ -1,6 +1,7 @@
-[gd_scene load_steps=3 format=3 uid="uid://vros5txa2cx"]
+[gd_scene load_steps=4 format=3 uid="uid://vros5txa2cx"]
 
 [ext_resource type="Script" uid="uid://t255l5dlnsfg" path="res://gui/race_hud.gd" id="1_y0ggb"]
+[ext_resource type="Script" uid="uid://x5bai7hb16cc" path="res://gui/atoms/atom_hud_race_item_slot.gd" id="2_l530m"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_y0ggb"]
 font_size = 64
@@ -78,3 +79,38 @@ theme_override_constants/margin_bottom = 32
 layout_mode = 2
 text = "?"
 label_settings = SubResource("LabelSettings_y0ggb")
+
+[node name="ItemContainer" type="MarginContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+theme_override_constants/margin_left = 16
+theme_override_constants/margin_top = 16
+
+[node name="HBoxContainer" type="HBoxContainer" parent="ItemContainer"]
+layout_mode = 2
+
+[node name="AtomHUDRaceItemSlot" type="Control" parent="ItemContainer/HBoxContainer"]
+custom_minimum_size = Vector2(96, 96)
+layout_mode = 2
+script = ExtResource("2_l530m")
+size_pixels = 96
+metadata/_custom_type_script = "uid://x5bai7hb16cc"
+
+[node name="AtomHUDRaceItemSlot2" type="Control" parent="ItemContainer/HBoxContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("2_l530m")
+size_pixels = 64
+metadata/_custom_type_script = "uid://x5bai7hb16cc"
+
+[node name="AtomHUDRaceItemSlot3" type="Control" parent="ItemContainer/HBoxContainer"]
+custom_minimum_size = Vector2(64, 64)
+layout_mode = 2
+size_flags_horizontal = 0
+size_flags_vertical = 0
+script = ExtResource("2_l530m")
+size_pixels = 64
+metadata/_custom_type_script = "uid://x5bai7hb16cc"
