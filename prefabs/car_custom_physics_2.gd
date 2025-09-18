@@ -51,6 +51,9 @@ const MIN_INERTIA_RADIUS_LIMIT = 0.001
 const MAX_INERTIA_RADIUS_LIMIT = 10_000
 const MIN_ANGLE_THRESHOLD = 0.01
 
+## 0 is no effect, 1 is magnet???
+const BOUNCE_REDUCTION_RATIO = 0.95
+
 var _debug_centrifugal_force: Vector3
 var _debug_sliding_force: Vector3
 var _debug_sliding_force_compensated: Vector3
@@ -145,6 +148,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 
 	_cancel_inertia(state)
 	_apply_wheel_adherence(state)
+	_limit_bounce(state)
 
 	state.apply_central_force((forward_backward * acceleration_force * speed_multiplier * global_basis.x))
 	state.apply_torque(left_right * rotation_force * Vector3(0, -1, 0))
@@ -252,6 +256,15 @@ func _apply_wheel_adherence(state: PhysicsDirectBodyState3D) -> void:
 	var compensating_force: Vector3 = z * -sliding_force.dot(z)
 	_debug_sliding_force_compensated = compensating_force
 	state.apply_central_force(compensating_force)
+
+func _limit_bounce(state: PhysicsDirectBodyState3D) -> void:
+	var contacts_count: int = state.get_contact_count()
+	if (contacts_count > 0):
+		for i in range(contacts_count):
+			var collision_impulse_vector: Vector3 = state.get_contact_impulse(i)
+			var collision_global_position: Vector3 = state.get_contact_local_position(i)
+			var counter_bounce: Vector3 = collision_impulse_vector * BOUNCE_REDUCTION_RATIO
+			#state.apply_impulse(counter_bounce, to_local(collision_global_position))
 
 func _wheels_on_ground() -> int:
 	var wheels_on_ground: int = 0
