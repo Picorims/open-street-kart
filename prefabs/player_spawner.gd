@@ -27,6 +27,7 @@ var _countdown_state = 0
 var _countdown_elapsed: float = 0
 var cars: Array[RigidBody3D] = []
 var car_root_nodes: Array[CarCustomPhysics2] = []
+var _car_root_node_map: Dictionary[String, CarCustomPhysics2] = {}
 
 signal go
 
@@ -34,13 +35,13 @@ var TrackSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
 	TrackState.SpeedMode.CHILL: 15,
 	TrackState.SpeedMode.CASUAL: 20,
 	TrackState.SpeedMode.CHALLENGING: 25,
-	TrackState.SpeedMode.CRAZY: 32
+	TrackState.SpeedMode.CRAZY: 32,
 }
 var OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
 	TrackState.SpeedMode.CHILL: 4,
 	TrackState.SpeedMode.CASUAL: 6,
 	TrackState.SpeedMode.CHALLENGING: 8,
-	TrackState.SpeedMode.CRAZY: 10
+	TrackState.SpeedMode.CRAZY: 10,
 }
 
 func _ready() -> void:
@@ -91,6 +92,7 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 		
 		cars.append(rigid_body)
 		car_root_nodes.append(car)
+		_car_root_node_map.set(car.name, car)
 	print("Initializing player spawner done.")
 
 func _process(delta: float) -> void:
@@ -121,3 +123,6 @@ func countdown():
 	_countdown_elapsed = 0
 	_countdown_state = CountdownState.IDLE
 	_in_countdown = true
+
+func get_car_by_id(id: String) -> CarCustomPhysics2:
+	return _car_root_node_map.get(id)

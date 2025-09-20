@@ -12,6 +12,7 @@ const CURSOR_HUD: PackedScene = preload("res://gui/atoms/atom_hud_race_player_po
 @export var cursors_holder: Control
 
 var _cursors: Dictionary[String, AtomHUDRacePlayerPos] = {}
+var _item_slots: Array[AtomHUDRaceItemSlot] = []
 
 class RatioEntry:
 	var ratio: float
@@ -19,7 +20,14 @@ class RatioEntry:
 
 func _ready() -> void:
 	assert(cursors_holder.has_node("GroupPosition"), "ERROR: Missing GroupPosition in cursors_holder")
+	_item_slots = [
+		$ItemSlotsContainer/ItemSlotsHorizontalLayout/AtomHUDRaceItemSlot,
+		$ItemSlotsContainer/ItemSlotsHorizontalLayout/AtomHUDRaceItemSlot2,
+		$ItemSlotsContainer/ItemSlotsHorizontalLayout/AtomHUDRaceItemSlot3
+	]
 
+	for control in _item_slots:
+		assert(control != null, "item slot not found in race HUD.")
 func display_ratios(ratios: Dictionary[String, RatioEntry]) -> void:
 	for k in ratios.keys():
 		var cursor: AtomHUDRacePlayerPos = null
@@ -44,3 +52,14 @@ func update_group_pos(ratio_from: float, ratio_to: float):
 
 func set_self_ranking(ranking: int) -> void:
 	$SelfRankingContainer/SelfRanking.text = "{0}".format([ranking])
+
+func update_item_slots_hud(state: Array[PlayerItemSlotsState.SlotDisplayState]) -> void:
+	assert(state.size() == 3, "unexpected slot length (did the constant change?)")
+	
+	for i in range(_item_slots.size()):
+		_item_slots[i].set_item(state[i].item)
+		var ratio: float = state[i].progress_ratio
+		if state[i].item != PlayerItemSlotsState.SlotItem.EMPTY and state[i].item != PlayerItemSlotsState.SlotItem.DISABLED:
+			ratio = 1 - ratio # flip direction
+		_item_slots[i].set_progress_ratio(state[i].progress_ratio)
+		

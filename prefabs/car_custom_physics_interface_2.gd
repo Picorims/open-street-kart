@@ -88,3 +88,8 @@ func respawn():
 	var new_basis: Basis = Basis(Vector3.UP, deg_to_rad(last_checkpoint.look_towards_degrees)).orthonormalized()
 	$CarRigidBody.force_basis_on_next_physics_frame(new_basis)
 	rb.freeze = false
+
+func use_item(item: PlayerItemSlotsState.SlotItem) -> void:
+	# TODO
+	push_warning("car item use not implemented.")
+	pass

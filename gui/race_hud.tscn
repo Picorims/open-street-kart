@@ -80,24 +80,24 @@ layout_mode = 2
 text = "?"
 label_settings = SubResource("LabelSettings_y0ggb")
 
-[node name="ItemContainer" type="MarginContainer" parent="."]
+[node name="ItemSlotsContainer" type="MarginContainer" parent="."]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 
-[node name="HBoxContainer" type="HBoxContainer" parent="ItemContainer"]
+[node name="ItemSlotsHorizontalLayout" type="HBoxContainer" parent="ItemSlotsContainer"]
 layout_mode = 2
 
-[node name="AtomHUDRaceItemSlot" type="Control" parent="ItemContainer/HBoxContainer"]
+[node name="AtomHUDRaceItemSlot" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout"]
 custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 script = ExtResource("2_l530m")
 size_pixels = 96
 metadata/_custom_type_script = "uid://x5bai7hb16cc"
 
-[node name="AtomHUDRaceItemSlot2" type="Control" parent="ItemContainer/HBoxContainer"]
+[node name="AtomHUDRaceItemSlot2" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout"]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -106,7 +106,7 @@ script = ExtResource("2_l530m")
 size_pixels = 64
 metadata/_custom_type_script = "uid://x5bai7hb16cc"
 
-[node name="AtomHUDRaceItemSlot3" type="Control" parent="ItemContainer/HBoxContainer"]
+[node name="AtomHUDRaceItemSlot3" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout"]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 0
