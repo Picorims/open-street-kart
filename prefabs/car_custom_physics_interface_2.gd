@@ -41,6 +41,11 @@ enum CarMode {
 		$CarRigidBody/WheelBLGPUParticles3D.emitting = v
 		$CarRigidBody/WheelBRGPUParticles3D.emitting = v
 
+@export var speed_boost_effects: bool = false:
+	set(v):
+		speed_boost_effects = v
+		$CarRigidBody/SpeedGPUParticles3D.emitting = v
+
 @export var mode: CarMode:
 	set(v):
 		mode = v
@@ -90,6 +95,6 @@ func respawn():
 	rb.freeze = false
 
 func use_item(item: PlayerItemSlotsState.SlotItem) -> void:
-	# TODO
-	push_warning("car item use not implemented.")
+	if item == PlayerItemSlotsState.SlotItem.SPEED_BOOST:
+		$CarRigidBody.apply_speed_boost_seconds(2.5)
 	pass

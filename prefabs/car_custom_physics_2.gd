@@ -51,6 +51,8 @@ const MIN_INERTIA_RADIUS_LIMIT = 0.001
 const MAX_INERTIA_RADIUS_LIMIT = 10_000
 const MIN_ANGLE_THRESHOLD = 0.01
 
+const SPEED_BOOST = 1.5
+
 var _debug_centrifugal_force: Vector3
 var _debug_sliding_force: Vector3
 var _debug_sliding_force_compensated: Vector3
@@ -64,11 +66,16 @@ var _drifting = false:
 		_drifting = v
 		interface.drifting_effects = v
 var _drifting_direction: float = 0 # 1 or -1, see signf()
+var _now_seconds: float = 0
+var _speed_boost_until_seconds: float = -1
 var _brain: ACarBrain
 var _cam: Camera3D
 
 func get_race_path_offset() -> float:
 	return _brain.last_query_info.closest_offset
+
+func is_in_speed_boost() -> bool:
+	return _now_seconds < _speed_boost_until_seconds
 
 func _ready() -> void:
 	_cam = $Camera3D
@@ -147,6 +154,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	_apply_wheel_adherence(state)
 
 	state.apply_central_force((forward_backward * acceleration_force * speed_multiplier * global_basis.x))
+	if (is_in_speed_boost()):
+		state.apply_central_force(acceleration_force * 2 * speed_multiplier * global_basis.x)
 	state.apply_torque(left_right * rotation_force * Vector3(0, -1, 0))
 	
 	for wheelRayCast in wheel_ray_casts:
@@ -161,10 +170,14 @@ func _disable_drift() -> void:
 	_drifting_direction = 0
 	
 func _get_max_speed_squared(out_of_bounds: bool):
-	if (out_of_bounds):
-		return max_speed_out_of_bounds_meters_per_second * max_speed_out_of_bounds_meters_per_second
+	var final_speed = 0
+	if (out_of_bounds and not is_in_speed_boost()):
+		final_speed = max_speed_out_of_bounds_meters_per_second
+	elif is_in_speed_boost():
+		final_speed = max_speed_meters_per_second * SPEED_BOOST
 	else:
-		return max_speed_meters_per_second * max_speed_meters_per_second
+		final_speed = max_speed_meters_per_second
+	return final_speed * final_speed
 
 func _soft_clamp_speed(state: PhysicsDirectBodyState3D, out_of_bounds: bool):
 	var vel_squared_xz: float = (state.linear_velocity * Vector3(1, 0, 1)).length_squared()
@@ -271,6 +284,7 @@ func _input(event):
 		$Camera3D.current = not $Camera3D.current
 
 func _process(_delta: float) -> void:
+	interface.speed_boost_effects = is_in_speed_boost()
 	# debug
 	var debug_pos = global_position + Vector3(0, 3, 0)
 	
@@ -284,11 +298,12 @@ func _process(_delta: float) -> void:
 		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_sliding_force_compensated, Color(1, 0, 0.5), 0.1)
 		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_soft_clamp_speed_force, Color(1, 0, 1), 0.1)
 
-var elapsed: float = 0
+var _elapsed: float = 0
 func _physics_process(delta: float) -> void:
-	elapsed += delta
-	if (elapsed > 0.02):
-		elapsed = 0
+	_elapsed += delta
+	_now_seconds += delta
+	if (_elapsed > 0.02):
+		_elapsed = 0
 		var debug_pos = global_position + Vector3(0, 3, 0)
 		_brain.tick(global_position, debug_pos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
 
@@ -306,3 +321,6 @@ func _get_collider_of_colliding_raycast(raycast: RayCast3D) -> CollisionObject3D
 		return target
 	else:
 		return null
+
+func apply_speed_boost_seconds(seconds: float):
+	_speed_boost_until_seconds = max(_speed_boost_until_seconds, _now_seconds + seconds)

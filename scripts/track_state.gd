@@ -167,16 +167,17 @@ func _process(delta: float) -> void:
 
 func _process_item_slots(delta: float, distances_to_first: Dictionary[String, float]):
 	for id in _car_item_slots:
+		var is_you: bool = _display_names.get(id) == "you"
 		var slot_state: PlayerItemSlotsState = _car_item_slots.get(id)
 		var item_used: PlayerItemSlotsState.SlotItem = slot_state.tick(
 			delta,
 			distances_to_first.get(id),
-			Input.is_action_just_pressed("use")
+			Input.is_action_just_pressed("use") and is_you
 		)
 		if not item_used == PlayerItemSlotsState.SlotItem.EMPTY:
 			player_spawner.get_car_by_id(id).use_item(item_used)
 		
-		if _display_names.get(id) == "you":
+		if is_you:
 			_race_hud.update_item_slots_hud(slot_state.get_display_state())
 
 class _OffsetEntry:
