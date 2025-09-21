@@ -46,6 +46,9 @@ const FORWARD_BACKWARD_NERF_IN_AIR: float = 0.1
 
 const DEBUG_JUMP_FORCE: float = 5000
 
+const RESPAWN_BOT_AFTER_STUCK_FOR_SECONDS: float = 5
+const IS_STUCK_SPEED_SQUARED_THRESHOLD: float = 1
+
 # crash avoidance related constants
 const MIN_INERTIA_RADIUS_LIMIT = 0.001
 const MAX_INERTIA_RADIUS_LIMIT = 10_000
@@ -71,6 +74,8 @@ var _now_seconds: float = 0
 var _speed_boost_until_seconds: float = -1
 var _brain: ACarBrain
 var _cam: Camera3D
+var _time_since_not_moving_seconds: float = 0
+var _last_xz_speed_squared: float = 0
 
 func get_race_path_offset() -> float:
 	return _brain.last_query_info.closest_offset
@@ -186,6 +191,7 @@ func _get_max_speed_squared(out_of_bounds: bool):
 
 func _soft_clamp_speed(state: PhysicsDirectBodyState3D, out_of_bounds: bool):
 	var vel_squared_xz: float = (state.linear_velocity * Vector3(1, 0, 1)).length_squared()
+	_last_xz_speed_squared = vel_squared_xz
 	var max_speed_squared = _get_max_speed_squared(out_of_bounds)
 	if (vel_squared_xz > max_speed_squared):
 		var norm_projected_on_xz: Vector3 = state.linear_velocity.normalized() * Vector3(1, 0, 1)
@@ -288,11 +294,19 @@ func _input(event):
 	if (event.is_action_pressed("toggle_cam")):
 		$Camera3D.current = not $Camera3D.current
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	interface.speed_boost_effects = is_in_speed_boost()
-	# debug
-	var debug_pos = global_position + Vector3(0, 3, 0)
 	
+	if abs(_last_xz_speed_squared) < IS_STUCK_SPEED_SQUARED_THRESHOLD:
+		_time_since_not_moving_seconds += delta
+	else:
+		_time_since_not_moving_seconds = 0
+	if _time_since_not_moving_seconds > RESPAWN_BOT_AFTER_STUCK_FOR_SECONDS and is_instance_of(_brain, BotBrain):
+		_time_since_not_moving_seconds = 0
+		interface.respawn()
+	
+	# debug =============================
+	var debug_pos = global_position + Vector3(0, 3, 0)
 	if (_cam.current):
 		DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
 		DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
