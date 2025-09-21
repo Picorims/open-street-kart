@@ -117,6 +117,11 @@ func add_road_mesh() -> void:
 	if is_instance_valid(road_mesh):
 		return
 	road_mesh = MeshInstance3D.new()
+	
+	## MANUAL ADDON CODE EDIT ==
+	road_mesh.visibility_range_end = 600
+	## END OF MANUAL ADDON CODE EDIT ==
+	
 	add_child(road_mesh)
 	road_mesh.name = "road_mesh"
 	if container.debug_scene_visible and is_instance_valid(road_mesh):
