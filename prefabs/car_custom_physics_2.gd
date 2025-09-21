@@ -38,7 +38,7 @@ const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
 const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
 
 const BRAKE_FORCE_FACTOR: float = 0.1
-const BACKWARDS_FORCE_FACTOR: float = 0.20
+const BACKWARDS_FORCE_FACTOR: float = 0.70
 const MIN_SPEED_FOR_BEING_BRAKE_SQUARED: float = 4
 
 const DIRECTION_NERF_IN_AIR: float = 0.1
@@ -60,6 +60,7 @@ var _debug_soft_clamp_speed_force: Vector3
 var _forced_basis: Basis
 var _must_force_basis: bool = false
 var wheel_ray_casts: Array[RayCast3D]
+var _going_backwards: bool = false
 var _ground_raycast: RayCast3D
 var _drifting = false:
 	set(v):
@@ -109,6 +110,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.linear_velocity = Vector3(0, 0, 0)
 		state.angular_velocity = Vector3(0, 0, 0)
 	var forward_backward: float = _brain.get_forward_backward_axis()
+	_going_backwards = false
 	if (forward_backward < 0): # if backwards force
 		var going_forward: bool
 		# we want to avoid an invalid vector with (0,0,0).normalized()
@@ -122,6 +124,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 			forward_backward *= BRAKE_FORCE_FACTOR # softer brake and slow backward speed
 		else:
 			forward_backward *= BACKWARDS_FORCE_FACTOR
+			_going_backwards = true
 	var left_right: float = _brain.get_left_right_axis()
 	var on_ground: bool = _ground_raycast.is_colliding()
 	var out_of_bounds = false
@@ -171,7 +174,7 @@ func _disable_drift() -> void:
 	
 func _get_max_speed_squared(out_of_bounds: bool):
 	var final_speed = 0
-	if (out_of_bounds and not is_in_speed_boost()):
+	if (out_of_bounds and not is_in_speed_boost()) or _going_backwards:
 		final_speed = max_speed_out_of_bounds_meters_per_second
 	elif is_in_speed_boost():
 		final_speed = max_speed_meters_per_second * SPEED_BOOST
