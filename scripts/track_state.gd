@@ -110,7 +110,7 @@ func init(mode: GameMode, speed: SpeedMode):
 func start():
 	_start_us = Time.get_ticks_usec()
 	_started = true
-	print(_ids)
+
 	for id in _ids:
 		_car_item_slots[id] = PlayerItemSlotsState.new(_speed)
 

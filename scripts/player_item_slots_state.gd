@@ -109,7 +109,6 @@ func tick(delta: float, distance_to_first: float, use_item: bool) -> SlotItem:
 	var speed_normalized_distance: float = distance_to_first / _max_speed
 	var i: int = 0
 	while i < SLOTS_COUNT:
-		# TODO fix boucle
 		# ensure the next empty slot is in the waiting process
 		if i > 0:
 			if not _slots[i-1].is_disabled_or_empty() and _slots[i].get_type() == SlotItem.DISABLED:
@@ -121,7 +120,6 @@ func tick(delta: float, distance_to_first: float, use_item: bool) -> SlotItem:
 				var min_v: float = MIN_REFILL_TIME_SECONDS
 				var max_v: float = MAX_REFILL_TIME_SECONDS
 				_slots[i].lifetime_s = min_v + (1.0 - ratio) * (max_v - min_v)
-				print("gotta be ", _slots[i].lifetime_s, " cause ratio is ", ratio, " and distance is ", speed_normalized_distance) #FIXME why always max?
 		
 		# replace empty with item if time ellapsed.
 		if (_slots[i].get_type() == SlotItem.EMPTY and _slots[i].time_is_up()):
