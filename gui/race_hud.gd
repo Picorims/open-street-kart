@@ -61,5 +61,5 @@ func update_item_slots_hud(state: Array[PlayerItemSlotsState.SlotDisplayState]) 
 		var ratio: float = state[i].progress_ratio
 		if state[i].item != PlayerItemSlotsState.SlotItem.EMPTY and state[i].item != PlayerItemSlotsState.SlotItem.DISABLED:
 			ratio = 1 - ratio # flip direction
-		_item_slots[i].set_progress_ratio(state[i].progress_ratio)
+		_item_slots[i].set_progress_ratio(ratio)
 		
