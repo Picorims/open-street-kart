@@ -17,6 +17,8 @@ const DEBUG_ENABLED = false
 @export var loader: MapDataLoader
 
 var _race_2d_polygon: Array[Vector2] = []
+## Array[Array[Vector2]]
+var _out_of_bounds_polygons: Array[Array] = []
 var _is_loaded: bool = false
 @export var is_loaded: bool:
 	get: return _is_loaded
@@ -31,6 +33,22 @@ func is_point_within_race_area(p: Vector2) -> bool:
 		return false
 	else:
 		return Geometry2D.is_point_in_polygon(p, _race_2d_polygon)
+
+## Returns true if the given polygon is entirely within
+## one of the local race boundaries area (polygon).
+func is_building_polygon_within_out_of_bounds_area(polygon: Array[Vector2]) -> bool:
+	for area_polygon in _out_of_bounds_polygons:
+		var i: int = 0
+		var one_point_outside_poly: bool = false
+		while i < polygon.size() and not one_point_outside_poly:
+			var is_in_poly: bool = Geometry2D.is_point_in_polygon(polygon[i], area_polygon)
+			if not is_in_poly:
+				one_point_outside_poly = true
+			i += 1
+		
+		if not one_point_outside_poly:
+			return true
+	return false
 
 var _data
 
@@ -70,7 +88,9 @@ func _build_area(kind: String, coords: Array[Array], boundaries_node: Node3D, id
 		area_2d_polygon.append(Vector2(meters_coord.x, meters_coord.z))
 			
 	if (kind == "race"):
-		_race_2d_polygon = area_2d_polygon
+		_race_2d_polygon = area_2d_polygon.duplicate()
+	elif (kind == "local_race_boundary"):
+		_out_of_bounds_polygons.append(area_2d_polygon.duplicate())
 	
 	print("converted boundary data:")
 	print(coords_meters)
@@ -177,5 +197,7 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	
 	print("Created ", areas_count_success, " boundaries. Tried: ", areas_count)
 	print("Nodes: ", boundaries_node.get_child_count())
+	print("\nRace polygon: ", _race_2d_polygon)
+	print("\nLocal race boundaries: ", _out_of_bounds_polygons)
 	
 	print("Done.")
