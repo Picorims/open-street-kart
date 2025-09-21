@@ -1,4 +1,4 @@
-[gd_scene load_steps=26 format=3 uid="uid://c1j3m2tjlgh8y"]
+[gd_scene load_steps=37 format=3 uid="uid://c1j3m2tjlgh8y"]
 
 [ext_resource type="Script" uid="uid://dlohgk4brx70b" path="res://prefabs/car_custom_physics_interface_2.gd" id="1_2glma"]
 [ext_resource type="Script" uid="uid://bdrvech1c3yhq" path="res://prefabs/car_custom_physics_2.gd" id="2_pkjqb"]
@@ -83,11 +83,65 @@ hue_variation_min = -2.23517e-08
 hue_variation_max = -2.23517e-08
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_f0e7b"]
+shading_mode = 0
 vertex_color_use_as_albedo = true
-albedo_color = Color(0.333333, 0.333333, 0.333333, 1)
+albedo_color = Color(0.393649, 0.475232, 0.520366, 1)
 
 [sub_resource type="SphereMesh" id="SphereMesh_gx5rs"]
 material = SubResource("StandardMaterial3D_f0e7b")
+radial_segments = 16
+rings = 8
+
+[sub_resource type="Gradient" id="Gradient_pkjqb"]
+colors = PackedColorArray(0.60933, 0.60933, 0.60933, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_ydtal"]
+gradient = SubResource("Gradient_pkjqb")
+
+[sub_resource type="Gradient" id="Gradient_y3777"]
+colors = PackedColorArray(0.34874, 1, 0.682523, 1, 0, 0.647059, 0.580392, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_dkh1y"]
+gradient = SubResource("Gradient_y3777")
+
+[sub_resource type="Curve" id="Curve_4ydjy"]
+_data = [Vector2(0, 1), 0.0, 0.0, 0, 0, Vector2(1, 0), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_wpd7o"]
+curve = SubResource("Curve_4ydjy")
+
+[sub_resource type="Curve" id="Curve_g5qhx"]
+_data = [Vector2(0, 1), 0.0, -0.238764, 0, 0, Vector2(1, 0), -3.42229, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="CurveTexture" id="CurveTexture_qe5cl"]
+curve = SubResource("Curve_g5qhx")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_f0e7b"]
+lifetime_randomness = 0.43
+direction = Vector3(0, 0, 0)
+radial_velocity_min = -0.250022
+radial_velocity_max = 0.249978
+radial_velocity_curve = SubResource("CurveTexture_wpd7o")
+gravity = Vector3(0, 1, 0)
+radial_accel_min = -2.23517e-06
+radial_accel_max = 0.999998
+scale_min = 0.05
+scale_max = 0.15
+scale_curve = SubResource("CurveTexture_qe5cl")
+color = Color(0, 1, 0.950223, 1)
+color_ramp = SubResource("GradientTexture1D_dkh1y")
+color_initial_ramp = SubResource("GradientTexture1D_ydtal")
+hue_variation_min = -0.06
+hue_variation_max = 0.04
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_2glma"]
+shading_mode = 0
+vertex_color_use_as_albedo = true
+
+[sub_resource type="SphereMesh" id="SphereMesh_pkjqb"]
+material = SubResource("StandardMaterial3D_2glma")
 radial_segments = 16
 rings = 8
 
@@ -208,6 +262,14 @@ amount = 128
 randomness = 0.52
 process_material = SubResource("ParticleProcessMaterial_qe5cl")
 draw_pass_1 = SubResource("SphereMesh_gx5rs")
+
+[node name="SpeedGPUParticles3D" type="GPUParticles3D" parent="CarRigidBody"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0)
+emitting = false
+amount = 128
+randomness = 0.52
+process_material = SubResource("ParticleProcessMaterial_f0e7b")
+draw_pass_1 = SubResource("SphereMesh_pkjqb")
 
 [node name="ManagedFreezeWakeUpArea3D" type="Area3D" parent="CarRigidBody"]
 collision_layer = 0

@@ -1,0 +1,18 @@
+[gd_scene load_steps=2 format=3 uid="uid://nssmueirk785"]
+
+[ext_resource type="Texture2D" uid="uid://d0c3pfomksher" path="res://textures/hud/slot_item/item_slot_progress_bar.png" id="1_ecifp"]
+
+[node name="AtomHUDProgressBarRadial" type="TextureProgressBar"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+max_value = 1.0
+step = 0.0
+fill_mode = 4
+nine_patch_stretch = true
+texture_progress = ExtResource("1_ecifp")
+tint_progress = Color(0.188235, 0.968627, 0.678431, 1)

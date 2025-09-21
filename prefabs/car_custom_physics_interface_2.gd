@@ -41,6 +41,11 @@ enum CarMode {
 		$CarRigidBody/WheelBLGPUParticles3D.emitting = v
 		$CarRigidBody/WheelBRGPUParticles3D.emitting = v
 
+@export var speed_boost_effects: bool = false:
+	set(v):
+		speed_boost_effects = v
+		$CarRigidBody/SpeedGPUParticles3D.emitting = v
+
 @export var mode: CarMode:
 	set(v):
 		mode = v
@@ -88,3 +93,8 @@ func respawn():
 	var new_basis: Basis = Basis(Vector3.UP, deg_to_rad(last_checkpoint.look_towards_degrees)).orthonormalized()
 	$CarRigidBody.force_basis_on_next_physics_frame(new_basis)
 	rb.freeze = false
+
+func use_item(item: PlayerItemSlotsState.SlotItem) -> void:
+	if item == PlayerItemSlotsState.SlotItem.SPEED_BOOST:
+		$CarRigidBody.apply_speed_boost_seconds(2.5)
+	pass

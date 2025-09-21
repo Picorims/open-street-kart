@@ -1,0 +1,1 @@
+Slot items HUD for Open Street Kart - Picorims aka Charly Schmidt - CC-BY-SA 4.0

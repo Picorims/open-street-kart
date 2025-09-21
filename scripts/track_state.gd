@@ -13,13 +13,18 @@ class_name TrackState extends Node
 const RACE_HUD_SCENE: PackedScene = preload("res://gui/race_hud.tscn")
 const RACE_FINISHED_GUI: PackedScene = preload("res://gui/race_finished_gui.tscn")
 
+var _mode: GameMode
+var _speed: SpeedMode
 var _started = false
 var _start_us: float = 0
+## IDs and car names are equivalent
+var _ids: Array[String] = []
 var _start_lap_us: Dictionary[String, float]
 var _durations_us: Dictionary[String, Array] # is Array[float]
 ## stored in order of reaching finish line
 var _total_us: Dictionary[String, float]
 var _display_names: Dictionary[String, String]
+var _car_item_slots: Dictionary[String, PlayerItemSlotsState]
 var _race_hud: RaceHUD
 var _race_finished_gui: RaceFinishedGUI
 
@@ -49,11 +54,14 @@ func _ready() -> void:
 	DebugDraw2D.end_text_group()
 
 func init(mode: GameMode, speed: SpeedMode):
+	_mode = mode
+	_speed = speed
 	print("Initializing track state...")
 	for i in range(loop_checkpoints.size()):
 		var c: LoopCheckpoint = loop_checkpoints[i]
 		c.car_entered.connect(func(car: CarCustomPhysics2):
 			var id: String = car.name
+
 			if (not _durations_us.has(id)):
 				_durations_us.set(id, [])
 			# if skipped a lap checkpoint, ignore
@@ -89,6 +97,8 @@ func init(mode: GameMode, speed: SpeedMode):
 	player_spawner.init(mode, speed)
 	for c in player_spawner.car_root_nodes:
 		_display_names.set(c.name, c.display_name)
+		_ids.append(c.name)
+
 
 	player_spawner.countdown()
 	player_spawner.go.connect(func():
@@ -100,6 +110,9 @@ func init(mode: GameMode, speed: SpeedMode):
 func start():
 	_start_us = Time.get_ticks_usec()
 	_started = true
+
+	for id in _ids:
+		_car_item_slots[id] = PlayerItemSlotsState.new(_speed)
 
 func _stop():
 	_race_finished = true
@@ -123,11 +136,11 @@ func _stop():
 	# last as well. Hence the need to iterate in reverse order.
 	for i in range(_last_estimated_rankings.size() - 1, -1, -1):
 		var ranking_info: _OffsetEntry = _last_estimated_rankings[i]
-		if registered.has(ranking_info.car_name):
+		if registered.has(ranking_info.id):
 			# done, skip
 			continue
 		
-		var name_str: String = _display_names.get(ranking_info.car_name)
+		var name_str: String = _display_names.get(ranking_info.id)
 		var position_str: String = "{0}".format([current_rank])
 		var time_str: String = "{0}m".format(["%.2f" % ranking_info.car_offset])
 		_race_finished_gui.append_line(position_str, name_str, time_str)
@@ -147,32 +160,51 @@ func _pretty_duration_from_us(us: float) -> String:
 	
 	return "{0}:{1}.{2} ({3} us)".format([minutes, seconds, milliseconds, microseconds])
 
-func _process(_delta: float) -> void:
+func _process(delta: float) -> void:
 	if (not _race_finished and _started):
-		_process_live_ranking()
+		var distances_to_first: Dictionary[String, float] = _process_live_ranking()
+		_process_item_slots(delta, distances_to_first)
+
+func _process_item_slots(delta: float, distances_to_first: Dictionary[String, float]):
+	for id in _car_item_slots:
+		var is_you: bool = _display_names.get(id) == "you"
+		var slot_state: PlayerItemSlotsState = _car_item_slots.get(id)
+		var item_used: PlayerItemSlotsState.SlotItem = slot_state.tick(
+			delta,
+			distances_to_first.get(id),
+			Input.is_action_just_pressed("use") and is_you
+		)
+		if not item_used == PlayerItemSlotsState.SlotItem.EMPTY:
+			player_spawner.get_car_by_id(id).use_item(item_used)
+		
+		if is_you:
+			_race_hud.update_item_slots_hud(slot_state.get_display_state())
 
 class _OffsetEntry:
-	var car_name: String
+	var id: String
 	var car_display_name: String
 	var car_offset: float
 	var color: Color
 
 ## Updates ranking info on the HUD during the track race.
 ## Not responsible for the final ranking.
-func _process_live_ranking() -> void:
+## Returns the distance to the first car for each id
+func _process_live_ranking() -> Dictionary[String, float]:
 	## smaller to bigger
 	var rankings: Array[_OffsetEntry] = []
+	var rankings_dict: Dictionary[String, _OffsetEntry] = {}
 	if (player_spawner.car_root_nodes.size() == 0):
 		# spawner not ready
-		return
+		return {}
 		
 	for c in player_spawner.car_root_nodes:
 		var entry: _OffsetEntry = _OffsetEntry.new()
-		entry.car_name = c.name
+		entry.id = c.name
 		entry.car_display_name = c.display_name
 		entry.car_offset = c.get_race_path_offset()
 		entry.color = c.material.albedo_color
 		rankings.append(entry)
+		rankings_dict.set(entry.id, entry)
 	
 	# sort ascending
 	rankings.sort_custom(func(a: _OffsetEntry, b: _OffsetEntry) -> bool:
@@ -180,7 +212,7 @@ func _process_live_ranking() -> void:
 	)
 	assert(rankings.size() > 0, "rankings empty")
 	
-	_last_estimated_rankings = rankings
+	_last_estimated_rankings = rankings.duplicate(true)
 	
 	var ratios: Dictionary[String, RaceHUD.RatioEntry] = {}
 	var path_length: float = max(player_spawner.race_path.curve.get_baked_length(), 0.01)
@@ -196,3 +228,10 @@ func _process_live_ranking() -> void:
 		i -= 1
 	_race_hud.display_ratios(ratios)
 	_race_hud.update_group_pos(rankings[0].car_offset / path_length, rankings[-1].car_offset / path_length)
+
+	# return distances to first
+	var distances_to_first: Dictionary[String, float] = {}
+	for id in _ids:
+		distances_to_first.set(id, abs(rankings[-1].car_offset - rankings_dict.get(id).car_offset))
+		
+	return distances_to_first
