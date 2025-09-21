@@ -110,7 +110,6 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		state.linear_velocity = Vector3(0, 0, 0)
 		state.angular_velocity = Vector3(0, 0, 0)
 	var forward_backward: float = _brain.get_forward_backward_axis()
-	_going_backwards = false
 	if (forward_backward < 0): # if backwards force
 		var going_forward: bool
 		# we want to avoid an invalid vector with (0,0,0).normalized()
@@ -122,9 +121,12 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		var is_braking: bool = going_forward and going_fast
 		if (is_braking):
 			forward_backward *= BRAKE_FORCE_FACTOR # softer brake and slow backward speed
+			_going_backwards = false
 		else:
 			forward_backward *= BACKWARDS_FORCE_FACTOR
 			_going_backwards = true
+	else:
+		_going_backwards = false
 	var left_right: float = _brain.get_left_right_axis()
 	var on_ground: bool = _ground_raycast.is_colliding()
 	var out_of_bounds = false
