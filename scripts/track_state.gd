@@ -136,11 +136,11 @@ func _stop():
 	# last as well. Hence the need to iterate in reverse order.
 	for i in range(_last_estimated_rankings.size() - 1, -1, -1):
 		var ranking_info: _OffsetEntry = _last_estimated_rankings[i]
-		if registered.has(ranking_info.car_name):
+		if registered.has(ranking_info.id):
 			# done, skip
 			continue
 		
-		var name_str: String = _display_names.get(ranking_info.car_name)
+		var name_str: String = _display_names.get(ranking_info.id)
 		var position_str: String = "{0}".format([current_rank])
 		var time_str: String = "{0}m".format(["%.2f" % ranking_info.car_offset])
 		_race_finished_gui.append_line(position_str, name_str, time_str)
@@ -212,7 +212,7 @@ func _process_live_ranking() -> Dictionary[String, float]:
 	)
 	assert(rankings.size() > 0, "rankings empty")
 	
-	_last_estimated_rankings = rankings
+	_last_estimated_rankings = rankings.duplicate(true)
 	
 	var ratios: Dictionary[String, RaceHUD.RatioEntry] = {}
 	var path_length: float = max(player_spawner.race_path.curve.get_baked_length(), 0.01)
@@ -232,6 +232,6 @@ func _process_live_ranking() -> Dictionary[String, float]:
 	# return distances to first
 	var distances_to_first: Dictionary[String, float] = {}
 	for id in _ids:
-		distances_to_first.set(id, rankings[0].car_offset - rankings_dict.get(id).car_offset)
+		distances_to_first.set(id, abs(rankings[-1].car_offset - rankings_dict.get(id).car_offset))
 		
 	return distances_to_first

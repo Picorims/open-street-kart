@@ -71,10 +71,10 @@ class Slot:
 var _slots: Array[Slot]
 var _max_speed: float = 1
 const SLOTS_COUNT: int = 3
-const ITEM_LIFETIME_SECONDS = 30
-const MIN_REFILL_TIME_SECONDS = 10
-const MAX_REFILL_TIME_SECONDS = 15
-const DISTANCE_FOR_MIN_REFILL = 100
+const ITEM_LIFETIME_SECONDS: float = 30
+const MIN_REFILL_TIME_SECONDS: float = 8
+const MAX_REFILL_TIME_SECONDS: float = 15
+const DISTANCE_FOR_MIN_REFILL: float = 200
 
 func _init(max_speed: float) -> void:
 	assert(max_speed > 0, "max speed must be above 0 for slot item picking")
@@ -115,10 +115,13 @@ func tick(delta: float, distance_to_first: float, use_item: bool) -> SlotItem:
 			if not _slots[i-1].is_disabled_or_empty() and _slots[i].get_type() == SlotItem.DISABLED:
 				_slots[i].set_type(SlotItem.EMPTY)
 				# between 0 and 1 for mapping from MIN to MAX.
-				var ratio: float = smoothstep(0, 1, speed_normalized_distance / DISTANCE_FOR_MIN_REFILL)
+				var ratio: float = smoothstep(0, DISTANCE_FOR_MIN_REFILL, speed_normalized_distance)
 				# close to first = close to MAX
 				# far from first = close to MIN (have more items to catch up)
-				_slots[i].lifetime_s = MIN_REFILL_TIME_SECONDS + (1-ratio) * (MAX_REFILL_TIME_SECONDS - MIN_REFILL_TIME_SECONDS)
+				var min_v: float = MIN_REFILL_TIME_SECONDS
+				var max_v: float = MAX_REFILL_TIME_SECONDS
+				_slots[i].lifetime_s = min_v + (1.0 - ratio) * (max_v - min_v)
+				print("gotta be ", _slots[i].lifetime_s, " cause ratio is ", ratio, " and distance is ", speed_normalized_distance) #FIXME why always max?
 		
 		# replace empty with item if time ellapsed.
 		if (_slots[i].get_type() == SlotItem.EMPTY and _slots[i].time_is_up()):
