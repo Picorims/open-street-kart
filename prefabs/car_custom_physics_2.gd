@@ -47,7 +47,7 @@ const FORWARD_BACKWARD_NERF_IN_AIR: float = 0.1
 const DEBUG_JUMP_FORCE: float = 5000
 
 const RESPAWN_BOT_AFTER_STUCK_FOR_SECONDS: float = 5
-const IS_STUCK_SPEED_TRESHOLD: float = 1
+const IS_STUCK_SPEED_SQUARED_THRESHOLD: float = 1
 
 # crash avoidance related constants
 const MIN_INERTIA_RADIUS_LIMIT = 0.001
@@ -75,7 +75,7 @@ var _speed_boost_until_seconds: float = -1
 var _brain: ACarBrain
 var _cam: Camera3D
 var _time_since_not_moving_seconds: float = 0
-var _last_xz_speed: float = 0
+var _last_xz_speed_squared: float = 0
 
 func get_race_path_offset() -> float:
 	return _brain.last_query_info.closest_offset
@@ -191,7 +191,7 @@ func _get_max_speed_squared(out_of_bounds: bool):
 
 func _soft_clamp_speed(state: PhysicsDirectBodyState3D, out_of_bounds: bool):
 	var vel_squared_xz: float = (state.linear_velocity * Vector3(1, 0, 1)).length_squared()
-	_last_xz_speed = vel_squared_xz
+	_last_xz_speed_squared = vel_squared_xz
 	var max_speed_squared = _get_max_speed_squared(out_of_bounds)
 	if (vel_squared_xz > max_speed_squared):
 		var norm_projected_on_xz: Vector3 = state.linear_velocity.normalized() * Vector3(1, 0, 1)
@@ -297,7 +297,7 @@ func _input(event):
 func _process(delta: float) -> void:
 	interface.speed_boost_effects = is_in_speed_boost()
 	
-	if abs(_last_xz_speed) < IS_STUCK_SPEED_TRESHOLD:
+	if abs(_last_xz_speed_squared) < IS_STUCK_SPEED_SQUARED_THRESHOLD:
 		_time_since_not_moving_seconds += delta
 	else:
 		_time_since_not_moving_seconds = 0
