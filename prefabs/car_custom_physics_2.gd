@@ -56,6 +56,8 @@ const MIN_ANGLE_THRESHOLD = 0.01
 
 const SPEED_BOOST = 1.5
 
+var _track_state: TrackState
+
 var _debug_centrifugal_force: Vector3
 var _debug_sliding_force: Vector3
 var _debug_sliding_force_compensated: Vector3
@@ -97,6 +99,9 @@ func _ready() -> void:
 	assert(spring_strength > 0, "ERROR: springSrength should be greater than zero.")
 	var damping_ratio: float = spring_damping / (2 * sqrt(mass * spring_strength))
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is under-damped, >1 is over-damped): ", damping_ratio)
+	
+	_track_state = get_tree().get_first_node_in_group("track_state")
+	assert(_track_state != null, "Track state not found.")
 	
 	$ManagedFreezeWakeUpArea3D.body_entered.connect(func(body: Node3D):
 		if (is_instance_of(body, FreezeManagedRigidBody3D)):
@@ -304,6 +309,8 @@ func _process(delta: float) -> void:
 	if _time_since_not_moving_seconds > RESPAWN_BOT_AFTER_STUCK_FOR_SECONDS and is_instance_of(_brain, BotBrain):
 		_time_since_not_moving_seconds = 0
 		interface.respawn()
+	
+	_track_state.get_track_region_manager().poll_coord(global_position)
 	
 	# debug =============================
 	var debug_pos = global_position + Vector3(0, 3, 0)

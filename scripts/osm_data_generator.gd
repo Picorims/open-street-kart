@@ -588,9 +588,7 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 	# assign should cast type accordingly.
 	xz_meters_coords.assign(meters_coords.map(func(v: Vector3) -> Vector2: return Vector2(v.x, v.z) + xz_origin))
 	var mesh_collision_node: CollisionShape3D = null
-	print("will check: ", xz_meters_coords)
 	if not boundaries_generator.is_building_polygon_within_out_of_bounds_area(xz_meters_coords):
-		print("it was ok")
 		var static_body: StaticBody3D = StaticBody3D.new()
 	
 		mesh_collision_node = CollisionShape3D.new()
@@ -598,7 +596,6 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 		
 		parent = static_body
 	else:
-		print("that's a no")
 		parent = Node3D.new()
 
 	buildings_container.add_child(parent)
@@ -620,6 +617,8 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 	var occluder_3d_polygon: ArrayOccluder3D = ArrayOccluder3D.new()
 	occluder_3d_polygon.set_arrays(occluder_vertices, occluder_indices)
 	occluder_instance.occluder = occluder_3d_polygon
+
+	parent.add_to_group("buildings", true)
 
 	return true
 

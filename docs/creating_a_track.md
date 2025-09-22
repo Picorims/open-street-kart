@@ -104,9 +104,9 @@ It also contains the `RacePath` which is used for AI and ranking. It is made of 
 
 The path must start before the player spawner and finish after the track ending delimitation. An inaccurate path (clipping in ground or being way above, not well centered across the whole track, incorrect and especially too wide ranges, etc.) will lead to much struggle for the bots. Good practice includes placing a checkpoint before and after a turn, in the middle of an S, and when the altitude changes (local extremum).
 
-#### TrackState (node type)
+#### %TrackState (node type)
 
-Stores all the game state. Needs a reference to all loop checkpoints in order, as well as a reference for the `PlayerSpawner`.
+Stores all the game state. Needs a reference to all loop checkpoints in order, as well as a reference for the `PlayerSpawner`. It must have the `track_state` group.
 
 #### Jumps (basic node 3D)
 
