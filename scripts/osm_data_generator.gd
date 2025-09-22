@@ -602,7 +602,7 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 	loader.persist_in_current_scene(parent)
 	parent.add_child(mesh_node)
 	loader.persist_in_current_scene(mesh_node)
-	if not mesh_collision_node == null:
+	if mesh_collision_node != null:
 		parent.add_child(mesh_collision_node)
 		loader.persist_in_current_scene(mesh_collision_node)
 

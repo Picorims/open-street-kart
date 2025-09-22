@@ -275,7 +275,7 @@ func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
 	# and deduct a radius from there
 	var length: float = (state.linear_velocity * Vector3(1, 0, 1)).length()
 	var yaw: float = absf(state.angular_velocity.y)
- 	# avoid 0 to avoid division by zero crash
+	# avoid 0 to avoid division by zero crash
 	var yaw_too_small: bool = yaw < MIN_YAW_THRESHOLD_FOR_CENTRIFUGAL_FORCE_COMPUTE
 	var length_too_big: bool = length > MAX_LIN_VEL_FOR_CENTRIFUGAL_FORCE_COMPUTE
 	if (yaw_too_small or length_too_big):
