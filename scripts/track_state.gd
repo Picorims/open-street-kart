@@ -30,6 +30,9 @@ var _race_finished_gui: RaceFinishedGUI
 
 var _last_estimated_rankings: Array[_OffsetEntry] = []
 var _race_finished: bool = false
+var _track_region_manager: TrackRegionManager = TrackRegionManager.new()
+func get_track_region_manager() -> TrackRegionManager:
+	return _track_region_manager
 
 enum GameMode {
 	AGAINST_CLOCK,
@@ -46,7 +49,14 @@ enum SpeedMode {
 func _ready() -> void:
 	assert(loop_checkpoints.size() > 0, "ERROR: No loop checkpoint list specified.")
 	assert(player_spawner != null, "ERROR: No player spawner specified.")
+	assert(%ProceduralDataHolder != null, "missing procedural data holder")
 	
+	var proc_data_holder: Node3D = %ProceduralDataHolder
+	var _buildings = get_tree().get_nodes_in_group("buildings")
+	for n in _buildings:
+		get_track_region_manager().register_node(n)
+	
+	# debug =======================================
 	DebugDraw2D.begin_text_group("Durations")
 	for i in range(loop_checkpoints.size()):
 		DebugDraw2D.set_text("Lap {0}".format([i + 1]), "-", 0, Color(1, 1, 0), 1_000_000_000)
@@ -161,6 +171,7 @@ func _pretty_duration_from_us(us: float) -> String:
 	return "{0}:{1}.{2} ({3} us)".format([minutes, seconds, milliseconds, microseconds])
 
 func _process(delta: float) -> void:
+	get_track_region_manager().tick(delta)
 	if (not _race_finished and _started):
 		var distances_to_first: Dictionary[String, float] = _process_live_ranking()
 		_process_item_slots(delta, distances_to_first)

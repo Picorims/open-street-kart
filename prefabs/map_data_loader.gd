@@ -19,8 +19,8 @@ class_name MapDataLoader extends Node3D
 @export var elevation_origin: String = "0.0"
 # icons: Godot EditorIcons; https://godot-editor-icons.github.io/
 @export_tool_button("Reload surface", "ImageTexture3D") var reload_surface_action = Callable(self, "_reload_surface_action")
-@export_tool_button("Reload OSM Data", "Path3D") var reload_osm_action = Callable(self, "_reload_osm_action")
 @export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
+@export_tool_button("Reload OSM Data", "Path3D") var reload_osm_action = Callable(self, "_reload_osm_action")
 @export var floor_material: Material
 
 var _origin: Vector3

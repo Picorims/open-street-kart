@@ -48,9 +48,15 @@ var _timeout_emitted: bool = false
 func _ready() -> void:
 	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 	managed_freeze = true
+	
+	var track_state: TrackState = get_tree().get_first_node_in_group("track_state")
+	assert(track_state != null, "track state not found.")
+	track_state.get_track_region_manager().register_node(self)
 
 var _elapsed: float = 0
 func _physics_process(delta: float) -> void:
+	if (not can_process()):
+		return
 	if (not get_collision_layer_value(6)):
 		set_collision_layer_value(6, true)
 	

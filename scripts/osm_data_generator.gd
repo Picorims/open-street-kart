@@ -494,7 +494,7 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 	var meters_coords: Array[Vector3] = []
 	for c in coordinates:
 		# high altitude to be able to snap no matter how sloppy the land is.
-		var c_meters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], INIT_HEIGHT, c[1]))
+		var c_meters: Vector3 = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], INIT_HEIGHT, c[1]))
 		if boundaries_generator.is_point_within_race_area(Vector2(c_meters.x, c_meters.z)):
 			meters_coords.append(c_meters)
 			_prev_meters = c_meters
@@ -578,27 +578,47 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 	var surfaces_count = mesh_node.mesh.get_surface_count()
 	for i in surfaces_count:
 		mesh_node.set_surface_override_material(i, building_material)
+	
+	var parent: Node3D = null
+	# Only load collisions if necessary.
+	# We need to go back from local to global coordinates
+	# by adding the origin again.
+	var xz_meters_coords: Array[Vector2] = []
+	var xz_origin: Vector2 = Vector2(origin.x, origin.z)
+	# assign should cast type accordingly.
+	xz_meters_coords.assign(meters_coords.map(func(v: Vector3) -> Vector2: return Vector2(v.x, v.z) + xz_origin))
+	var mesh_collision_node: CollisionShape3D = null
+	if not boundaries_generator.is_building_polygon_within_out_of_bounds_area(xz_meters_coords):
+		var static_body: StaticBody3D = StaticBody3D.new()
+	
+		mesh_collision_node = CollisionShape3D.new()
+		mesh_collision_node.shape = mesh.create_trimesh_shape()
+		
+		parent = static_body
+	else:
+		parent = Node3D.new()
 
-	var mesh_collision_node: CollisionShape3D = CollisionShape3D.new()
-	mesh_collision_node.shape = mesh.create_trimesh_shape()
-
-	var static_body: StaticBody3D = StaticBody3D.new()
-	buildings_container.add_child(static_body)
-	loader.persist_in_current_scene(static_body)
-	static_body.add_child(mesh_node)
+	buildings_container.add_child(parent)
+	loader.persist_in_current_scene(parent)
+	parent.add_child(mesh_node)
 	loader.persist_in_current_scene(mesh_node)
-	static_body.add_child(mesh_collision_node)
-	loader.persist_in_current_scene(mesh_collision_node)
-	static_body.position = origin + Vector3(0, INIT_HEIGHT, 0)
+	if mesh_collision_node != null:
+		parent.add_child(mesh_collision_node)
+		loader.persist_in_current_scene(mesh_collision_node)
 
-	_setup_snapping(static_body, false, in_ground_height)
+	
+	parent.position = origin + Vector3(0, INIT_HEIGHT, 0)
+	
+	_setup_snapping(parent, false, in_ground_height)
 	
 	var occluder_instance: OccluderInstance3D = OccluderInstance3D.new()
-	static_body.add_child(occluder_instance)
+	parent.add_child(occluder_instance)
 	loader.persist_in_current_scene(occluder_instance)
 	var occluder_3d_polygon: ArrayOccluder3D = ArrayOccluder3D.new()
 	occluder_3d_polygon.set_arrays(occluder_vertices, occluder_indices)
 	occluder_instance.occluder = occluder_3d_polygon
+
+	parent.add_to_group("buildings", true)
 
 	return true
 

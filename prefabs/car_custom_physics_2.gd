@@ -52,9 +52,12 @@ const IS_STUCK_SPEED_SQUARED_THRESHOLD: float = 1
 # crash avoidance related constants
 const MIN_INERTIA_RADIUS_LIMIT = 0.001
 const MAX_INERTIA_RADIUS_LIMIT = 10_000
-const MIN_ANGLE_THRESHOLD = 0.01
+const MIN_YAW_THRESHOLD_FOR_CENTRIFUGAL_FORCE_COMPUTE = 0.03
+const MAX_LIN_VEL_FOR_CENTRIFUGAL_FORCE_COMPUTE = 100
 
 const SPEED_BOOST = 1.5
+
+var _track_state: TrackState
 
 var _debug_centrifugal_force: Vector3
 var _debug_sliding_force: Vector3
@@ -97,6 +100,9 @@ func _ready() -> void:
 	assert(spring_strength > 0, "ERROR: springSrength should be greater than zero.")
 	var damping_ratio: float = spring_damping / (2 * sqrt(mass * spring_strength))
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is under-damped, >1 is over-damped): ", damping_ratio)
+	
+	_track_state = get_tree().get_first_node_in_group("track_state")
+	assert(_track_state != null, "Track state not found.")
 	
 	$ManagedFreezeWakeUpArea3D.body_entered.connect(func(body: Node3D):
 		if (is_instance_of(body, FreezeManagedRigidBody3D)):
@@ -235,10 +241,12 @@ func _apply_single_wheel_suspension(suspension_ray: RayCast3D) -> void:
 # applied on x,z plan
 func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	var radius: float = _get_radius_of_rotation(state)
+	if (radius == -1): # see doc for _get_radius_of_rotation()
+		return
 	# Projecting the linear velocity onto the forward / backward axis to know in which direction the car
 	# goes, assuming wheel adherence.
 	var forward_backward_lin_vel_direction: float = sign(state.linear_velocity.dot(global_basis.x))
-	var rotation_direction: float = sign(state.angular_velocity.y)
+	var rotation_direction: float = signf(state.angular_velocity.y)
 	var centrifugal_direction: Vector3 = global_basis.z.normalized() * rotation_direction * forward_backward_lin_vel_direction
 	if (centrifugal_direction.length() < 0.01):
 		return
@@ -250,15 +258,29 @@ func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	state.apply_central_force(counter_force)
 	_debug_centrifugal_force = centrifugal_force
 
-# applied on x,z plan
+## If the rigid body is turning, it is following a circle with a center of attraction,
+## defining the centrifugal force. This function returns the radius of such circle based
+## on the angular velocity (on Y; yaw), and linear velocity. (Imagining an arc from origin
+## to new position after angular velocity is applied, with the arc length based on linear velocity,
+## the circle is bigger as the velocity increases)
+##
+## Returns -1 if the circle is too big and would cause infinite values (too small angular velocity,
+## or too big linear velocity)
+## 
+## Applied on x,z plan
 func _get_radius_of_rotation(state: PhysicsDirectBodyState3D) -> float:
 	# assuming a circle arc of length <previous pos to current pos>,
 	# of angle length equal to previous angular velocity,
 	# we compute the circumference of the entire circle,
 	# and deduct a radius from there
-	var length = (state.linear_velocity * Vector3(1, 0, 1)).length()
-	var angle = max(abs(state.angular_velocity.y), MIN_ANGLE_THRESHOLD) # avoid 0 to avoid division by zero crash
-	var circumference = (2 * PI / angle) * length
+	var length: float = (state.linear_velocity * Vector3(1, 0, 1)).length()
+	var yaw: float = absf(state.angular_velocity.y)
+	# avoid 0 to avoid division by zero crash
+	var yaw_too_small: bool = yaw < MIN_YAW_THRESHOLD_FOR_CENTRIFUGAL_FORCE_COMPUTE
+	var length_too_big: bool = length > MAX_LIN_VEL_FOR_CENTRIFUGAL_FORCE_COMPUTE
+	if (yaw_too_small or length_too_big):
+		return -1
+	var circumference = (2 * PI / yaw) * length
 	var radius = circumference / (2 * PI)
 	return radius
 
@@ -304,6 +326,8 @@ func _process(delta: float) -> void:
 	if _time_since_not_moving_seconds > RESPAWN_BOT_AFTER_STUCK_FOR_SECONDS and is_instance_of(_brain, BotBrain):
 		_time_since_not_moving_seconds = 0
 		interface.respawn()
+	
+	_track_state.get_track_region_manager().poll_coord(global_position)
 	
 	# debug =============================
 	var debug_pos = global_position + Vector3(0, 3, 0)
