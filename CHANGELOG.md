@@ -7,20 +7,29 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Dates are in format YYYY-MM-DD (year, month, day)
 
-# [1.0.0-alpha.4] - ????
+# [1.0.0-alpha.4] - 2025-09-23
 
 ## Added
 
+- Added items given during the race (no distinction between game modes for now)
+    - Added the speed boost item which gives a speed boost for a few seconds and allow going off track at maximum speed.
 - Added a home screen.
 - Added a credits screen.
 
 ## Changed
 
 - Cars are less likely to bump into the ground.
+- Cars should be slightly less bumpy between themselves and with walls.
+- It is now much easier to go backwards especially in slopes.
+- Stuck bots respawn after being idle for some time.
+- Improved performance:
+    - Improve framerate when the whole landscape is visible.
+    - Reduce collision checks.
 
 ## Fixed
 
 - Fixed UI blur backdrop filter shader.
+- Tried to fix an occasional crash on respawn due to excessive velocity.
 
 # [1.0.0-alpha.3] - 2025-08-31
 
