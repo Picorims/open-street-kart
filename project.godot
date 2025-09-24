@@ -83,10 +83,13 @@ use={
 
 [layer_names]
 
-3d_physics/layer_1="General collision layer"
+3d_physics/layer_1="General collision layer  (Layer 1)"
 3d_physics/layer_2="Cast To Ground (Layer 2)"
-3d_physics/layer_5="car on track layer"
-3d_physics/layer_6="Managed freeze layer"
+3d_physics/layer_3="Car on track layer (Layer 3)"
+3d_physics/layer_4="Car out of track layer (Layer 4)"
+3d_physics/layer_5="Car on ground layer (Layer 5)"
+3d_physics/layer_6="Managed freeze layer (Layer 6)"
+3d_physics/layer_9="Rideable by wheels (Layer 9)"
 
 [physics]
 

@@ -144,8 +144,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (on_ground):
 		var collider: CollisionObject3D = _get_collider_of_colliding_raycast(_ground_raycast)
 		if (collider != null):
-			var collidesOutOfBoundsMask: bool = not collider.get_collision_layer_value(5)
-			out_of_bounds = collidesOutOfBoundsMask
+			out_of_bounds = collider.get_collision_layer_value(4)
 	
 	var want_to_drift = _brain.drift_input_active()
 	# cannot drift when not turning, or if already drifting in a direction.
