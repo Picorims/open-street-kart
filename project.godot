@@ -92,6 +92,7 @@ use={
 3d_physics/layer_9="Rideable by wheels (Layer 9)"
 3d_physics/layer_17="Out of bounds (Layer 17)"
 3d_physics/layer_18="In the race (Layer 18)"
+3d_physics/layer_19="Car passes checkpoint (Layer 19)"
 
 [physics]
 
