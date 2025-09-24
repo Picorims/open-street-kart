@@ -72,6 +72,10 @@ func _build_area(kind: String, coords: Array[Array], boundaries_node: Node3D, id
 	print(coords)
 	
 	var area_3d: Area3D = Area3D.new()
+	area_3d.set_collision_layer_value(1, false)
+	area_3d.set_collision_mask_value(1, false)
+	area_3d.set_collision_mask_value(17, kind == "local_race_boundary")
+	area_3d.set_collision_mask_value(18, kind == "race")
 	# concave shapes are not supported by Area3D, except if made with a polygon.
 	var collider: CollisionPolygon3D = CollisionPolygon3D.new()
 	area_3d.add_child(collider)

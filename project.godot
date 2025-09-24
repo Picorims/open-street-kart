@@ -90,6 +90,8 @@ use={
 3d_physics/layer_5="Car on ground layer (Layer 5)"
 3d_physics/layer_6="Managed freeze layer (Layer 6)"
 3d_physics/layer_9="Rideable by wheels (Layer 9)"
+3d_physics/layer_17="Out of bounds (Layer 17)"
+3d_physics/layer_18="In the race (Layer 18)"
 
 [physics]
 
