@@ -66,13 +66,13 @@ class Region:
 	
 	func _disable_node(node: Node3D) -> void:
 		node.process_mode = Node.PROCESS_MODE_DISABLED
-		#node.set_process(false)
-		#node.set_physics_process(false)
+		# Shall this break, other options can be considered:
+		# see: https://forum.godotengine.org/t/how-to-disable-enable-a-node/22387/2
 	
 	func _enable_node(node: Node3D) -> void:
 		node.process_mode = Node.PROCESS_MODE_INHERIT
-		#node.set_process(true)
-		#node.set_physics_process(true)
+		# Shall this break, other options can be considered:
+		# see: https://forum.godotengine.org/t/how-to-disable-enable-a-node/22387/2
 		
 	
 const CHUNK_SIZE = 64
