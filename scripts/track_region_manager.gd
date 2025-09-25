@@ -32,7 +32,7 @@ class Region:
 	func enable() -> void:
 		_enabled_timestamp = _parent.get_now()
 		for t in _targets:
-			t.process_mode = Node.PROCESS_MODE_INHERIT
+			_enable_node(t)
 		_enabled = true
 		_parent.active_regions.append(self)
 		print("enabled ", _targets.size(), " nodes in chunk: ", _pos)
@@ -41,7 +41,7 @@ class Region:
 	func disable() -> void:
 		_enabled = false
 		for t in _targets:
-			t.process_mode = Node.PROCESS_MODE_DISABLED
+			_disable_node(t)
 		print("disabled ", _targets.size(), " nodes in chunk: ", _pos)
 	
 	## Get timestamp of last call to enable() or poll().
@@ -50,11 +50,13 @@ class Region:
 	
 	## Add a target to monitor by this region.
 	func register(node: Node3D):
+		if not node.name.match("*Building*"):
+			print("registering ", node.name)
 		_targets.append(node)
 		if _enabled:
-			node.process_mode = Node.PROCESS_MODE_INHERIT
+			_enable_node(node)
 		else:
-			node.process_mode = Node.PROCESS_MODE_DISABLED
+			_disable_node(node)
 	
 	## Reset the region timestamp to maintain it active, or
 	## enable if not active
@@ -63,7 +65,18 @@ class Region:
 			enable()
 		else:
 			_enabled_timestamp = _parent.get_now()
-
+	
+	func _disable_node(node: Node3D) -> void:
+		node.process_mode = Node.PROCESS_MODE_DISABLED
+		#node.set_process(false)
+		#node.set_physics_process(false)
+	
+	func _enable_node(node: Node3D) -> void:
+		node.process_mode = Node.PROCESS_MODE_INHERIT
+		#node.set_process(true)
+		#node.set_physics_process(true)
+		
+	
 const CHUNK_SIZE = 64
 const SLEEP_AFTER_SECONDS = 5
 
@@ -80,6 +93,9 @@ func pos_to_chunk(p: Vector3) -> Vector2:
 	return floor(Vector2(p.x, p.z) / CHUNK_SIZE)
 
 func register_node(node: Node3D) -> void:
+	if not node.name.match("*Building*"):
+		print("registering ", node.name)
+
 	var chunk: Vector2 = pos_to_chunk(node.global_position)
 	if not _regions.has(chunk):
 		_regions.set(chunk, Region.new(self, chunk))

@@ -32,6 +32,8 @@ var _shape: CylinderShape3D = CylinderShape3D.new()
 var _shape_mesh: CylinderMesh = CylinderMesh.new()
 
 func _ready() -> void:
+	super()
+	name = "Wheel__%s" % str(randi_range(0, 1_000_000))
 	freeze = true
 	mass = 100
 	var collider: CollisionShape3D = CollisionShape3D.new()

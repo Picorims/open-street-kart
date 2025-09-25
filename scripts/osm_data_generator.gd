@@ -608,6 +608,7 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 
 	
 	parent.position = origin + Vector3(0, INIT_HEIGHT, 0)
+	parent.name = "Building__%s" % [feature.get("properties").get("@id")]
 	
 	_setup_snapping(parent, false, in_ground_height)
 	

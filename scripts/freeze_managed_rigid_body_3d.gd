@@ -46,11 +46,13 @@ var _freeze_not_moving_threshold_squared: float = freeze_not_moving_threshold * 
 var _timeout_emitted: bool = false
 
 func _ready() -> void:
+	print("I am called")
 	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 	managed_freeze = true
 	
 	var track_state: TrackState = get_tree().get_first_node_in_group("track_state")
 	assert(track_state != null, "track state not found.")
+	print("track state: ", track_state)
 	track_state.get_track_region_manager().register_node(self)
 
 var _elapsed: float = 0
