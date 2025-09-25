@@ -35,6 +35,9 @@ var _shape: BoxShape3D = BoxShape3D.new()
 
 func _ready() -> void:
 	self.add_child(_area)
+	_area.set_collision_layer_value(1, false)
+	_area.set_collision_mask_value(1, false)
+	_area.set_collision_mask_value(19, true)
 	_area.monitoring = true
 	_area.add_child(_collider)
 	_collider.debug_color = debug_shape_fill_color

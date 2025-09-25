@@ -608,6 +608,7 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 
 	
 	parent.position = origin + Vector3(0, INIT_HEIGHT, 0)
+	parent.name = "Building__%s" % [feature.get("properties").get("@id")]
 	
 	_setup_snapping(parent, false, in_ground_height)
 	
@@ -651,6 +652,8 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	road_manager.material_resource = road_material
 	road_manager.density = 8
 	road_manager.collision_layer += 16 # layer 5
+	road_manager.collision_layer += 4 # layer 3
+	road_manager.collision_layer += 256 # layer 9
 	roads_container.add_child(road_manager)
 	loader.persist_in_current_scene(road_manager)
 	

@@ -171,10 +171,12 @@ func _pretty_duration_from_us(us: float) -> String:
 	return "{0}:{1}.{2} ({3} us)".format([minutes, seconds, milliseconds, microseconds])
 
 func _process(delta: float) -> void:
-	get_track_region_manager().tick(delta)
 	if (not _race_finished and _started):
 		var distances_to_first: Dictionary[String, float] = _process_live_ranking()
 		_process_item_slots(delta, distances_to_first)
+
+func _physics_process(delta: float) -> void:
+	get_track_region_manager().tick(delta)
 
 func _process_item_slots(delta: float, distances_to_first: Dictionary[String, float]):
 	for id in _car_item_slots:

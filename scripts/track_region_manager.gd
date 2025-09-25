@@ -32,7 +32,7 @@ class Region:
 	func enable() -> void:
 		_enabled_timestamp = _parent.get_now()
 		for t in _targets:
-			t.process_mode = Node.PROCESS_MODE_INHERIT
+			_enable_node(t)
 		_enabled = true
 		_parent.active_regions.append(self)
 		print("enabled ", _targets.size(), " nodes in chunk: ", _pos)
@@ -41,7 +41,7 @@ class Region:
 	func disable() -> void:
 		_enabled = false
 		for t in _targets:
-			t.process_mode = Node.PROCESS_MODE_DISABLED
+			_disable_node(t)
 		print("disabled ", _targets.size(), " nodes in chunk: ", _pos)
 	
 	## Get timestamp of last call to enable() or poll().
@@ -52,9 +52,9 @@ class Region:
 	func register(node: Node3D):
 		_targets.append(node)
 		if _enabled:
-			node.process_mode = Node.PROCESS_MODE_INHERIT
+			_enable_node(node)
 		else:
-			node.process_mode = Node.PROCESS_MODE_DISABLED
+			_disable_node(node)
 	
 	## Reset the region timestamp to maintain it active, or
 	## enable if not active
@@ -63,7 +63,18 @@ class Region:
 			enable()
 		else:
 			_enabled_timestamp = _parent.get_now()
-
+	
+	func _disable_node(node: Node3D) -> void:
+		node.process_mode = Node.PROCESS_MODE_DISABLED
+		# Shall this break, other options can be considered:
+		# see: https://forum.godotengine.org/t/how-to-disable-enable-a-node/22387/2
+	
+	func _enable_node(node: Node3D) -> void:
+		node.process_mode = Node.PROCESS_MODE_INHERIT
+		# Shall this break, other options can be considered:
+		# see: https://forum.godotengine.org/t/how-to-disable-enable-a-node/22387/2
+		
+	
 const CHUNK_SIZE = 64
 const SLEEP_AFTER_SECONDS = 5
 

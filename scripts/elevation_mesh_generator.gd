@@ -165,6 +165,9 @@ func _regenerate_mesh(data_holder: Node3D) -> void:
 	var root: StaticBody3D = StaticBody3D.new()
 	root.name = ROOT_NODE_NAME
 	root.set_collision_layer_value(2, true)
+	root.set_collision_layer_value(4, true) # to see if needs the dirty fix
+	root.set_collision_layer_value(5, true) # to see if needs the dirty fix
+	root.set_collision_layer_value(9, true) # to see if needs the dirty fix
 	# layer above not saved for some reason, dirty fix
 	# in _process() of map_data_loader.gd
 	print(root.collision_layer)
