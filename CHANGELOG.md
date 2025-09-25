@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Dates are in format YYYY-MM-DD (year, month, day)
 
+# [1.0.0-alpha.5] - ???
+
+## Changed
+
+- Improved physics performance
+
+## Fixed
+
+- Cars can no longer drive on building walls
+
 # [1.0.0-alpha.4] - 2025-09-23
 
 ## Added
