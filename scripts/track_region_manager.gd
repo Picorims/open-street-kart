@@ -50,8 +50,6 @@ class Region:
 	
 	## Add a target to monitor by this region.
 	func register(node: Node3D):
-		if not node.name.match("*Building*"):
-			print("registering ", node.name)
 		_targets.append(node)
 		if _enabled:
 			_enable_node(node)
@@ -93,9 +91,6 @@ func pos_to_chunk(p: Vector3) -> Vector2:
 	return floor(Vector2(p.x, p.z) / CHUNK_SIZE)
 
 func register_node(node: Node3D) -> void:
-	if not node.name.match("*Building*"):
-		print("registering ", node.name)
-
 	var chunk: Vector2 = pos_to_chunk(node.global_position)
 	if not _regions.has(chunk):
 		_regions.set(chunk, Region.new(self, chunk))
