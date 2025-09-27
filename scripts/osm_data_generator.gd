@@ -657,7 +657,7 @@ func _build_bin(feature: Dictionary, collidable_assets_container: Node3D, verbos
 
 
 	var bin = BIN_SCENE.instantiate()
-	bin.name = "Bin__%s" % [feature.get("properties").get("@id")]
+	bin.name = "Bin__%s" % [_get_id_or_rand_str(feature)]
 	collidable_assets_container.add_child(bin)
 	loader.persist_in_current_scene(bin)
 	bin.position = pos_meters + Vector3(0, INIT_HEIGHT, 0)
@@ -754,3 +754,17 @@ func _regenerate_data(data_holder: Node3D) -> void:
 
 	print("Done, snapping and road building excluded.")
 	_can_build_roads = true
+
+## Returns a random int as a string
+func _rand_str() -> String:
+	return str(randi_range(0, 100_000_000))
+
+## Returns the GeoJSON feature ID, or a random string if not found.
+func _get_id_or_rand_str(feature: Dictionary) -> StringName:
+	if not feature.has("properties"):
+		return _rand_str()
+	var prop: Dictionary = feature.get("properties")
+	
+	if not prop.has("@id"):
+		return str(randi_range(0, 100_000_000))
+	return prop.get("@id")
