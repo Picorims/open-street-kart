@@ -29,6 +29,7 @@ var _road_manager: RoadManager = null
 var snaps_left_road: int = 0
 var snaps_left: int = 0
 static var snap_to_ground_ray_cast_3d_scene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
+const BIN_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bin.tscn")
 const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
 
 class RoadPointPlaceholder extends Node3D:
@@ -224,6 +225,7 @@ func reload_action(dataHolder: Node3D) -> void:
 
 var _last_log: float = 0
 func _physics_process(delta: float) -> void:
+	const VERBOSE = false
 	# need to wait for boundaries or no road will be kept!
 	if (snaps_left_road > 0 or snaps_left > 0): # and not Engine.is_editor_hint():
 		_last_log += delta
@@ -258,7 +260,7 @@ func _physics_process(delta: float) -> void:
 				loader.persist_in_current_scene(road_container)
 				
 				var prev_rp: RoadPoint = null
-				print("Building road of size: ", road_points.size())
+				if (VERBOSE): print("Building road of size: ", road_points.size())
 				for i in range(road_points.size() - 1, -1, -1):
 					var placeholder: RoadPointPlaceholder = road_points[i]
 					var rp: RoadPoint = RoadPoint.new()
@@ -306,6 +308,13 @@ func _is_building(properties: Dictionary) -> bool:
 	if _building_kinds.has(kind): return true
 	return false
 	
+func _is_bin(properties: Dictionary) -> bool:
+	if (not properties.has("amenity")): return false
+	
+	var id: String = properties.get("@id")
+	if (not id.begins_with("node")): return false
+
+	return properties.get("amenity") == "waste_basket"
 
 func _rotated_point(from_transform: Transform3D, from: Vector3, curr: Vector3, to: Vector3) -> Transform3D:
 	# given this:
@@ -623,6 +632,40 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 
 	return true
 
+
+func _build_bin(feature: Dictionary, collidable_assets_container: Node3D, verbose: bool = false) -> bool:
+	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
+
+	if (not feature.has("geometry")):
+		if (verbose): print("bin has no geometry, cancel.")
+		return false
+	var geometry: Dictionary = feature.get("geometry")
+	if (not geometry.has("coordinates")):
+		if (verbose): print("bin has no coordinates, cancel.")
+		return false
+	var coordinates: Array = geometry.get("coordinates")
+	if (coordinates.size() != 2):
+		if (verbose): print("bin has invalid coordinates, cancel.")
+		return false
+
+	# high altitude to be able to snap no matter how sloppy the land is.
+	var pos = coordinates
+	var pos_meters: Vector3 = loader.lat_alt_lon_to_world_global_pos(Vector3(pos[0], INIT_HEIGHT, pos[1]))
+	if not boundaries_generator.is_point_within_race_area(Vector2(pos_meters.x, pos_meters.z)):
+		if (verbose): print("bin outside race area, cancel.")
+		return false
+
+
+	var bin = BIN_SCENE.instantiate()
+	bin.name = "Bin__%s" % [_get_id_or_rand_str(feature)]
+	collidable_assets_container.add_child(bin)
+	loader.persist_in_current_scene(bin)
+	bin.position = pos_meters + Vector3(0, INIT_HEIGHT, 0)
+	_setup_snapping(bin, true, 0.0)
+
+	return true
+
+
 func _regenerate_data(data_holder: Node3D) -> void:
 	snaps_left_road = 0
 	snaps_left = 0
@@ -662,6 +705,11 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	buildings_container.name = "Buildings"
 	loader.persist_in_current_scene(buildings_container)
 	
+	var collidable_assets_container = Node3D.new()
+	_root_node.add_child(collidable_assets_container)
+	collidable_assets_container.name = "Collidable Assets"
+	loader.persist_in_current_scene(collidable_assets_container)
+	
 	print("Creating structures")
 	assert(_data.features != null)
 	var features: Array = _data.features
@@ -672,6 +720,10 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	
 	var builds_count: int = 0
 	var builds_count_success: int = 0
+	
+	var bins_count: int = 0
+	var bins_count_success: int = 0
+	
 	for f: Dictionary in features:
 		if (f.has("properties")): # and roadsCount < 1000):
 			var properties: Dictionary = f.get("properties")
@@ -686,13 +738,33 @@ func _regenerate_data(data_holder: Node3D) -> void:
 				builds_count += 1
 				if success:
 					builds_count_success += 1
+			elif _is_bin(properties):
+				var success: bool = _build_bin(f, collidable_assets_container, true)
+				bins_count += 1
+				if success:
+					bins_count_success += 1
 	
 	print("Refreshing road segments...")
 	
 	print("Created ", roads_count_success, " roads. Tried: ", roads_count)
 	print("Created ", builds_count_success, " buildings. Tried: ", builds_count)
+	print("Created ", bins_count_success, " bins. Tried: ", bins_count)
 	
 	print("Nodes: ", _root_node.get_child_count())
 
 	print("Done, snapping and road building excluded.")
 	_can_build_roads = true
+
+## Returns a random int as a string
+func _rand_str() -> String:
+	return str(randi_range(0, 100_000_000))
+
+## Returns the GeoJSON feature ID, or a random string if not found.
+func _get_id_or_rand_str(feature: Dictionary) -> StringName:
+	if not feature.has("properties"):
+		return _rand_str()
+	var prop: Dictionary = feature.get("properties")
+	
+	if not prop.has("@id"):
+		return str(randi_range(0, 100_000_000))
+	return prop.get("@id")
