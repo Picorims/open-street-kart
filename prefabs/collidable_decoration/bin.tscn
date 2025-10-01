@@ -19,6 +19,8 @@ height = 1.0
 [node name="Bin" type="RigidBody3D"]
 collision_layer = 33
 mass = 60.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, 0.5, 0)
 freeze = true
 freeze_mode = 1
 script = ExtResource("1_1x6ms")
