@@ -58,15 +58,18 @@ Create a directory in `maps`, named after your track in `snake_case`. Add in the
 ### Setting up the scene
 
 - Pick a 3DNode as the root, and name it after your track name.
-- Add a script file having the exact same name as the scene, saved in the same directory, to your root node. Its content is the project notice followed by this line:
+- Add a script file having the exact same name as the scene, saved in the same directory, to your root node. Its content is the project notice followed by this block (indentation fix needed):
 
 ```gdscript
 class_name TrackOrsay extends Track
+
+func apply_osm_mutations_action(root: Node3D, generator: OSMDataGenerator):
+    pass
 ```
 
-Replace `Orsay` with your track name.
+Replace `Orsay` with your track name. Methods are explained in the `Track` class.
 
-The `Track` class is there as a linter and for assertion, ensuring the scene matches the standardized scene structure and naming convention.
+The `Track` class is there mainly as a linter and for assertion, ensuring the scene matches the standardized scene structure and naming convention. It can also apply mutations to generated data upon the loader request.
 
 #### World Environment
 

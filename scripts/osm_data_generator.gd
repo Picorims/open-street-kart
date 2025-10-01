@@ -7,7 +7,7 @@
 
 
 @tool
-extends Node3D
+class_name OSMDataGenerator extends Node3D
 
 const ROOT_NODE_NAME: String = "OSMData"
 
@@ -19,6 +19,8 @@ const ROOT_NODE_NAME: String = "OSMData"
 
 var _road_kinds: Array[String]
 var _building_kinds: Array[String]
+var _amenity_kinds: Array[String]
+var _amenity_kind_to_prefix: Dictionary[String, String]
 var _root_node: Node3D
 var _deferred_raycasts: Array[SnapToGroundRayCast3D]
 ## It is important to append in the order of building.
@@ -30,6 +32,7 @@ var snaps_left_road: int = 0
 var snaps_left: int = 0
 static var snap_to_ground_ray_cast_3d_scene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
 const BIN_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bin.tscn")
+const BENCH_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bench.tscn")
 const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
 
 class RoadPointPlaceholder extends Node3D:
@@ -202,6 +205,16 @@ func _ready() -> void:
 		"triumphal_arch",
 		"windmill",
 	]
+	
+	_amenity_kinds = [
+		"bench",
+		"waste_basket",
+	]
+	
+	_amenity_kind_to_prefix = {
+		"bench": "Bench",
+		"waste_basket": "Bin",
+	}
 
 var _data
 
@@ -214,13 +227,13 @@ func _load_data() -> void:
 	file.close()
 
 
-func reload_action(dataHolder: Node3D) -> void:
+func reload_action(data_holder: Node3D) -> void:
 	if not boundaries_generator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
 	elif not elevation_generator.is_loaded:
 		print("Cannot continue, elevation not loaded.")
 	else:
-		_regenerate_data(dataHolder)
+		_regenerate_data(data_holder)
 		_can_build_roads = true
 
 var _last_log: float = 0
@@ -307,14 +320,26 @@ func _is_building(properties: Dictionary) -> bool:
 	var kind: String = properties.get("building")
 	if _building_kinds.has(kind): return true
 	return false
-	
-func _is_bin(properties: Dictionary) -> bool:
+
+func _is_supported_amenity(properties: Dictionary) -> bool:
+	return _amenity_kinds.map(func(kind) -> bool:
+		return _is_amenity_kind(kind, properties)
+	).any(func(v): return v)
+
+func _is_amenity_kind(kind: String, properties: Dictionary) -> bool:
 	if (not properties.has("amenity")): return false
 	
 	var id: String = properties.get("@id")
 	if (not id.begins_with("node")): return false
 
-	return properties.get("amenity") == "waste_basket"
+	return properties.get("amenity") == kind
+
+
+func _is_bin(properties: Dictionary) -> bool:
+	return _is_amenity_kind("waste_basket", properties)
+
+func _is_bench(properties: Dictionary) -> bool:
+	return _is_amenity_kind("bench", properties)
 
 func _rotated_point(from_transform: Transform3D, from: Vector3, curr: Vector3, to: Vector3) -> Transform3D:
 	# given this:
@@ -632,36 +657,49 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 
 	return true
 
+func _get_scene_from_feature(feature: Dictionary) -> PackedScene:
+	if not feature.has("properties"):
+		return null
+	var props: Dictionary = feature.get("properties")
+	
+	if _is_bin(props):
+		return BIN_SCENE
+	if _is_bench(props):
+		return BENCH_SCENE
+	
+	return null
 
-func _build_bin(feature: Dictionary, collidable_assets_container: Node3D, verbose: bool = false) -> bool:
+func _build_amenity(feature: Dictionary, collidable_assets_container: Node3D, verbose: bool = false) -> bool:
 	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
+	var kind: String = feature.get("properties").get("amenity")
+	var prefix: String = _amenity_kind_to_prefix.get(kind)
 
 	if (not feature.has("geometry")):
-		if (verbose): print("bin has no geometry, cancel.")
+		if (verbose): print("%s has no geometry, cancel." % prefix)
 		return false
 	var geometry: Dictionary = feature.get("geometry")
 	if (not geometry.has("coordinates")):
-		if (verbose): print("bin has no coordinates, cancel.")
+		if (verbose): print("%s has no coordinates, cancel." % prefix)
 		return false
 	var coordinates: Array = geometry.get("coordinates")
 	if (coordinates.size() != 2):
-		if (verbose): print("bin has invalid coordinates, cancel.")
+		if (verbose): print("%s has invalid coordinates, cancel." % prefix)
 		return false
 
 	# high altitude to be able to snap no matter how sloppy the land is.
 	var pos = coordinates
 	var pos_meters: Vector3 = loader.lat_alt_lon_to_world_global_pos(Vector3(pos[0], INIT_HEIGHT, pos[1]))
 	if not boundaries_generator.is_point_within_race_area(Vector2(pos_meters.x, pos_meters.z)):
-		if (verbose): print("bin outside race area, cancel.")
+		if (verbose): print("%s outside race area, cancel." % prefix)
 		return false
 
 
-	var bin = BIN_SCENE.instantiate()
-	bin.name = "Bin__%s" % [_get_id_or_rand_str(feature)]
-	collidable_assets_container.add_child(bin)
-	loader.persist_in_current_scene(bin)
-	bin.position = pos_meters + Vector3(0, INIT_HEIGHT, 0)
-	_setup_snapping(bin, true, 0.0)
+	var scene = _get_scene_from_feature(feature).instantiate()
+	scene.name = "%s__%s" % [prefix, _get_id_or_rand_str(feature)]
+	collidable_assets_container.add_child(scene)
+	loader.persist_in_current_scene(scene)
+	scene.position = pos_meters + Vector3(0, INIT_HEIGHT, 0)
+	_setup_snapping(scene, true, 0.0)
 
 	return true
 
@@ -721,8 +759,8 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	var builds_count: int = 0
 	var builds_count_success: int = 0
 	
-	var bins_count: int = 0
-	var bins_count_success: int = 0
+	var amenities_count: int = 0
+	var amenities_count_success: int = 0
 	
 	for f: Dictionary in features:
 		if (f.has("properties")): # and roadsCount < 1000):
@@ -738,17 +776,18 @@ func _regenerate_data(data_holder: Node3D) -> void:
 				builds_count += 1
 				if success:
 					builds_count_success += 1
-			elif _is_bin(properties):
-				var success: bool = _build_bin(f, collidable_assets_container, true)
-				bins_count += 1
+			# TODO refactor? bin & bench very similar
+			elif _is_supported_amenity(properties):
+				var success: bool = _build_amenity(f, collidable_assets_container, true)
+				amenities_count += 1
 				if success:
-					bins_count_success += 1
+					amenities_count_success += 1
 	
 	print("Refreshing road segments...")
 	
 	print("Created ", roads_count_success, " roads. Tried: ", roads_count)
 	print("Created ", builds_count_success, " buildings. Tried: ", builds_count)
-	print("Created ", bins_count_success, " bins. Tried: ", bins_count)
+	print("Created ", amenities_count_success, " amenities. Tried: ", amenities_count)
 	
 	print("Nodes: ", _root_node.get_child_count())
 
@@ -768,3 +807,23 @@ func _get_id_or_rand_str(feature: Dictionary) -> StringName:
 	if not prop.has("@id"):
 		return str(randi_range(0, 100_000_000))
 	return prop.get("@id")
+
+## Contains GDScript logic to apply manual mutations (such as transforms)
+## to adjust elements (ex: bench orientation). This is much better than
+## manually mutating the scene which may be overriden by reloading data.
+## The workflow is as follows: do the modification in the scene until
+## satisfied, then reconstruct those modifications through GDScript below.
+## It is best to leave a comment to describe the intent, and prefer absolute
+## over relative mutations to ease maintenance.
+func apply_osm_mutations_action(data_holder):
+	var root: Node3D = data_holder.get_node(ROOT_NODE_NAME)
+	if root == null:
+		push_warning("Could not find root Node for mutations. Doing nothing.")
+		return
+	
+	loader.track.apply_osm_mutations_action(root, self)
+
+## Root is OSMData
+func get_collidable_asset(root: Node3D, name: StringName) -> Node3D:
+	assert(root.name == "OSMData")
+	return root.get_node("Collidable Assets/%s" % name)

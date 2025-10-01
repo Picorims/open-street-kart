@@ -18,7 +18,7 @@ class_name TrackCheckpoint extends Node3D
 @export var look_towards_degrees: int = 0
 
 ## in local coords
-@export var respawn_point: Vector3 = Vector3()
+@export var respawn_point: Vector3 = Vector3(0,0,0)
 @export var debug_draw_box_color: Color = Color(0, 0.8, 0.3)
 @export var debug_draw_arrow_color: Color = Color(0, 0.5, 0.1)
 @export var debug_shape_fill_color: Color = Color(0.0, 0.792, 0.416, 0.42):
