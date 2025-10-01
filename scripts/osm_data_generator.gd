@@ -759,8 +759,8 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	var builds_count: int = 0
 	var builds_count_success: int = 0
 	
-	var amenuities_count: int = 0
-	var amenuities_count_success: int = 0
+	var amenities_count: int = 0
+	var amenities_count_success: int = 0
 	
 	for f: Dictionary in features:
 		if (f.has("properties")): # and roadsCount < 1000):
@@ -779,15 +779,15 @@ func _regenerate_data(data_holder: Node3D) -> void:
 			# TODO refactor? bin & bench very similar
 			elif _is_supported_amenity(properties):
 				var success: bool = _build_amenity(f, collidable_assets_container, true)
-				amenuities_count += 1
+				amenities_count += 1
 				if success:
-					amenuities_count_success += 1
+					amenities_count_success += 1
 	
 	print("Refreshing road segments...")
 	
 	print("Created ", roads_count_success, " roads. Tried: ", roads_count)
 	print("Created ", builds_count_success, " buildings. Tried: ", builds_count)
-	print("Created ", amenuities_count_success, " amenuities. Tried: ", amenuities_count)
+	print("Created ", amenities_count_success, " amenities. Tried: ", amenities_count)
 	
 	print("Nodes: ", _root_node.get_child_count())
 
