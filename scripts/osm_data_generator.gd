@@ -7,7 +7,7 @@
 
 
 @tool
-extends Node3D
+class_name OSMDataGenerator extends Node3D
 
 const ROOT_NODE_NAME: String = "OSMData"
 
@@ -227,13 +227,13 @@ func _load_data() -> void:
 	file.close()
 
 
-func reload_action(dataHolder: Node3D) -> void:
+func reload_action(data_holder: Node3D) -> void:
 	if not boundaries_generator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
 	elif not elevation_generator.is_loaded:
 		print("Cannot continue, elevation not loaded.")
 	else:
-		_regenerate_data(dataHolder)
+		_regenerate_data(data_holder)
 		_can_build_roads = true
 
 var _last_log: float = 0
@@ -807,3 +807,23 @@ func _get_id_or_rand_str(feature: Dictionary) -> StringName:
 	if not prop.has("@id"):
 		return str(randi_range(0, 100_000_000))
 	return prop.get("@id")
+
+## Contains GDScript logic to apply manual mutations (such as transforms)
+## to adjust elements (ex: bench orientation). This is much better than
+## manually mutating the scene which may be overriden by reloading data.
+## The workflow is as follows: do the modification in the scene until
+## satisfied, then reconstruct those modifications through GDScript below.
+## It is best to leave a comment to describe the intent, and prefer absolute
+## over relative mutations to ease maintenance.
+func apply_osm_mutations_action(data_holder):
+	var root: Node3D = data_holder.get_node(ROOT_NODE_NAME)
+	if root == null:
+		push_warning("Could not find root Node for mutations. Doing nothing.")
+		return
+	
+	loader.track.apply_osm_mutations_action(root, self)
+
+## Root is OSMData
+func get_collidable_asset(root: Node3D, name: StringName) -> Node3D:
+	assert(root.name == "OSMData")
+	return root.get_node("Collidable Assets/%s" % name)

@@ -5,6 +5,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+@tool
 class_name Track extends Node3D
 
 func _ready() -> void:
@@ -26,3 +27,14 @@ func _ready() -> void:
 func launch(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	var state: TrackState = $TrackState
 	state.init(mode, speed)
+
+## @abstract
+## Contains GDScript logic to apply manual mutations (such as transforms)
+## to adjust elements (ex: bench orientation). This is much better than
+## manually mutating the scene which may be overriden by reloading data.
+## The workflow is as follows: do the modification in the scene until
+## satisfied, then reconstruct those modifications through GDScript below.
+## It is best to leave a comment to describe the intent, and prefer absolute
+## over relative mutations to ease maintenance.
+func apply_osm_mutations_action(root: Node3D, generator: OSMDataGenerator):
+	push_error("apply_osm_mutations_action not implemented.")

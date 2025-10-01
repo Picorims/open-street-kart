@@ -9,6 +9,7 @@
 @tool
 class_name MapDataLoader extends Node3D
 
+@export var track: Track
 @export var topo_data_path: String
 @export var osm_data_path: String
 @export var boundaries_data_path: String
@@ -21,6 +22,7 @@ class_name MapDataLoader extends Node3D
 @export_tool_button("Reload surface", "ImageTexture3D") var reload_surface_action = Callable(self, "_reload_surface_action")
 @export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
 @export_tool_button("Reload OSM Data", "Path3D") var reload_osm_action = Callable(self, "_reload_osm_action")
+@export_tool_button("Apply manual OSM mutations script", "Script") var apply_osm_mutations_action = Callable(self, "_apply_osm_mutations_action")
 @export var floor_material: Material
 
 var _origin: Vector3
@@ -94,6 +96,15 @@ func _reload_boundaries_action():
 		$BoundariesGenerator.reload_action(root_node)
 		print("=== reloading boundaries done (DO NOT FORGET TO SAVE!!!) ===")
 	)
+
+func _apply_osm_mutations_action():
+	assert(track != null, "missing track reference.")
+	_get_root_of_current_scene(func(root_node: Node3D):
+		print("=== applying manual OSM mutations script ===")
+		$OSMDataGenerator.apply_osm_mutations_action(root_node)
+		print("=== applying manual OSM mutations script done (DO NOT FORGET TO SAVE!!!) ===")
+	)
+
 
 func persist_in_current_scene(node: Node3D) -> void:
 	node.owner = get_tree().edited_scene_root
