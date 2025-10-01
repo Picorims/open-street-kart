@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://cp6p822dy2t0q"]
+
+[ext_resource type="Script" uid="uid://cpw0wopdaijwt" path="res://scripts/freeze_managed_rigid_body_3d.gd" id="1_va6wp"]
+[ext_resource type="PackedScene" uid="uid://bru5i675j7hfp" path="res://models/collidable_assets/bench/bench.glb" id="2_kecco"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_j4e60"]
+
+[node name="Node3D" type="RigidBody3D"]
+collision_layer = 33
+freeze = true
+freeze_mode = 1
+script = ExtResource("1_va6wp")
+managed_freeze = true
+metadata/_custom_type_script = "uid://cpw0wopdaijwt"
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+shape = SubResource("BoxShape3D_j4e60")
+
+[node name="bench" parent="." instance=ExtResource("2_kecco")]
