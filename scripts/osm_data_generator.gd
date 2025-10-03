@@ -21,6 +21,7 @@ var _road_kinds: Array[String]
 var _building_kinds: Array[String]
 var _amenity_kinds: Array[String]
 var _amenity_kind_to_prefix: Dictionary[String, String]
+var _highway_kind_to_prefix: Dictionary[String, String]
 var _root_node: Node3D
 var _deferred_raycasts: Array[SnapToGroundRayCast3D]
 ## It is important to append in the order of building.
@@ -33,6 +34,7 @@ var snaps_left: int = 0
 static var snap_to_ground_ray_cast_3d_scene: PackedScene = preload("res://prefabs/snap_to_ground_raycast_3d.tscn")
 const BIN_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bin.tscn")
 const BENCH_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bench.tscn")
+const BUS_STOP_POLE_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bus_stop_pole.tscn")
 const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
 
 class RoadPointPlaceholder extends Node3D:
@@ -215,6 +217,9 @@ func _ready() -> void:
 		"bench": "Bench",
 		"waste_basket": "Bin",
 	}
+	_highway_kind_to_prefix = {
+		"bus_stop": "BusStop",
+	}
 
 var _data
 
@@ -310,7 +315,15 @@ func _is_road(properties: Dictionary) -> bool:
 	var kind: String = properties.get("highway")
 	if _road_kinds.has(kind): return true
 	return false
+
+func _is_bus_stop(properties: Dictionary) -> bool:
+	if (not properties.has("highway")): return false
 	
+	var id: String = properties.get("@id")
+	if (not id.begins_with("node")): return false
+	
+	return properties.get("highway") == "bus_stop"
+
 func _is_building(properties: Dictionary) -> bool:
 	if (not properties.has("building")): return false
 	
@@ -666,6 +679,8 @@ func _get_scene_from_feature(feature: Dictionary) -> PackedScene:
 		return BIN_SCENE
 	if _is_bench(props):
 		return BENCH_SCENE
+	if _is_bus_stop(props):
+		return BUS_STOP_POLE_SCENE
 	
 	return null
 
@@ -693,7 +708,6 @@ func _build_amenity(feature: Dictionary, collidable_assets_container: Node3D, ve
 		if (verbose): print("%s outside race area, cancel." % prefix)
 		return false
 
-
 	var scene = _get_scene_from_feature(feature).instantiate()
 	scene.name = "%s__%s" % [prefix, _get_id_or_rand_str(feature)]
 	collidable_assets_container.add_child(scene)
@@ -703,6 +717,38 @@ func _build_amenity(feature: Dictionary, collidable_assets_container: Node3D, ve
 
 	return true
 
+func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3D, verbose: bool = false) -> bool:
+	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
+	var kind: String = feature.get("properties").get("highway")
+	var prefix: String = _highway_kind_to_prefix.get(kind)
+
+	if (not feature.has("geometry")):
+		if (verbose): print("%s has no geometry, cancel." % prefix)
+		return false
+	var geometry: Dictionary = feature.get("geometry")
+	if (not geometry.has("coordinates")):
+		if (verbose): print("%s has no coordinates, cancel." % prefix)
+		return false
+	var coordinates: Array = geometry.get("coordinates")
+	if (coordinates.size() != 2):
+		if (verbose): print("%s has invalid coordinates, cancel." % prefix)
+		return false
+
+	# high altitude to be able to snap no matter how sloppy the land is.
+	var pos = coordinates
+	var pos_meters: Vector3 = loader.lat_alt_lon_to_world_global_pos(Vector3(pos[0], INIT_HEIGHT, pos[1]))
+	if not boundaries_generator.is_point_within_race_area(Vector2(pos_meters.x, pos_meters.z)):
+		if (verbose): print("%s outside race area, cancel." % prefix)
+		return false
+
+	var scene = _get_scene_from_feature(feature).instantiate()
+	scene.name = "%s__%s" % [prefix, _get_id_or_rand_str(feature)]
+	collidable_assets_container.add_child(scene)
+	loader.persist_in_current_scene(scene)
+	scene.position = pos_meters + Vector3(0, INIT_HEIGHT, 0)
+	_setup_snapping(scene, true, 0.0)
+
+	return true
 
 func _regenerate_data(data_holder: Node3D) -> void:
 	snaps_left_road = 0
@@ -762,6 +808,9 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	var amenities_count: int = 0
 	var amenities_count_success: int = 0
 	
+	var highway_nodes_count: int = 0
+	var highway_nodes_count_success: int = 0
+	
 	for f: Dictionary in features:
 		if (f.has("properties")): # and roadsCount < 1000):
 			var properties: Dictionary = f.get("properties")
@@ -776,18 +825,23 @@ func _regenerate_data(data_holder: Node3D) -> void:
 				builds_count += 1
 				if success:
 					builds_count_success += 1
-			# TODO refactor? bin & bench very similar
 			elif _is_supported_amenity(properties):
-				var success: bool = _build_amenity(f, collidable_assets_container, true)
+				var success: bool = _build_amenity(f, collidable_assets_container)
 				amenities_count += 1
 				if success:
 					amenities_count_success += 1
+			elif _is_bus_stop(properties):
+				var success: bool = _build_highway_node(f, collidable_assets_container)
+				highway_nodes_count += 1
+				if success:
+					highway_nodes_count_success += 1
 	
 	print("Refreshing road segments...")
 	
 	print("Created ", roads_count_success, " roads. Tried: ", roads_count)
 	print("Created ", builds_count_success, " buildings. Tried: ", builds_count)
 	print("Created ", amenities_count_success, " amenities. Tried: ", amenities_count)
+	print("Created ", highway_nodes_count_success, " highway nodes. Tried: ", highway_nodes_count)
 	
 	print("Nodes: ", _root_node.get_child_count())
 
