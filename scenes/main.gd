@@ -8,6 +8,7 @@
 class_name Main extends Node3D
 
 const _3D_MENU_BACKGROUND: PackedScene = preload("res://scenes/backgrounds/gui_background_menus.tscn")
+const _3D_MENU_BACKGROUND_V2: PackedScene = preload("res://scenes/backgrounds/gui_background_menus_v2.tscn")
 
 const _SCREEN_PICK_MODE: PackedScene = preload("res://gui/screens/pick_mode_screen.tscn")
 const _SCREEN_PICK_SPEED: PackedScene = preload("res://gui/screens/pick_speed_screen.tscn")
@@ -119,7 +120,7 @@ func _apply_background(background_kind: _BackgroundKind):
 	if (_current_background != background_kind):
 		if (background_kind == _BackgroundKind.MENU_BACKGROUND_3D):
 			_clear_world()
-			var env: Node3D = _3D_MENU_BACKGROUND.instantiate()
+			var env: Node3D = _3D_MENU_BACKGROUND_V2.instantiate()
 			$World.add_child(env)
 
 ## Remove all children of $World
