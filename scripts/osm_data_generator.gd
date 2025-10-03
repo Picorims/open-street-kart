@@ -708,7 +708,6 @@ func _build_amenity(feature: Dictionary, collidable_assets_container: Node3D, ve
 		if (verbose): print("%s outside race area, cancel." % prefix)
 		return false
 
-
 	var scene = _get_scene_from_feature(feature).instantiate()
 	scene.name = "%s__%s" % [prefix, _get_id_or_rand_str(feature)]
 	collidable_assets_container.add_child(scene)
@@ -741,7 +740,6 @@ func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3
 	if not boundaries_generator.is_point_within_race_area(Vector2(pos_meters.x, pos_meters.z)):
 		if (verbose): print("%s outside race area, cancel." % prefix)
 		return false
-
 
 	var scene = _get_scene_from_feature(feature).instantiate()
 	scene.name = "%s__%s" % [prefix, _get_id_or_rand_str(feature)]
@@ -833,7 +831,7 @@ func _regenerate_data(data_holder: Node3D) -> void:
 				if success:
 					amenities_count_success += 1
 			elif _is_bus_stop(properties):
-				var success: bool = _build_highway_node(f, collidable_assets_container, true)
+				var success: bool = _build_highway_node(f, collidable_assets_container)
 				highway_nodes_count += 1
 				if success:
 					highway_nodes_count_success += 1
