@@ -22,6 +22,10 @@ config/icon="res://icon.svg"
 
 settings/addon_root_folder="res://addons/debug_draw_3d"
 
+[editor_plugins]
+
+enabled=PackedStringArray("res://addons/sky_3d/plugin.cfg")
+
 [gui]
 
 theme/custom="uid://mcxm36operox"
