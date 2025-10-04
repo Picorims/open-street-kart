@@ -23,6 +23,10 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 <a href="https://github.com/Picorims/open-street-kart">Open Street Kart textures, materials, music, sound, and other artistic assets</a> © 2025 by <a href="https://github.com/Picorims/open-street-kart">Picorims and Open Street Kart contributors (see notice on individual assets for the exact authors)</a> is licensed under <a href="https://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International</a><img src="https://mirrors.creativecommons.org/presskit/icons/cc.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/by.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;"><img src="https://mirrors.creativecommons.org/presskit/icons/sa.svg" alt="" style="max-width: 1em;max-height:1em;margin-left: .2em;">
 
+#### Milky Way
+
+<a href="https://www.eso.org/public/images/eso0932a/">The Milky Way panorama</a> by ESO/S. Brunier, licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> and used in original and modified forms.
+
 ## Data
 
 ### Elevation
@@ -45,3 +49,4 @@ Addons are used in this project. For more information, have a look at the `addon
 
 - Debug Draw 3D: MIT License
 - Road Generator: MIT License
+- Sky3D: MIT License

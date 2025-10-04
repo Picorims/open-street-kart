@@ -74,6 +74,7 @@ radial_segments = 16
 rings = 8
 
 [sub_resource type="PhysicalSkyMaterial" id="PhysicalSkyMaterial_jt7wu"]
+energy_multiplier = 2.5
 use_debanding = false
 
 [sub_resource type="Sky" id="Sky_ubsni"]
@@ -84,7 +85,7 @@ background_mode = 2
 sky = SubResource("Sky_ubsni")
 ambient_light_source = 3
 ambient_light_color = Color(0.161189, 0.35, 0.35, 1)
-ambient_light_sky_contribution = 0.7
+ambient_light_sky_contribution = 0.93
 reflected_light_source = 2
 tonemap_mode = 3
 tonemap_exposure = 0.975
@@ -139,7 +140,6 @@ enable_game_time = false
 current_time = 22.0
 sky_contribution = 0.93
 reflected_energy = 2.5
-skydome_energy = 0.705
 tonemap_exposure = 0.975
 camera_exposure = 1.5
 auto_exposure_scale = 0.15
@@ -155,6 +155,7 @@ shadow_enabled = true
 
 [node name="MoonLight" type="DirectionalLight3D" parent="Sky3D"]
 transform = Transform3D(0, -0.476078, 0.879403, 0.92803, 0.327583, 0.177342, -0.372506, 0.816112, 0.441815, 0.879403, 0.177342, 0.441815)
+visible = false
 light_color = Color(0.604938, 0.839727, 0.988783, 1)
 light_energy = 0.125026
 light_specular = 1.993
