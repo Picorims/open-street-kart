@@ -25,7 +25,7 @@ file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 #### Milky Way
 
-<a href="https://www.eso.org/public/images/eso0932a/">The Milky Way panorama</a> by ESO/S. Brunier, licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> and used in original and modified forms.`
+<a href="https://www.eso.org/public/images/eso0932a/">The Milky Way panorama</a> by ESO/S. Brunier, licensed under <a href="https://creativecommons.org/licenses/by/4.0/">CC BY 4.0</a> and used in original and modified forms.
 
 ## Data
 
