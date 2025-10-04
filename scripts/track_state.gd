@@ -122,7 +122,7 @@ func start():
 	_started = true
 
 	for id in _ids:
-		_car_item_slots[id] = PlayerItemSlotsState.new(_speed)
+		_car_item_slots[id] = PlayerItemSlotsState.new(_speed, _mode)
 
 func _stop():
 	_race_finished = true
