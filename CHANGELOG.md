@@ -7,11 +7,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Dates are in format YYYY-MM-DD (year, month, day)
 
-# [1.0.0-alpha.5] - ???
+# [1.0.0-alpha.5] - 2025-10-04
+
+## Added
+
+- Added collision enabled decorations:
+    - Added bins
+    - Added benches
+    - Added bus stop poles
 
 ## Changed
 
 - Improved physics performance
+- Switched to Sky3D procedural sky in-game and for the menus.
+- Improved roads texture.
+- Item slots now have different behaviour depending of the game mode:
+    - In versus, random items are picked at a given interval.
+    - Against the clock, the player has 3 speed boosts for the entire race.
 
 ## Fixed
 
