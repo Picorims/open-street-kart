@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Dates are in format YYYY-MM-DD (year, month, day)
 
+# [1.0.0-alpha.6] - 2025-11-23
+
+## Changed
+
+- Improved grass texture.
+- Tweaked sky and exposure settings.
+
 # [1.0.0-alpha.5] - 2025-10-04
 
 ## Added
