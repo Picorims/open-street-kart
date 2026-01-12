@@ -200,7 +200,7 @@ func _soft_clamp_speed(state: PhysicsDirectBodyState3D, out_of_bounds: bool):
 	var max_speed_squared = _get_max_speed_squared(out_of_bounds)
 	if (vel_squared_xz > max_speed_squared):
 		var norm_projected_on_xz: Vector3 = state.linear_velocity.normalized() * Vector3(1, 0, 1)
-		var diff: float = (vel_squared_xz - max_speed_squared)
+		var diff: float = min(vel_squared_xz * 0.5, vel_squared_xz - max_speed_squared)
 		# This is a physics based "clamp", being quadratic to be as close as possible to a hard limit.
 		# We do not use clamp as it causes unexpected behavior, such as making the car drift in air.
 		# It does not affect fall speed.
