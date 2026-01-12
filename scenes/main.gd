@@ -57,6 +57,7 @@ func get_selected_speed() -> TrackState.SpeedMode:
 
 func _ready():
 	print("Loading...")
+	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 	DebugDraw2D.config.text_block_offset.y = 150
 	_apply_background(_BackgroundKind.MENU_BACKGROUND_3D)
 	_apply_screen(_Screen.HOME)
