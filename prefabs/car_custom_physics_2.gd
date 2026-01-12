@@ -353,6 +353,9 @@ func _physics_process(delta: float) -> void:
 func force_basis_on_next_physics_frame(new_basis: Basis):
 	_forced_basis = new_basis
 	_must_force_basis = true
+
+func clear_speed_boost():
+	_speed_boost_until_seconds = -1
 	
 ## Returns null if the type do not match.
 func _get_collider_of_colliding_raycast(raycast: RayCast3D) -> CollisionObject3D:
