@@ -20,7 +20,13 @@ signal timeout
 		return freeze
 	set(v):
 		managed_freeze = v
+		# caching and restoring global transform to avoid
+		# a reset of the position/rotation when changing freeze state.
+		var temp_pos: Vector3 = global_position
+		var temp_rot: Basis = global_transform.basis
 		freeze = v
+		global_position = temp_pos
+		global_transform.basis = temp_rot
 		freezeChanged.emit(v)
 		if (not freeze):
 			_last_unfreeze_ms = Time.get_ticks_msec()
