@@ -236,7 +236,11 @@ func _apply_single_wheel_suspension(suspension_ray: RayCast3D) -> void:
 		var spring_force_vector: Vector3 = (spring_force - spring_damping_force) * spring_up_direction
 		
 		var force_position_offset = contact_point - global_position # at raycast collision point
-		if is_nan(force_position_offset.x) or is_nan(force_position_offset.y) or is_nan(force_position_offset.z):
+		if (
+			is_nan(force_position_offset.x) or is_nan(force_position_offset.y) or is_nan(force_position_offset.z)
+			or is_nan(spring_force_vector.x) or is_nan(spring_force_vector.y) or is_nan(spring_force_vector.z)
+		):
+			push_warning("NaN detected in force_position_offset in _apply_single_wheel_suspension: " + str(force_position_offset))
 			return # avoid crash
 		apply_force(spring_force_vector, force_position_offset)
 
@@ -247,6 +251,7 @@ func _cancel_inertia(state: PhysicsDirectBodyState3D) -> void:
 	if (radius == -1): # see doc for _get_radius_of_rotation()
 		return
 	if (state.linear_velocity.length_squared() < 0.01):
+		# Not significant, also reduces the risk of problematic values.
 		return
 	# Projecting the linear velocity onto the forward / backward axis to know in which direction the car
 	# goes, assuming wheel adherence.
