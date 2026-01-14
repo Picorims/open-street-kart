@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 Dates are in format YYYY-MM-DD (year, month, day)
 
+# [1.0.0-alpha.7] - 2026-01-14
+
+## Changed
+
+- Always launch the game in full-screen mode (no stuttering on Windows, no menu showing up on Mac, etc.)
+
+## Fixed
+
+- The speed boost is not stopped upon respawn. (#164)
+- Speed boost end when out of track causes the velocity to reset to zero (huge braking) (#165)
+- Collidable assets go back to their original position when approaching them (#158)
+
 # [1.0.0-alpha.6] - 2025-11-23
 
 ## Changed
