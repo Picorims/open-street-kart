@@ -18,6 +18,10 @@ class_name MapDataLoader extends Node3D
 @export var latitude_origin: String = "0.0"
 @export var longitude_origin: String = "0.0"
 @export var elevation_origin: String = "0.0"
+## heightmap width times scaling factor times meters per pixel (resolution)
+@export var width_meters: int = 1000
+## heightmap height times scaling factor times meters per pixel (resolution)
+@export var length_meters: int = 1000
 # icons: Godot EditorIcons; https://godot-editor-icons.github.io/
 @export_tool_button("Reload surface", "ImageTexture3D") var reload_surface_action = Callable(self, "_reload_surface_action")
 @export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
