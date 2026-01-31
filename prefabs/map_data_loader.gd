@@ -11,6 +11,7 @@ class_name MapDataLoader extends Node3D
 
 @export var track: Track
 @export var terrain: Terrain3D
+@export var terrain_connector: RoadTerrain3DConnector
 @export var topo_data_path: String
 @export var osm_data_path: String
 @export var boundaries_data_path: String

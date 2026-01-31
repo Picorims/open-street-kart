@@ -770,6 +770,7 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	_root_node.add_child(roads_container)
 	loader.persist_in_current_scene(roads_container)
 	var road_manager = RoadManager.new()
+	loader.terrain_connector.road_manager = road_manager
 	_road_manager = road_manager
 	road_manager.auto_refresh = false
 	road_manager.material_resource = road_material
