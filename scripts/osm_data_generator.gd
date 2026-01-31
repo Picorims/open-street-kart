@@ -818,11 +818,13 @@ func _regenerate_data(data_holder: Node3D) -> void:
 					roads_count_success += 1
 			# if false:
 			# 	pass
-			# elif _is_building(properties): # problem
-			# 	var success: bool = _build_building(f, buildings_container)
-			# 	builds_count += 1
-			# 	if success:
-			# 		builds_count_success += 1
+			elif _is_building(properties): # problem
+				# if builds_count_success > 1000:
+				# 	continue
+				var success: bool = _build_building(f, buildings_container)
+				builds_count += 1
+				if success:
+					builds_count_success += 1
 			elif _is_supported_amenity(properties):
 				var success: bool = _build_amenity(f, collidable_assets_container)
 				amenities_count += 1
