@@ -10,6 +10,7 @@
 class_name MapDataLoader extends Node3D
 
 @export var track: Track
+@export var terrain: Terrain3D
 @export var topo_data_path: String
 @export var osm_data_path: String
 @export var boundaries_data_path: String
@@ -47,7 +48,7 @@ func get_scale_transform(lat) -> Vector3:
 	return Vector3(40075000 * cos(lat) / 360, 1, 111320)
 
 func _ready() -> void:
-	_origin = Vector3(float(latitude_origin), float(elevation_origin), float(longitude_origin))
+	_origin = Vector3(float(latitude_origin), 0, float(longitude_origin))
 	#_scale_transform = Vector3(latitudeScale, 1, longitudeScale)
 	print("world origin: ", _origin)
 

@@ -79,7 +79,7 @@ Create a directory in `maps`, named after your track in `snake_case`. Add in the
   - Set Vertex Spacing to 3.
 - Under `Import File`:
   - Set the height file name to the upscaled r16 file.
-  - Set the r16 range according to the min/max text file.
+  - Set the height scale to 256.
   - Set the r16 size according to width (w) and (height) (h) times the scaling (@) of the r16 file.
   - Click run import and wait. Check if it looks as expected.
   - Set the destination directory to the `terrain3d` directory previously created.
