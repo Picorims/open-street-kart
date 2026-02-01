@@ -438,8 +438,8 @@ func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
 			#cMeters.y += elevation
 			if (prev_exists):
 				var distance: float = prev_meters.distance_to(c_meters)
-				if (distance > _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS):
-					_append_interpolated_points(prev_meters, c_meters, meters_coords)
+				# if (distance > _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS):
+				# 	_append_interpolated_points(prev_meters, c_meters, meters_coords)
 			meters_coords.append(c_meters)
 			prev_meters = c_meters
 			prev_exists = true
