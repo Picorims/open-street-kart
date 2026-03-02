@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://cnrovu68idhgs"]
+[gd_scene format=3 uid="uid://cnrovu68idhgs"]
 
 [ext_resource type="Material" uid="uid://bkxkj3ary5fe6" path="res://materials/ground.tres" id="1_nklwo"]
 
@@ -9,10 +9,10 @@ size = Vector3(1000, 2, 1000)
 material = ExtResource("1_nklwo")
 size = Vector3(1000, 2, 1000)
 
-[node name="Ground" type="StaticBody3D"]
+[node name="Ground" type="StaticBody3D" unique_id=2120853214]
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1021043133]
 shape = SubResource("BoxShape3D_tnbdo")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=329457011]
 mesh = SubResource("BoxMesh_ik71v")

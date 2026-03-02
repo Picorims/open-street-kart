@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://cmxj6psn6u364"]
+[gd_scene format=3 uid="uid://cmxj6psn6u364"]
 
 [ext_resource type="Script" uid="uid://cpw0wopdaijwt" path="res://scripts/freeze_managed_rigid_body_3d.gd" id="1_sftqw"]
 [ext_resource type="PackedScene" uid="uid://cmoh1kmd08dii" path="res://models/collidable_assets/bus stop pole/bus_stop_pole.glb" id="2_ekvns"]
@@ -13,7 +13,7 @@ size = Vector3(0.145, 0.5, 0.5)
 height = 3.0
 radius = 0.05
 
-[node name="BusStopPole" type="RigidBody3D"]
+[node name="BusStopPole" type="RigidBody3D" unique_id=1551736032]
 collision_layer = 33
 mass = 30.0
 center_of_mass_mode = 1
@@ -24,17 +24,17 @@ script = ExtResource("1_sftqw")
 managed_freeze = true
 metadata/_custom_type_script = "uid://cpw0wopdaijwt"
 
-[node name="bus_stop_pole" parent="." instance=ExtResource("2_ekvns")]
+[node name="bus_stop_pole" parent="." unique_id=169180016 instance=ExtResource("2_ekvns")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 
-[node name="CollisionShape3DSignMiddle" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3DSignMiddle" type="CollisionShape3D" parent="." unique_id=497214602]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 shape = SubResource("BoxShape3D_ixa1p")
 
-[node name="CollisionShape3DSignTop" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3DSignTop" type="CollisionShape3D" parent="." unique_id=1297518483]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.76, 0)
 shape = SubResource("BoxShape3D_db4h1")
 
-[node name="CollisionShape3DTube" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3DTube" type="CollisionShape3D" parent="." unique_id=865825028]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
 shape = SubResource("CylinderShape3D_jliwg")

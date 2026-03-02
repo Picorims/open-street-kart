@@ -1,4 +1,4 @@
-[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://7iunwf827xth"]
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://7iunwf827xth"]
 
 [ext_resource type="Texture2D" uid="uid://bjcidawvp2hkb" path="res://materials/environment/road/asphalt/asphalt_albedo.png" id="1"]
 [ext_resource type="Texture2D" uid="uid://bbmbtgi4ktwen" path="res://materials/environment/road/asphalt/asphalt_orm.png" id="2"]

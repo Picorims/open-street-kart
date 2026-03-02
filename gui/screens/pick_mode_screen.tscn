@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://cisuxbd6axgh8"]
+[gd_scene format=3 uid="uid://cisuxbd6axgh8"]
 
 [ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="1_h5tn5"]
 [ext_resource type="Script" uid="uid://b1q54a3wlp8kx" path="res://gui/screens/pick_mode_screen.gd" id="1_pbvts"]
 
-[node name="PickModeScreen" type="CenterContainer"]
+[node name="PickModeScreen" type="CenterContainer" unique_id=438509662]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -13,31 +13,31 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 script = ExtResource("1_pbvts")
 
-[node name="UIBlockContainer" type="VBoxContainer" parent="."]
+[node name="UIBlockContainer" type="VBoxContainer" parent="." unique_id=1804892024]
 layout_mode = 2
 
-[node name="TitleMarginContainer" type="MarginContainer" parent="UIBlockContainer"]
+[node name="TitleMarginContainer" type="MarginContainer" parent="UIBlockContainer" unique_id=142141223]
 layout_mode = 2
 theme_override_constants/margin_bottom = 64
 
-[node name="Label" type="Label" parent="UIBlockContainer/TitleMarginContainer"]
+[node name="Label" type="Label" parent="UIBlockContainer/TitleMarginContainer" unique_id=627547464]
 layout_mode = 2
 theme_type_variation = &"HeaderLarge"
 text = "Choose a mode"
 horizontal_alignment = 1
 
-[node name="ButtonsVBoxContainer" type="VBoxContainer" parent="UIBlockContainer"]
+[node name="ButtonsVBoxContainer" type="VBoxContainer" parent="UIBlockContainer" unique_id=147134950]
 layout_mode = 2
 theme_override_constants/separation = 32
 
-[node name="AtomGUIBlurredBgndMenuButton_AgainstClock" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer"]
+[node name="AtomGUIBlurredBgndMenuButton_AgainstClock" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=2012899651]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("1_h5tn5")
 text = "Against the clock"
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
-[node name="AtomGUIBlurredBgndMenuButton_Versus" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer"]
+[node name="AtomGUIBlurredBgndMenuButton_Versus" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=846590502]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("1_h5tn5")

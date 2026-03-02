@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://b48xgpi1403n5"]
+[gd_scene format=3 uid="uid://b48xgpi1403n5"]
 
 [ext_resource type="Script" uid="uid://cgg1d2sw6gahi" path="res://gui/atoms/atom_hud_race_player_pos.gd" id="1_17qbs"]
 
@@ -16,7 +16,7 @@ font_size = 12
 outline_size = 2
 outline_color = Color(0, 0, 0, 1)
 
-[node name="AtomHUDRacePlayerPos" type="Control"]
+[node name="AtomHUDRacePlayerPos" type="Control" unique_id=1611470084]
 custom_minimum_size = Vector2(32, 40)
 layout_mode = 3
 anchors_preset = 15
@@ -28,7 +28,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_17qbs")
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=963114487]
 custom_minimum_size = Vector2(4, 8)
 layout_mode = 1
 anchors_preset = 7
@@ -42,7 +42,7 @@ offset_right = 2.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=901440655]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -51,7 +51,7 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/margin_bottom = 8
 
-[node name="arrow" type="Label" parent="MarginContainer"]
+[node name="arrow" type="Label" parent="MarginContainer" unique_id=1623344733]
 layout_mode = 2
 size_flags_vertical = 8
 text = "v"
@@ -59,7 +59,7 @@ label_settings = SubResource("LabelSettings_17qbs")
 horizontal_alignment = 1
 vertical_alignment = 2
 
-[node name="name" type="Label" parent="MarginContainer"]
+[node name="name" type="Label" parent="MarginContainer" unique_id=1590882837]
 layout_mode = 2
 size_flags_vertical = 1
 text = "?"

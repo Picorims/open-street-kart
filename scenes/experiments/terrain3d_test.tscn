@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://b7jtmw0vnic1c"]
+[gd_scene format=3 uid="uid://b7jtmw0vnic1c"]
 
 [sub_resource type="Gradient" id="Gradient_2dqlo"]
 offsets = PackedFloat32Array(0.2, 1)
@@ -63,9 +63,9 @@ lod0_range = 128.0
 [sub_resource type="Terrain3DAssets" id="Terrain3DAssets_hs0mv"]
 mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_opcgj")])
 
-[node name="Terrain3dTest" type="Node3D"]
+[node name="Terrain3dTest" type="Node3D" unique_id=1818079729]
 
-[node name="Terrain3D" type="Terrain3D" parent="."]
+[node name="Terrain3D" type="Terrain3D" parent="." unique_id=155686614]
 data_directory = "res://scenes/experiments/terrain3d_test_data"
 material = SubResource("Terrain3DMaterial_76klx")
 assets = SubResource("Terrain3DAssets_hs0mv")

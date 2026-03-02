@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://bok3cu1a4v2mm"]
+[gd_scene format=3 uid="uid://bok3cu1a4v2mm"]
 
 [ext_resource type="Script" uid="uid://b16ai6rpry00x" path="res://gui/screens/pick_speed_screen.gd" id="1_rrdaf"]
 [ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="2_1y0ig"]
 
-[node name="PickSpeedScreen" type="CenterContainer"]
+[node name="PickSpeedScreen" type="CenterContainer" unique_id=1413318623]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -13,45 +13,45 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 script = ExtResource("1_rrdaf")
 
-[node name="UIBlockContainer" type="VBoxContainer" parent="."]
+[node name="UIBlockContainer" type="VBoxContainer" parent="." unique_id=593623697]
 layout_mode = 2
 
-[node name="TitleMarginContainer" type="MarginContainer" parent="UIBlockContainer"]
+[node name="TitleMarginContainer" type="MarginContainer" parent="UIBlockContainer" unique_id=1410875186]
 layout_mode = 2
 theme_override_constants/margin_bottom = 64
 
-[node name="Label" type="Label" parent="UIBlockContainer/TitleMarginContainer"]
+[node name="Label" type="Label" parent="UIBlockContainer/TitleMarginContainer" unique_id=1240526011]
 layout_mode = 2
 theme_type_variation = &"HeaderLarge"
 text = "Choose a speed"
 horizontal_alignment = 1
 
-[node name="ButtonsVBoxContainer" type="VBoxContainer" parent="UIBlockContainer"]
+[node name="ButtonsVBoxContainer" type="VBoxContainer" parent="UIBlockContainer" unique_id=1713152816]
 layout_mode = 2
 theme_override_constants/separation = 32
 
-[node name="AtomGUIBlurredBgndMenuButton_Chill" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer"]
+[node name="AtomGUIBlurredBgndMenuButton_Chill" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=910727798]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_1y0ig")
 text = "Chill"
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
-[node name="AtomGUIBlurredBgndMenuButton_Casual" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer"]
+[node name="AtomGUIBlurredBgndMenuButton_Casual" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=1521157084]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_1y0ig")
 text = "Casual"
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
-[node name="AtomGUIBlurredBgndMenuButton_Challenging" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer"]
+[node name="AtomGUIBlurredBgndMenuButton_Challenging" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=739125702]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_1y0ig")
 text = "Challenging"
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
-[node name="AtomGUIBlurredBgndMenuButton_Crazy" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer"]
+[node name="AtomGUIBlurredBgndMenuButton_Crazy" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=205602286]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_1y0ig")

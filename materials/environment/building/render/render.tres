@@ -1,4 +1,4 @@
-[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://pk7bh6318xwy"]
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://pk7bh6318xwy"]
 
 [ext_resource type="Texture2D" uid="uid://deoswwjt8mwdo" path="res://materials/environment/building/render/render_albedo.png" id="1"]
 [ext_resource type="Texture2D" uid="uid://ihf261cpke3e" path="res://materials/environment/building/render/render_orm.png" id="2"]

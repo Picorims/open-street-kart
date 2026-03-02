@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://j0nkedjdthc8"]
+[gd_scene format=3 uid="uid://j0nkedjdthc8"]
 
 [ext_resource type="Material" uid="uid://x1nuxgawnulq" path="res://materials/wheel.tres" id="1_vcrbp"]
 
@@ -12,13 +12,13 @@ height = 0.35
 radius = 0.25
 height = 0.7
 
-[node name="Wheel" type="RigidBody3D"]
+[node name="Wheel" type="RigidBody3D" unique_id=1859556022]
 mass = 10.0
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1090067377]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 mesh = SubResource("CylinderMesh_sxnl6")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1191815203]
 transform = Transform3D(1, 0, 0, 0, -4.37114e-08, -1, 0, 1, -4.37114e-08, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_sxnl6")

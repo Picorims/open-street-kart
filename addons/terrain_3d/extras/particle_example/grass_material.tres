@@ -1,4 +1,4 @@
-[gd_resource type="ShaderMaterial" load_steps=2 format=3 uid="uid://ljo1wt61kbkq"]
+[gd_resource type="ShaderMaterial" format=3 uid="uid://ljo1wt61kbkq"]
 
 [ext_resource type="Shader" uid="uid://dq3lfyp3u5oxt" path="res://addons/terrain_3d/extras/particle_example/grass.gdshader" id="1_nkru0"]
 

@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://cenq0e4kh1j11"]
+[gd_scene format=3 uid="uid://cenq0e4kh1j11"]
 
 [ext_resource type="Script" uid="uid://bblfpdryk8p7q" path="res://gui/screens/pick_track_screen.gd" id="1_bqhs8"]
 [ext_resource type="Shader" uid="uid://bhdo7hy443n7o" path="res://shaders/blur_with_radius_background.gdshader" id="2_8c8eu"]
@@ -13,7 +13,7 @@ shader_parameter/strength = 3.3
 shader_parameter/mix_percentage = 0.3
 shader_parameter/mix_color = Color(0, 0, 0, 1)
 
-[node name="PickTrackScreen" type="Control"]
+[node name="PickTrackScreen" type="Control" unique_id=240625017]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -24,7 +24,7 @@ size_flags_horizontal = 4
 size_flags_vertical = 4
 script = ExtResource("1_bqhs8")
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=915686067]
 layout_mode = 1
 anchors_preset = 4
 anchor_top = 0.5
@@ -35,27 +35,27 @@ offset_bottom = 206.5
 grow_vertical = 2
 theme_override_constants/margin_left = 64
 
-[node name="UIBlockContainer" type="VBoxContainer" parent="MarginContainer"]
+[node name="UIBlockContainer" type="VBoxContainer" parent="MarginContainer" unique_id=355496283]
 layout_mode = 2
 theme_override_constants/separation = 16
 alignment = 1
 
-[node name="TitleMarginContainer" type="MarginContainer" parent="MarginContainer/UIBlockContainer"]
+[node name="TitleMarginContainer" type="MarginContainer" parent="MarginContainer/UIBlockContainer" unique_id=1593107869]
 layout_mode = 2
 size_flags_horizontal = 0
 theme_override_constants/margin_bottom = 64
 
-[node name="Label" type="Label" parent="MarginContainer/UIBlockContainer/TitleMarginContainer"]
+[node name="Label" type="Label" parent="MarginContainer/UIBlockContainer/TitleMarginContainer" unique_id=1734571879]
 layout_mode = 2
 theme_type_variation = &"HeaderLarge"
 text = "Choose a track"
 horizontal_alignment = 1
 
-[node name="TracksList" type="Control" parent="MarginContainer/UIBlockContainer"]
+[node name="TracksList" type="Control" parent="MarginContainer/UIBlockContainer" unique_id=1245684060]
 layout_mode = 2
 size_flags_vertical = 3
 
-[node name="ColorRect" type="ColorRect" parent="MarginContainer/UIBlockContainer/TracksList"]
+[node name="ColorRect" type="ColorRect" parent="MarginContainer/UIBlockContainer/TracksList" unique_id=1508566782]
 material = SubResource("ShaderMaterial_qj5ql")
 layout_mode = 1
 anchors_preset = 15
@@ -65,7 +65,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(1, 1, 1, 0)
 
-[node name="ItemList" type="ItemList" parent="MarginContainer/UIBlockContainer/TracksList"]
+[node name="ItemList" type="ItemList" parent="MarginContainer/UIBlockContainer/TracksList" unique_id=1229342196]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -75,7 +75,7 @@ grow_vertical = 2
 size_flags_vertical = 3
 mouse_default_cursor_shape = 2
 
-[node name="AtomGUIBlurredBgndMenuButton_Go" type="Control" parent="MarginContainer/UIBlockContainer"]
+[node name="AtomGUIBlurredBgndMenuButton_Go" type="Control" parent="MarginContainer/UIBlockContainer" unique_id=1763716765]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_qj5ql")

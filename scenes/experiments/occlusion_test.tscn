@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=4 uid="uid://ivhus6hx1i0r"]
+[gd_scene format=4 uid="uid://ivhus6hx1i0r"]
 
 [ext_resource type="Material" uid="uid://bkxkj3ary5fe6" path="res://materials/ground.tres" id="1_si0t6"]
 
@@ -16,12 +16,12 @@ _surfaces = [{
 [sub_resource type="QuadOccluder3D" id="QuadOccluder3D_si0t6"]
 size = Vector2(2.26892, 1.37995)
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=1135326247]
 
-[node name="_MeshInstance3D_61257" type="MeshInstance3D" parent="."]
+[node name="_MeshInstance3D_61257" type="MeshInstance3D" parent="." unique_id=252493802]
 mesh = SubResource("ArrayMesh_q5c6q")
 
-[node name="OccluderInstance3D" type="OccluderInstance3D" parent="."]
+[node name="OccluderInstance3D" type="OccluderInstance3D" parent="." unique_id=1694329395]
 transform = Transform3D(0.181137, 0, 0.983458, 0, 1, 0, -0.983458, 0, 0.181137, 0, 0, 0)
 occluder = SubResource("QuadOccluder3D_si0t6")
 bake_mask = 4294967293

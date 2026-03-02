@@ -1,4 +1,4 @@
-[gd_scene load_steps=15 format=3 uid="uid://b8x8fnk5qeuy7"]
+[gd_scene format=3 uid="uid://b8x8fnk5qeuy7"]
 
 [ext_resource type="Script" uid="uid://cmc1e6wgtj2ky" path="res://scenes/experiments/car_raycast_3.gd" id="1_1toet"]
 [ext_resource type="Material" uid="uid://b8etgnlf3hgoo" path="res://materials/car_ground.tres" id="2_t7xjd"]
@@ -39,25 +39,25 @@ size = Vector3(1.6, 0.5, 3)
 material = SubResource("StandardMaterial3D_f5onu")
 size = Vector3(1.6, 0.5, 3)
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=1902341968]
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=1877748871]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=967837307]
 shape = SubResource("BoxShape3D_obcdv")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=1712919249]
 mesh = SubResource("BoxMesh_ckg0c")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1791145245]
 environment = SubResource("Environment_dwohh")
 camera_attributes = SubResource("CameraAttributesPractical_1mcop")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1632389348]
 transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.766358, -0.431946, 0.475518, 0, 7, 0)
 
-[node name="CarRaycast3" type="RigidBody3D" parent="." node_paths=PackedStringArray("MESH")]
+[node name="CarRaycast3" type="RigidBody3D" parent="." unique_id=1738684929 node_paths=PackedStringArray("MESH")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.559193, 0)
 axis_lock_angular_x = true
 axis_lock_angular_z = true
@@ -69,36 +69,36 @@ MAT_GROUND = ExtResource("2_t7xjd")
 MAT_AIR = ExtResource("3_4qxig")
 MESH = NodePath("MeshInstance3D")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CarRaycast3"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CarRaycast3" unique_id=179694965]
 shape = SubResource("BoxShape3D_uhq76")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="CarRaycast3"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="CarRaycast3" unique_id=308914178]
 mesh = SubResource("BoxMesh_gjcwd")
 skeleton = NodePath("../CollisionShape3D")
 
-[node name="Camera3D" type="Camera3D" parent="CarRaycast3"]
+[node name="Camera3D" type="Camera3D" parent="CarRaycast3" unique_id=1903173958]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 2, -5)
 
-[node name="RayCast3DGroundBack" type="RayCast3D" parent="CarRaycast3"]
+[node name="RayCast3DGroundBack" type="RayCast3D" parent="CarRaycast3" unique_id=1164632798]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, -0.1)
 target_position = Vector3(0, -0.5, 0)
 
-[node name="RayCast3DGroundFront" type="RayCast3D" parent="CarRaycast3"]
+[node name="RayCast3DGroundFront" type="RayCast3D" parent="CarRaycast3" unique_id=1301731633]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.2, 0.1)
 target_position = Vector3(0, -0.5, 0)
 
-[node name="RayCast3D FL" type="RayCast3D" parent="CarRaycast3"]
+[node name="RayCast3D FL" type="RayCast3D" parent="CarRaycast3" unique_id=185766518]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, -0.1, 1.5)
 target_position = Vector3(0, -0.25, 0)
 
-[node name="RayCast3D FR" type="RayCast3D" parent="CarRaycast3"]
+[node name="RayCast3D FR" type="RayCast3D" parent="CarRaycast3" unique_id=615327983]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, -0.1, 1.5)
 target_position = Vector3(0, -0.25, 0)
 
-[node name="RayCast3D BL" type="RayCast3D" parent="CarRaycast3"]
+[node name="RayCast3D BL" type="RayCast3D" parent="CarRaycast3" unique_id=5118129]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.8, -0.1, -1.5)
 target_position = Vector3(0, -0.25, 0)
 
-[node name="RayCast3D BR" type="RayCast3D" parent="CarRaycast3"]
+[node name="RayCast3D BR" type="RayCast3D" parent="CarRaycast3" unique_id=460435269]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.8, -0.1, -1.5)
 target_position = Vector3(0, -0.25, 0)

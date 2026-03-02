@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://boaf0ey2lmpgm"]
+[gd_scene format=3 uid="uid://boaf0ey2lmpgm"]
 
 [ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="1_pt1c6"]
 [ext_resource type="Script" uid="uid://difeeojerq335" path="res://gui/screens/home_screen.gd" id="1_yra6q"]
 
-[node name="HomeScreen" type="Control"]
+[node name="HomeScreen" type="Control" unique_id=1295875485]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -12,7 +12,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_yra6q")
 
-[node name="VBoxContainer" type="VBoxContainer" parent="."]
+[node name="VBoxContainer" type="VBoxContainer" parent="." unique_id=1938249333]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5
@@ -27,32 +27,32 @@ grow_horizontal = 2
 grow_vertical = 2
 theme_override_constants/separation = 64
 
-[node name="Title" type="Label" parent="VBoxContainer"]
+[node name="Title" type="Label" parent="VBoxContainer" unique_id=1115321603]
 layout_mode = 2
 theme_type_variation = &"TitleLabel"
 text = "Open Street Kart"
 horizontal_alignment = 1
 
-[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="VBoxContainer" unique_id=385537223]
 layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 16
 
-[node name="PlayButton" type="Control" parent="VBoxContainer/VBoxContainer"]
+[node name="PlayButton" type="Control" parent="VBoxContainer/VBoxContainer" unique_id=1821132837]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("1_pt1c6")
 text = "Play"
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
-[node name="CreditsButton" type="Control" parent="VBoxContainer/VBoxContainer"]
+[node name="CreditsButton" type="Control" parent="VBoxContainer/VBoxContainer" unique_id=35245796]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("1_pt1c6")
 text = "Credits"
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
-[node name="QuitButton" type="Control" parent="VBoxContainer/VBoxContainer"]
+[node name="QuitButton" type="Control" parent="VBoxContainer/VBoxContainer" unique_id=1260479488]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("1_pt1c6")

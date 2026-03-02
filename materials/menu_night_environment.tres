@@ -1,4 +1,4 @@
-[gd_resource type="Environment" load_steps=7 format=3 uid="uid://cdrbw2frpojjg"]
+[gd_resource type="Environment" format=3 uid="uid://cdrbw2frpojjg"]
 
 [sub_resource type="Curve" id="Curve_13y62"]
 _data = [Vector2(0, 0), 0.0, 1.0, 0, 1, Vector2(1, 1), 1.0, 0.0, 1, 0]

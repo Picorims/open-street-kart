@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://rfckpj1pp2gu"]
+[gd_scene format=3 uid="uid://rfckpj1pp2gu"]
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_tdny2"]
 albedo_color = Color(0.912698, 0, 0.360519, 1)
@@ -14,15 +14,15 @@ albedo_color = Color(0.912698, 0, 0.360519, 1)
 material = SubResource("StandardMaterial3D_xbd0h")
 size = Vector3(0.5, 0.5, 2)
 
-[node name="ArrowPlaceholder" type="Node3D"]
+[node name="ArrowPlaceholder" type="Node3D" unique_id=1583724375]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1710155836]
 mesh = SubResource("BoxMesh_urcgv")
 
-[node name="MeshInstance3D2" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D2" type="MeshInstance3D" parent="." unique_id=2052289654]
 transform = Transform3D(1, 0, 0, 0, 0.707107, 0.707107, 0, -0.707107, 0.707107, 0, -0.735114, 1.09896)
 mesh = SubResource("BoxMesh_idnfj")
 
-[node name="MeshInstance3D3" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D3" type="MeshInstance3D" parent="." unique_id=922186943]
 transform = Transform3D(1, 0, 0, 0, -0.707107, 0.707107, 0, -0.707107, -0.707107, 0, 0.774177, 1.12234)
 mesh = SubResource("BoxMesh_idnfj")

@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://cc8w0puk44el3"]
+[gd_scene format=3 uid="uid://cc8w0puk44el3"]
 
 [ext_resource type="Script" uid="uid://dbdlldv2pr7o8" path="res://addons/road-generator/ui/road_container_panel.gd" id="1_1iim1"]
 
-[node name="RoadContainerPanel" type="VBoxContainer"]
+[node name="RoadContainerPanel" type="VBoxContainer" unique_id=1626266950]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
@@ -10,16 +10,16 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_1iim1")
 
-[node name="spacer1" type="Control" parent="."]
+[node name="spacer1" type="Control" parent="." unique_id=795508614]
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 
-[node name="export_gltf" type="Button" parent="."]
+[node name="export_gltf" type="Button" parent="." unique_id=1637899602]
 layout_mode = 2
 tooltip_text = "Export all children to a .gltf / .glb file"
 text = "Export to gLTF"
 
-[node name="spacer2" type="Control" parent="."]
+[node name="spacer2" type="Control" parent="." unique_id=658141519]
 custom_minimum_size = Vector2(0, 5)
 layout_mode = 2
 

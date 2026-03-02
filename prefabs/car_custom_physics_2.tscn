@@ -1,4 +1,4 @@
-[gd_scene load_steps=37 format=3 uid="uid://c1j3m2tjlgh8y"]
+[gd_scene format=3 uid="uid://c1j3m2tjlgh8y"]
 
 [ext_resource type="Script" uid="uid://dlohgk4brx70b" path="res://prefabs/car_custom_physics_interface_2.gd" id="1_2glma"]
 [ext_resource type="Script" uid="uid://bdrvech1c3yhq" path="res://prefabs/car_custom_physics_2.gd" id="2_pkjqb"]
@@ -148,10 +148,10 @@ rings = 8
 [sub_resource type="SphereShape3D" id="SphereShape3D_2glma"]
 radius = 1.0
 
-[node name="CarCustomPhysics2" type="Node3D"]
+[node name="CarCustomPhysics2" type="Node3D" unique_id=1795504577]
 script = ExtResource("1_2glma")
 
-[node name="CarRigidBody" type="RigidBody3D" parent="." node_paths=PackedStringArray("interface")]
+[node name="CarRigidBody" type="RigidBody3D" parent="." unique_id=1293076100 node_paths=PackedStringArray("interface")]
 collision_layer = 458753
 mass = 400.0
 physics_material_override = SubResource("PhysicsMaterial_nblgo")
@@ -166,92 +166,92 @@ angular_damp = 2.0
 script = ExtResource("2_pkjqb")
 interface = NodePath("..")
 
-[node name="WheelFR" type="CollisionShape3D" parent="CarRigidBody"]
+[node name="WheelFR" type="CollisionShape3D" parent="CarRigidBody" unique_id=2116056201]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.25)
 shape = SubResource("CapsuleShape3D_2wjoa")
 
-[node name="WheelFL" type="CollisionShape3D" parent="CarRigidBody"]
+[node name="WheelFL" type="CollisionShape3D" parent="CarRigidBody" unique_id=1903811721]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, -0.25)
 shape = SubResource("CapsuleShape3D_2wjoa")
 
-[node name="WheelBR" type="CollisionShape3D" parent="CarRigidBody"]
+[node name="WheelBR" type="CollisionShape3D" parent="CarRigidBody" unique_id=813314860]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, 0.25)
 shape = SubResource("CapsuleShape3D_2wjoa")
 
-[node name="WheelBL" type="CollisionShape3D" parent="CarRigidBody"]
+[node name="WheelBL" type="CollisionShape3D" parent="CarRigidBody" unique_id=1473259601]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, -0.25)
 shape = SubResource("CapsuleShape3D_2wjoa")
 
-[node name="Frame" type="CollisionShape3D" parent="CarRigidBody"]
+[node name="Frame" type="CollisionShape3D" parent="CarRigidBody" unique_id=1749624512]
 shape = SubResource("BoxShape3D_n7qhw")
 
-[node name="DebugFrame" type="MeshInstance3D" parent="CarRigidBody"]
+[node name="DebugFrame" type="MeshInstance3D" parent="CarRigidBody" unique_id=1900033966]
 layers = 2
 mesh = SubResource("BoxMesh_wgmx5")
 
-[node name="WheelFRFrame" type="MeshInstance3D" parent="CarRigidBody"]
+[node name="WheelFRFrame" type="MeshInstance3D" parent="CarRigidBody" unique_id=50022872]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.25)
 layers = 2
 mesh = SubResource("CapsuleMesh_x4217")
 
-[node name="WheelBRFrame" type="MeshInstance3D" parent="CarRigidBody"]
+[node name="WheelBRFrame" type="MeshInstance3D" parent="CarRigidBody" unique_id=1724394867]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, 0.25)
 layers = 2
 mesh = SubResource("CapsuleMesh_x4217")
 
-[node name="WheelBLFrame" type="MeshInstance3D" parent="CarRigidBody"]
+[node name="WheelBLFrame" type="MeshInstance3D" parent="CarRigidBody" unique_id=158005155]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, -0.25)
 layers = 2
 mesh = SubResource("CapsuleMesh_x4217")
 
-[node name="WheelFLFrame" type="MeshInstance3D" parent="CarRigidBody"]
+[node name="WheelFLFrame" type="MeshInstance3D" parent="CarRigidBody" unique_id=1876148623]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, -0.25)
 layers = 2
 mesh = SubResource("CapsuleMesh_x4217")
 
-[node name="MarkerX" type="MeshInstance3D" parent="CarRigidBody"]
+[node name="MarkerX" type="MeshInstance3D" parent="CarRigidBody" unique_id=1097586277]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2, 0.1, 0)
 layers = 2
 mesh = SubResource("BoxMesh_rtq4r")
 skeleton = NodePath("../WheelFLFrame")
 
-[node name="MarkerZ" type="MeshInstance3D" parent="CarRigidBody"]
+[node name="MarkerZ" type="MeshInstance3D" parent="CarRigidBody" unique_id=788671591]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.1, 0.1)
 layers = 2
 mesh = SubResource("BoxMesh_e45dh")
 skeleton = NodePath("../WheelFLFrame")
 
-[node name="Camera3D" type="Camera3D" parent="CarRigidBody"]
+[node name="Camera3D" type="Camera3D" parent="CarRigidBody" unique_id=2113612485]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5.4, 1.6, 0)
 
-[node name="FrontRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+[node name="FrontRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=2079048968]
 target_position = Vector3(1, 0, 0)
 
-[node name="GroundRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+[node name="GroundRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=229964878]
 target_position = Vector3(0, -0.8, 0)
 collision_mask = 28
 
-[node name="WheelFRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+[node name="WheelFRRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=1202402940]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.1, 0.3)
 target_position = Vector3(0, -0.7, 0)
 collision_mask = 256
 
-[node name="WheelFLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+[node name="WheelFLRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=744539374]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.1, -0.3)
 target_position = Vector3(0, -0.7, 0)
 collision_mask = 256
 
-[node name="WheelBLRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+[node name="WheelBLRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=315501325]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.1, -0.3)
 target_position = Vector3(0, -0.7, 0)
 collision_mask = 256
 
-[node name="WheelBRRayCast3D" type="RayCast3D" parent="CarRigidBody"]
+[node name="WheelBRRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=185163262]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.1, 0.3)
 target_position = Vector3(0, -0.7, 0)
 collision_mask = 256
 
-[node name="WheelBLGPUParticles3D" type="GPUParticles3D" parent="CarRigidBody"]
+[node name="WheelBLGPUParticles3D" type="GPUParticles3D" parent="CarRigidBody" unique_id=749930178]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.25, -0.3)
 emitting = false
 amount = 128
@@ -259,7 +259,7 @@ randomness = 0.52
 process_material = SubResource("ParticleProcessMaterial_qe5cl")
 draw_pass_1 = SubResource("SphereMesh_gx5rs")
 
-[node name="WheelBRGPUParticles3D" type="GPUParticles3D" parent="CarRigidBody"]
+[node name="WheelBRGPUParticles3D" type="GPUParticles3D" parent="CarRigidBody" unique_id=646868924]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.25, 0.3)
 emitting = false
 amount = 128
@@ -267,7 +267,7 @@ randomness = 0.52
 process_material = SubResource("ParticleProcessMaterial_qe5cl")
 draw_pass_1 = SubResource("SphereMesh_gx5rs")
 
-[node name="SpeedGPUParticles3D" type="GPUParticles3D" parent="CarRigidBody"]
+[node name="SpeedGPUParticles3D" type="GPUParticles3D" parent="CarRigidBody" unique_id=1019012291]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, 0)
 emitting = false
 amount = 128
@@ -275,14 +275,14 @@ randomness = 0.52
 process_material = SubResource("ParticleProcessMaterial_f0e7b")
 draw_pass_1 = SubResource("SphereMesh_pkjqb")
 
-[node name="ManagedFreezeWakeUpArea3D" type="Area3D" parent="CarRigidBody"]
+[node name="ManagedFreezeWakeUpArea3D" type="Area3D" parent="CarRigidBody" unique_id=621671018]
 collision_layer = 0
 collision_mask = 32
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="CarRigidBody/ManagedFreezeWakeUpArea3D"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CarRigidBody/ManagedFreezeWakeUpArea3D" unique_id=375245892]
 shape = SubResource("SphereShape3D_2glma")
 
-[node name="Label3D" type="Label3D" parent="CarRigidBody"]
+[node name="Label3D" type="Label3D" parent="CarRigidBody" unique_id=1313293563]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0.5, 0)
 text = "-"
 font_size = 64
