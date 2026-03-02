@@ -1,0 +1,82 @@
+[gd_scene load_steps=9 format=3 uid="uid://blaieaqp413k7"]
+
+[ext_resource type="Script" uid="uid://cib2rig7vup10" path="res://addons/terrain_3d/tools/importer.gd" id="1_60b8f"]
+
+[sub_resource type="Gradient" id="Gradient_555ul"]
+offsets = PackedFloat32Array(0.2, 1)
+colors = PackedColorArray(1, 1, 1, 1, 0, 0, 0, 1)
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_ij0dh"]
+noise_type = 2
+frequency = 0.03
+cellular_jitter = 3.0
+cellular_return_type = 0
+domain_warp_enabled = true
+domain_warp_type = 1
+domain_warp_amplitude = 50.0
+domain_warp_fractal_type = 2
+domain_warp_fractal_lacunarity = 1.5
+domain_warp_fractal_gain = 1.0
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_kcdxh"]
+seamless = true
+color_ramp = SubResource("Gradient_555ul")
+noise = SubResource("FastNoiseLite_ij0dh")
+
+[sub_resource type="Terrain3DMaterial" id="Terrain3DMaterial_34j6c"]
+_shader_parameters = {
+&"bias_distance": 512.0,
+&"blend_sharpness": 0.5,
+&"depth_blur": 0.0,
+&"enable_macro_variation": true,
+&"enable_projection": true,
+&"flat_terrain_normals": false,
+&"macro_variation1": Color(1, 1, 1, 1),
+&"macro_variation2": Color(1, 1, 1, 1),
+&"macro_variation_slope": 0.333,
+&"mipmap_bias": 1.0,
+&"noise1_angle": 0.0,
+&"noise1_offset": Vector2(0.5, 0.5),
+&"noise1_scale": 0.04,
+&"noise2_scale": 0.076,
+&"noise_texture": SubResource("NoiseTexture2D_kcdxh"),
+&"projection_threshold": 0.8
+}
+show_checkered = true
+show_heightmap = true
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_lsour"]
+transparency = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+backlight_enabled = true
+backlight = Color(0.5, 0.5, 0.5, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 128.0
+distance_fade_max_distance = 96.0
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_ce8yv"]
+generated_type = 1
+height_offset = 0.5
+material_override = SubResource("StandardMaterial3D_lsour")
+last_lod = 0
+last_shadow_lod = 0
+lod0_range = 128.0
+
+[sub_resource type="Terrain3DAssets" id="Terrain3DAssets_42p8u"]
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_ce8yv")])
+
+[node name="Importer" type="Terrain3D"]
+material = SubResource("Terrain3DMaterial_34j6c")
+assets = SubResource("Terrain3DAssets_42p8u")
+mesh_lods = 8
+vertex_spacing = 3.0
+show_checkered = true
+show_heightmap = true
+top_level = true
+script = ExtResource("1_60b8f")
+height_file_name = "Z:/Programmation_-_U/Godot/open_street_kart/open-street-kart/maps/orsay/elevation_48.66976838437996_2.1481704711914067_48.71702031217027_2.196750640869141_30m_114w_176h_@10x_flipped.r16"
+import_scale = 256.0
+r16_size = Vector2i(1140, 1760)
+destination_directory = "res://maps/orsay/terrain3d"
+metadata/_edit_lock_ = true

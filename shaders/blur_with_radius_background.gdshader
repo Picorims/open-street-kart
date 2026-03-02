@@ -16,17 +16,17 @@ bool is_hid(vec2 uv,vec2 size,float radius)
   vec2 center = vec2(size.x*0.5,size.y*0.5);
   vec2 a = vec2(radius,radius);
   vec2 b = vec2(size.x-radius,size.y-radius);
-	
+
   vec2 c = vec2(size.x-radius,radius);
   vec2 d = vec2(radius,size.y-radius);
-	
+
   vec2 rd_origin = vec2(size.x - radius,0);
   vec2 rd_end = vec2(size.x,radius);
-	
+
   vec2 lu_origin = vec2(0,size.y - radius);
   vec2 lu_end = vec2(radius,size.y);
-	
-	
+
+
   if(!in_rect(uv,a,b))
   {
     float dis = radius - 1.f;
@@ -39,26 +39,26 @@ bool is_hid(vec2 uv,vec2 size,float radius)
       dis = distance(b,uv);
     }
     if(in_rect(uv,rd_origin,rd_end))
-    {			
+    {
       dis = distance(c,uv);
     }
     if(in_rect(uv,lu_origin,lu_end))
     {
       dis = distance(d,uv);
     }
-    return dis > radius;		
+    return dis > radius;
   }
   return false;
 }
 
 
-vec4 apply_radius(vec2 texture_size, vec2 uv, vec4 color) 
+vec4 apply_radius(vec2 texture_size, vec2 uv, vec4 color)
 {
   float pixel_size_x = 1.0 / texture_size.x;
   float pixel_size_y = 1.0 / texture_size.y;
   float max_r = min(pixel_size_x,pixel_size_y) / 2.f;
 
-if(is_hid(vec2(uv.x*pixel_size_x,uv.y*pixel_size_y),vec2(pixel_size_x,pixel_size_y),min(corner_radius,max_r)))  
+if(is_hid(vec2(uv.x*pixel_size_x,uv.y*pixel_size_y),vec2(pixel_size_x,pixel_size_y),min(corner_radius,max_r)))
   {
     color = vec4(0.0);
   }
@@ -90,12 +90,12 @@ vec3 gaussianblur(sampler2D sampler, vec2 pos, vec2 pixel_size, float sigmaUsed,
     vec3 blurredPixel = vec3(0.0);
     float total_weight = 0.0;
 	// Loop over the radius (technically its a square)
-    for(int i = -radius ; i <= radius; i++){ 
+    for(int i = -radius ; i <= radius; i++){
         for(int j = -radius; j <= radius; j++){
 			// Calculate the offset from the current pixel
 			vec2 offset = vec2(float(i), float(j))*pixel_size;
-			vec2 changedPos = pos + offset;        
-			
+			vec2 changedPos = pos + offset;
+
 			// Calculate the weight based on the Gaussian distribution multiplying both dimensions (how far are X and Y from the center (pos))
 			float weight = gaussianDistribution(float(i), sigmaUsed)*gaussianDistribution(float(j), sigmaUsed);
 			// Add the weighted color value to the blurred pixel

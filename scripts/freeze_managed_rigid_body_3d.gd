@@ -5,7 +5,7 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-@tool
+# @tool
 ## `RigidBody3D` with finer freeze control for performance improvement.
 ## Has exclusivity over Physics3D Layer 6
 class_name FreezeManagedRigidBody3D extends RigidBody3D

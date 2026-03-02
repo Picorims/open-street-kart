@@ -28,14 +28,6 @@ Try keeping the selection as small as possible, just enough to have a surroundin
 
 Export the query result as `json` and `geojson`. `json` is the original format, while `geojson` is a conversion done by Overpass, which is the format used by Open Street Kart (the main advantage is that polygons and paths points are already grouped).
 
-### Elevation data
-
-Elevation data is fetched from an intermediate API tool run locally, which read from a raw elevation dataset.
-
-Head over to https://www.opentopodata.org/.  Follow the docker instructions (https://www.opentopodata.org/server/) to run the API. Install the ASTER dataset (ASTGTMV003) (https://www.opentopodata.org/datasets/aster/). If you do not want to download the whole dataset (It can be tricky to do, and uses a lot of disk space), pick a few selected files in the URLs file covering the degrees you need.
-
-You can use the Python script over at https://github.com/Picorims/osk-elevation-fetcher to create a CSV file with elevation data within the specified bounding box (use the same one as for elevation data). This was tested with Python 3.12 as of September 2025.
-
 ### Custom data
 
 Some data used for building the track is data driven, such as boundaries. To create them, you can use https://umap.openstreetmap.fr/fr/. The idea is to create polygons representing areas.
@@ -46,9 +38,52 @@ Then, create multiples polygons with the same property set to `local_race_bounda
 
 ![umap example](umap_example.png)
 
+### Elevation data
+
+Elevation data is fetched from an intermediate API tool run locally, which read from a raw elevation dataset.
+
+Head over to https://www.opentopodata.org/.  Follow the docker instructions (https://www.opentopodata.org/server/) to run the API. Install the ASTER dataset (ASTGTMV003) (https://www.opentopodata.org/datasets/aster/). If you do not want to download the whole dataset (It can be tricky to do, and uses a lot of disk space), pick a few selected files in the URLs file covering the degrees you need.
+
+You can use the Python scripts over at https://github.com/Picorims/osk-elevation-fetcher to create a CSV file with elevation data within the specified bounding box (use the same one as for elevation data). This was tested with Python 3.12 as of September 2025.
+- get heightmap **(use the resolution of the queried dataset!)**:
+  - `py ./fetch_elevation.py latitude_sw longitude_sw latitude_ne longitude_ne dataset resolution_meters`
+    - Orsay example (PowerShell): `py .\fetch_elevation.py 48.66976838437996 2.1481704711914067 48.71702031217027 2.196750640869141 "aster30m" 30`
+- upscale by 10 **(resulting resolution should be 3m!)**:
+  - `py ./upscale_r16_by_n.py input_file width height scale`
+    - Orsay example (PowerShell): `py .\upscale_r16_by_n.py .\out\elevation_48.66976838437996_2.1481704711914067_48.71702031217027_2.196750640869141_30m_114w_176h.r16 114 176 10`
+- Get minimum and maximum elevation of the upscaled heightmap:
+  - `py ./get_min_max_elevation.py input_file`
+    - Orsay example (PowerShell): `py .\get_min_max_elevation.py .\out\elevation_48.66976838437996_2.1481704711914067_48.71702031217027_2.196750640869141_30m_114w_176h_@10x.r16`
+- Save a preview for easier debugging (r16 files are RAW files which require specific software to be read):
+  - `py ./view_r16.py input_file width height output_file`
+    - Orsay example (PowerShell): `py .\view_r16.py .\out\elevation_48.66976838437996_2.1481704711914067_48.71702031217027_2.196750640869141_30m_114w_176h_@10x.r16 1140 1760 .\out\elevation_48.66976838437996_2.1481704711914067_48.71702031217027_2.196750640869141_30m_114w_176h_@10x.png`
+- Longitude is mirrored with Godot's X axis, so we need to flip it:
+  - `py ./flip_r16_x.py input_file width height`
+    - Orsay example (PowerShell): `py .\flip_r16_x.py .\out\elevation_48.66976838437996_2.1481704711914067_48.71702031217027_2.196750640869141_30m_114w_176h_@10x.r16 1140 1760`
+- Convert GeoJSON data to 3D (custom data and queried OSM data):
+  - `py ./geojson_2d_lat_lon_to_3d_godot.py geojson_file flipped_elevation_file width height lat_sw lon_sw resolution_meters`
+    - Orsay example on custom data (PowerShell): `py .\geojson_2d_lat_lon_to_3d_godot.py ..\open-street-kart\maps\orsay\orsay_boundaries.geojson .\out\elevation_48.66976838437996_2.1481704711914067_48.71702031217027_2.196750640869141_30m_114w_176h_@10x_flipped.r16 1140 1760 48.66976838437996 2.1481704711914067 3`
+
+
 ### Importing into Godot
 
-Create a directory in `maps`, named after your track in `snake_case`. Add in the elevation `tsv` file, the `overpassql` query file (text file with the query), and the `geojson` files from Open Street Map and uMap. An example of nomenclature can be found in the `orsay` directory.
+Create a directory in `maps`, named after your track in `snake_case`. Add in the elevation script generated files, the `overpassql` query file (text file with the query), and the `geojson` files from Open Street Map and uMap. An example of nomenclature can be found in the `orsay` directory.
+
+#### Importing elevation
+
+- Create a folder under `maps/<name>` called `terrain3d`.
+- Open the Terrain3D importer: `addons/terrain_3d/tools/importer.tscn`.
+- Select the importer node to inspect it.
+- Clear existing data, if any.
+- Under `Mesh`:
+  - Set Vertex Spacing to 3.
+- Under `Import File`:
+  - Set the height file name to the upscaled r16 file.
+  - Set the height scale to 256.
+  - Set the r16 size according to width (w) and (height) (h) times the scaling (@) of the r16 file.
+  - Click run import and wait. Check if it looks as expected.
+  - Set the destination directory to the `terrain3d` directory previously created.
+  - Save to Disk.
 
 ## Creating the track
 
@@ -83,10 +118,13 @@ Defines where the karts are spawned. It must be placed so that all karts are alr
 
 Loads all the data driven content. It needs to be properly configured for the map to generate correctly:
 - Topo Data Path: path to the `.tsv` file with elevation data (`res://...`).
-- Osm Data Path: path to OSM `.geojson` file.
-- Boundaries Data Path: path to uMap `.geojson` file.
+- Osm Data Path: path to OSM `_3d.geojson` file.
+- Boundaries Data Path: path to uMap `_3d.geojson` file.
 - Latitude / Longitude Origin: coordinates of the South-West bounding box corner, which is also the first line of the `.tsv` file (first value is longitude, second is latitude). It also corresponds to the corner with the lowest coordinates on both axes.
 - Elevation Origin: Elevation in meters represented by Y=0.
+- Width: height map width times scaling times meters per pixel (3 if strictly following this guide, 30m scaled by 10 gives 3m resolution)
+  - tip: you can use `*3` in the input field to let Godot do the computation for you.
+- Length: same as described above, but with the height.
 
 To generate content, run tasks in this order:
 - Reload Surface
@@ -122,6 +160,16 @@ Group for all wall related nodes. Includes `WallOfWheels` instances, which are c
 #### Arrows (basic node 3D)
 
 Group for all navigation related nodes.
+
+#### Terrain3D (Terrain3D node)
+
+World terrain.
+- Set the data directory to the previously created `terrain3d` directory (under `masps/<name>`).
+- Set the collision mode to `Full / Editor` (required for physical processes in places where players are not).
+- Set collision layers to 1,2,4,5,9.
+- Set vertex spacing to 3.
+
+You can use debug views to debug the terrain.
 
 #### Troubleshooting
 

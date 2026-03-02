@@ -12,7 +12,7 @@ class_name BoundariesGenerator extends Node3D
 const ROOT_NODE_NAME: String = "Boundaries"
 const RACE_BOUNDARY_SCRIPT = preload("res://scripts/race_global_boundary.gd")
 const LOCAL_RACE_BOUNDARY_SCRIPT = preload("res://scripts/race_local_boundary.gd")
-const DEBUG_ENABLED = false
+const DEBUG_ENABLED = true
 
 @export var loader: MapDataLoader
 
@@ -66,10 +66,10 @@ func reload_action(data_holder: Node3D) -> void:
 	_regenerate_data(data_holder)
 	_is_loaded = true
 
-func _build_area(kind: String, coords: Array[Array], boundaries_node: Node3D, id: String) -> bool:
+func _build_area(kind: String, coords_meters: Array[Vector3], boundaries_node: Node3D, id: String) -> bool:
 	print("boundary data:")
 	print(kind)
-	print(coords)
+	print(coords_meters)
 	
 	var area_3d: Area3D = Area3D.new()
 	area_3d.set_collision_layer_value(1, false)
@@ -84,12 +84,9 @@ func _build_area(kind: String, coords: Array[Array], boundaries_node: Node3D, id
 	var surface_tool = SurfaceTool.new()
 	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
 	
-	var coords_meters: Array[Vector3] = []
 	var area_2d_polygon: Array[Vector2] = []
-	for c in coords:
-		var meters_coord = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 0.0, c[1]))
-		coords_meters.append(meters_coord)
-		area_2d_polygon.append(Vector2(meters_coord.x, meters_coord.z))
+	for c in coords_meters:
+		area_2d_polygon.append(Vector2(c.x, c.z))
 			
 	if (kind == "race"):
 		_race_2d_polygon = area_2d_polygon.duplicate()
@@ -99,7 +96,7 @@ func _build_area(kind: String, coords: Array[Array], boundaries_node: Node3D, id
 	print("converted boundary data:")
 	print(coords_meters)
 	
-	var elevation_min = -100
+	var elevation_min = -500
 	var elevation_max = 9000
 	for i in range(0, coords_meters.size()):
 		# build square using 2 mesh triangles and four positions
@@ -192,8 +189,10 @@ func _regenerate_data(data_holder: Node3D) -> void:
 			var is_typed = properties.has("osk_boundary_type")
 			var has_coords = f.has("geometry") and f.geometry.has("coordinates")
 			if is_typed and has_coords:
-				var coords: Array[Array]
-				coords.assign(f.geometry.coordinates[0])
+				var coords: Array[Vector3] = []
+				for c in f.geometry.coordinates[0]:
+					# we need to flip the X axis because X and longitude have opposite directions
+					coords.append(Vector3(-c[0] + loader.width_meters, c[1], c[2]))
 				var success: bool = _build_area(properties.osk_boundary_type, coords, boundaries_node, f.get("id", "{0}".format(randi_range(0, 100000))))
 				areas_count += 1
 				if success:

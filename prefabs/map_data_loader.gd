@@ -10,6 +10,8 @@
 class_name MapDataLoader extends Node3D
 
 @export var track: Track
+@export var terrain: Terrain3D
+@export var terrain_connector: RoadTerrain3DConnector
 @export var topo_data_path: String
 @export var osm_data_path: String
 @export var boundaries_data_path: String
@@ -18,6 +20,10 @@ class_name MapDataLoader extends Node3D
 @export var latitude_origin: String = "0.0"
 @export var longitude_origin: String = "0.0"
 @export var elevation_origin: String = "0.0"
+## heightmap width times scaling factor times meters per pixel (resolution)
+@export var width_meters: int = 1000
+## heightmap height times scaling factor times meters per pixel (resolution)
+@export var length_meters: int = 1000
 # icons: Godot EditorIcons; https://godot-editor-icons.github.io/
 @export_tool_button("Reload surface", "ImageTexture3D") var reload_surface_action = Callable(self, "_reload_surface_action")
 @export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
@@ -43,7 +49,7 @@ func get_scale_transform(lat) -> Vector3:
 	return Vector3(40075000 * cos(lat) / 360, 1, 111320)
 
 func _ready() -> void:
-	_origin = Vector3(float(latitude_origin), float(elevation_origin), float(longitude_origin))
+	_origin = Vector3(float(latitude_origin), 0, float(longitude_origin))
 	#_scale_transform = Vector3(latitudeScale, 1, longitudeScale)
 	print("world origin: ", _origin)
 

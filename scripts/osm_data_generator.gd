@@ -235,8 +235,6 @@ func _load_data() -> void:
 func reload_action(data_holder: Node3D) -> void:
 	if not boundaries_generator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
-	elif not elevation_generator.is_loaded:
-		print("Cannot continue, elevation not loaded.")
 	else:
 		_regenerate_data(data_holder)
 		_can_build_roads = true
@@ -433,15 +431,15 @@ func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
 	var prev_exists: bool = false
 	var meters_coords: Array[Vector3] = []
 	for c in coordinates:
-		# high altitude to be able to snap no matter how sloppy the land is.
-		var c_meters = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], 1000, c[1]))
+		# we need to flip the X axis because X and longitude have opposite directions
+		var c_meters = Vector3(-c[0] + loader.width_meters, c[1], c[2])
 		if boundaries_generator.is_point_within_race_area(Vector2(c_meters.x, c_meters.z)):
 			#var elevation = elevation_generator.get_elevation(Vector2(cMeters.x, cMeters.z))
 			#cMeters.y += elevation
 			if (prev_exists):
 				var distance: float = prev_meters.distance_to(c_meters)
-				if (distance > _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS):
-					_append_interpolated_points(prev_meters, c_meters, meters_coords)
+				# if (distance > _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS):
+				# 	_append_interpolated_points(prev_meters, c_meters, meters_coords)
 			meters_coords.append(c_meters)
 			prev_meters = c_meters
 			prev_exists = true
@@ -467,7 +465,6 @@ func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
 	init_point.is_road_start = true
 	init_point.is_road_end = false
 	loader.persist_in_current_scene(init_point)
-	_setup_snapping_road(init_point)
 	_roads_to_build.append(init_point)
 	
 	var previous_rp = init_point
@@ -482,7 +479,6 @@ func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
 		loader.persist_in_current_scene(next_rp)
 		next_rp.copy_settings_from(init_point, true) # issue here to copy transform
 		next_rp.global_position = curr
-		_setup_snapping_road(next_rp)
 		if (i == meters_coords.size() - 1):
 			next_rp.is_road_end = true
 			# we need to do a 180 turn, to face opposite direction
@@ -540,8 +536,8 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 	var _prev_exists: bool = false
 	var meters_coords: Array[Vector3] = []
 	for c in coordinates:
-		# high altitude to be able to snap no matter how sloppy the land is.
-		var c_meters: Vector3 = loader.lat_alt_lon_to_world_global_pos(Vector3(c[0], INIT_HEIGHT, c[1]))
+		# we need to flip the X axis because X and longitude have opposite directions
+		var c_meters: Vector3 = Vector3(-c[0] + loader.width_meters, c[1], c[2])
 		if boundaries_generator.is_point_within_race_area(Vector2(c_meters.x, c_meters.z)):
 			meters_coords.append(c_meters)
 			_prev_meters = c_meters
@@ -685,7 +681,6 @@ func _get_scene_from_feature(feature: Dictionary) -> PackedScene:
 	return null
 
 func _build_amenity(feature: Dictionary, collidable_assets_container: Node3D, verbose: bool = false) -> bool:
-	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
 	var kind: String = feature.get("properties").get("amenity")
 	var prefix: String = _amenity_kind_to_prefix.get(kind)
 
@@ -697,13 +692,16 @@ func _build_amenity(feature: Dictionary, collidable_assets_container: Node3D, ve
 		if (verbose): print("%s has no coordinates, cancel." % prefix)
 		return false
 	var coordinates: Array = geometry.get("coordinates")
-	if (coordinates.size() != 2):
+	if (coordinates.size() != 3):
 		if (verbose): print("%s has invalid coordinates, cancel." % prefix)
 		return false
 
-	# high altitude to be able to snap no matter how sloppy the land is.
 	var pos = coordinates
-	var pos_meters: Vector3 = loader.lat_alt_lon_to_world_global_pos(Vector3(pos[0], INIT_HEIGHT, pos[1]))
+	# We need to flip the X axis because X and longitude have opposite directions
+	var pos_meters: Vector3 = Vector3(-pos[0] + loader.width_meters, pos[1], pos[2])
+	# # Y returned from python script is broken, solution was not found yet.
+	# pos_meters.y = loader.terrain.data.get_height(pos_meters)
+
 	if not boundaries_generator.is_point_within_race_area(Vector2(pos_meters.x, pos_meters.z)):
 		if (verbose): print("%s outside race area, cancel." % prefix)
 		return false
@@ -712,13 +710,10 @@ func _build_amenity(feature: Dictionary, collidable_assets_container: Node3D, ve
 	scene.name = "%s__%s" % [prefix, _get_id_or_rand_str(feature)]
 	collidable_assets_container.add_child(scene)
 	loader.persist_in_current_scene(scene)
-	scene.position = pos_meters + Vector3(0, INIT_HEIGHT, 0)
-	_setup_snapping(scene, true, 0.0)
-
+	scene.position = pos_meters
 	return true
 
 func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3D, verbose: bool = false) -> bool:
-	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
 	var kind: String = feature.get("properties").get("highway")
 	var prefix: String = _highway_kind_to_prefix.get(kind)
 
@@ -730,13 +725,15 @@ func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3
 		if (verbose): print("%s has no coordinates, cancel." % prefix)
 		return false
 	var coordinates: Array = geometry.get("coordinates")
-	if (coordinates.size() != 2):
+	if (coordinates.size() != 3):
 		if (verbose): print("%s has invalid coordinates, cancel." % prefix)
 		return false
 
-	# high altitude to be able to snap no matter how sloppy the land is.
 	var pos = coordinates
-	var pos_meters: Vector3 = loader.lat_alt_lon_to_world_global_pos(Vector3(pos[0], INIT_HEIGHT, pos[1]))
+	# We need to flip the X axis because X and longitude have opposite directions
+	var pos_meters: Vector3 = Vector3(-pos[0] + loader.width_meters, pos[1], pos[2])
+	# # Y returned from python script is broken, solution was not found yet.
+	# pos_meters.y = loader.terrain.data.get_height(pos_meters)
 	if not boundaries_generator.is_point_within_race_area(Vector2(pos_meters.x, pos_meters.z)):
 		if (verbose): print("%s outside race area, cancel." % prefix)
 		return false
@@ -745,8 +742,7 @@ func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3
 	scene.name = "%s__%s" % [prefix, _get_id_or_rand_str(feature)]
 	collidable_assets_container.add_child(scene)
 	loader.persist_in_current_scene(scene)
-	scene.position = pos_meters + Vector3(0, INIT_HEIGHT, 0)
-	_setup_snapping(scene, true, 0.0)
+	scene.position = pos_meters
 
 	return true
 
@@ -774,6 +770,7 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	_root_node.add_child(roads_container)
 	loader.persist_in_current_scene(roads_container)
 	var road_manager = RoadManager.new()
+	loader.terrain_connector.road_manager = road_manager
 	_road_manager = road_manager
 	road_manager.auto_refresh = false
 	road_manager.material_resource = road_material
@@ -820,7 +817,11 @@ func _regenerate_data(data_holder: Node3D) -> void:
 				roads_count += 1
 				if success:
 					roads_count_success += 1
-			elif _is_building(properties):
+			# if false:
+			# 	pass
+			elif _is_building(properties): # problem
+				# if builds_count_success > 1000:
+				# 	continue
 				var success: bool = _build_building(f, buildings_container)
 				builds_count += 1
 				if success:

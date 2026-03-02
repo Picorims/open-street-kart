@@ -10,7 +10,7 @@ class_name Track extends Node3D
 
 func _ready() -> void:
 	# track linter
-	assert($Sky3D != null, "Missing Sky3D.")
+	#assert($Sky3D != null, "Missing Sky3D.")
 	assert($PlayerSpawner != null, "No player spawner.")
 	assert($MapDataLoader != null, "No map data loader.")
 	assert($ProceduralDataHolder != null, "No procedural data holder.")
