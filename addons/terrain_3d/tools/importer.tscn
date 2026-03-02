@@ -1,4 +1,4 @@
-[gd_scene load_steps=9 format=3 uid="uid://blaieaqp413k7"]
+[gd_scene format=3 uid="uid://blaieaqp413k7"]
 
 [ext_resource type="Script" uid="uid://cib2rig7vup10" path="res://addons/terrain_3d/tools/importer.gd" id="1_60b8f"]
 
@@ -66,7 +66,7 @@ lod0_range = 128.0
 [sub_resource type="Terrain3DAssets" id="Terrain3DAssets_42p8u"]
 mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_ce8yv")])
 
-[node name="Importer" type="Terrain3D"]
+[node name="Importer" type="Terrain3D" unique_id=164553225]
 material = SubResource("Terrain3DMaterial_34j6c")
 assets = SubResource("Terrain3DAssets_42p8u")
 mesh_lods = 8

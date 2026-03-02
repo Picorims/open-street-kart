@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://b53jggxqfowat"]
+[gd_scene format=3 uid="uid://b53jggxqfowat"]
 
 [ext_resource type="Script" uid="uid://djnjr8vj2vjup" path="res://gui/atoms/atom_gui_race_ranking_line.gd" id="1_oopfr"]
 
@@ -10,7 +10,7 @@ outline_size = 1
 [sub_resource type="LabelSettings" id="LabelSettings_ctxc6"]
 font_color = Color(1, 1, 0.482353, 1)
 
-[node name="AtomGUIRaceRankingLine" type="Control"]
+[node name="AtomGUIRaceRankingLine" type="Control" unique_id=2041607784]
 custom_minimum_size = Vector2(0, 32)
 layout_mode = 3
 anchors_preset = 15
@@ -22,7 +22,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_oopfr")
 
-[node name="Background" type="ColorRect" parent="."]
+[node name="Background" type="ColorRect" parent="." unique_id=967369246]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -31,7 +31,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.133333, 0.133333, 0.133333, 0.564706)
 
-[node name="MarginContainer" type="MarginContainer" parent="."]
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=56608017]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -43,18 +43,18 @@ theme_override_constants/margin_top = 4
 theme_override_constants/margin_right = 4
 theme_override_constants/margin_bottom = 4
 
-[node name="position" type="Label" parent="MarginContainer"]
+[node name="position" type="Label" parent="MarginContainer" unique_id=476617192]
 layout_mode = 2
 text = "?"
 label_settings = SubResource("LabelSettings_5j4ec")
 
-[node name="name" type="Label" parent="MarginContainer"]
+[node name="name" type="Label" parent="MarginContainer" unique_id=1747989113]
 layout_mode = 2
 text = "?"
 label_settings = SubResource("LabelSettings_oopfr")
 horizontal_alignment = 1
 
-[node name="time" type="Label" parent="MarginContainer"]
+[node name="time" type="Label" parent="MarginContainer" unique_id=213664643]
 layout_mode = 2
 text = "?"
 label_settings = SubResource("LabelSettings_ctxc6")

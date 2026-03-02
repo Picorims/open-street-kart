@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://bbnvxt5cu4gjw"]
+[gd_scene format=3 uid="uid://bbnvxt5cu4gjw"]
 
 [ext_resource type="Script" uid="uid://d1v21cfyurjr3" path="res://gui/race_finished_gui.gd" id="1_ft8qi"]
 
-[node name="RaceFinishedGUI" type="Control"]
+[node name="RaceFinishedGUI" type="Control" unique_id=43508211]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -11,7 +11,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_ft8qi")
 
-[node name="MainContainer" type="MarginContainer" parent="."]
+[node name="MainContainer" type="MarginContainer" parent="." unique_id=2100128123]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -21,9 +21,9 @@ grow_vertical = 2
 theme_override_constants/margin_left = 256
 theme_override_constants/margin_right = 256
 
-[node name="Background" type="ColorRect" parent="MainContainer"]
+[node name="Background" type="ColorRect" parent="MainContainer" unique_id=387016116]
 layout_mode = 2
 color = Color(0.164706, 0.164706, 0.164706, 0.490196)
 
-[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="MainContainer" unique_id=1245830530]
 layout_mode = 2

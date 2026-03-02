@@ -1,4 +1,4 @@
-[gd_resource type="StandardMaterial3D" load_steps=5 format=3 uid="uid://bwmmwf7nnqfjw"]
+[gd_resource type="StandardMaterial3D" format=3 uid="uid://bwmmwf7nnqfjw"]
 
 [ext_resource type="Texture2D" uid="uid://c5102x1h21nkd" path="res://materials/environment/grass/grass_albedo.png" id="1"]
 [ext_resource type="Texture2D" uid="uid://bfqrbucfamlds" path="res://materials/environment/grass/grass_orm.png" id="2"]

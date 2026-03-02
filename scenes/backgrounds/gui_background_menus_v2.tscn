@@ -1,4 +1,4 @@
-[gd_scene load_steps=23 format=3 uid="uid://2gi8mf0dua0d"]
+[gd_scene format=3 uid="uid://2gi8mf0dua0d"]
 
 [ext_resource type="Script" uid="uid://ce48thbtmeide" path="res://scenes/backgrounds/gui_background_menus_v_2.gd" id="1_yn5x8"]
 [ext_resource type="Material" uid="uid://bwmmwf7nnqfjw" path="res://materials/environment/grass/grass.tres" id="2_yn5x8"]
@@ -103,17 +103,17 @@ exposure_multiplier = 1.5
 auto_exposure_scale = 0.15
 auto_exposure_speed = 1.0
 
-[node name="GUIBackgroundMenus" type="Node3D"]
+[node name="GUIBackgroundMenus" type="Node3D" unique_id=756584766]
 script = ExtResource("1_yn5x8")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=278020613]
 mesh = SubResource("BoxMesh_yr0dy")
 
-[node name="Camera3D" type="Camera3D" parent="."]
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1065121521]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 2.36505, 0)
 fov = 37.8493
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=960254097]
 transform = Transform3D(1, 0, 0, 0, -0.949426, 0.313992, 0, -0.313992, -0.949426, 0, 2.84555, 0)
 visible = false
 light_color = Color(0.321859, 0.762367, 0.964098, 1)
@@ -122,7 +122,7 @@ light_angular_distance = 0.67
 light_specular = 2.304
 light_bake_mode = 1
 
-[node name="GPUParticles3D" type="GPUParticles3D" parent="."]
+[node name="GPUParticles3D" type="GPUParticles3D" parent="." unique_id=1647227538]
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 15, 1.705, 0)
 amount = 512
 lifetime = 10.0
@@ -131,7 +131,7 @@ local_coords = true
 process_material = SubResource("ParticleProcessMaterial_idtbq")
 draw_pass_1 = SubResource("SphereMesh_yr0dy")
 
-[node name="Sky3D" type="WorldEnvironment" parent="."]
+[node name="Sky3D" type="WorldEnvironment" parent="." unique_id=162368154]
 environment = SubResource("Environment_xd6nh")
 camera_attributes = SubResource("CameraAttributesPractical_k81t8")
 script = ExtResource("3_bfp1c")
@@ -146,14 +146,14 @@ auto_exposure_scale = 0.15
 auto_exposure_speed = 1.0
 metadata/_custom_type_script = "uid://djfbsux76aler"
 
-[node name="SunLight" type="DirectionalLight3D" parent="Sky3D"]
+[node name="SunLight" type="DirectionalLight3D" parent="Sky3D" unique_id=73037466]
 transform = Transform3D(0, -0.234073, -0.972219, -0.9467, 0.313167, -0.0753986, 0.322116, 0.9204, -0.221597, -0.972219, -0.0753985, -0.221597)
 visible = false
 light_color = Color(0.98, 0.523, 0.294, 1)
 light_energy = 0.0
 shadow_enabled = true
 
-[node name="MoonLight" type="DirectionalLight3D" parent="Sky3D"]
+[node name="MoonLight" type="DirectionalLight3D" parent="Sky3D" unique_id=356188569]
 transform = Transform3D(0, -0.476078, 0.879403, 0.92803, 0.327583, 0.177342, -0.372506, 0.816112, 0.441815, 0.879403, 0.177342, 0.441815)
 visible = false
 light_color = Color(0.604938, 0.839727, 0.988783, 1)
@@ -161,7 +161,7 @@ light_energy = 0.12502627
 light_specular = 1.993
 shadow_enabled = true
 
-[node name="TimeOfDay" type="Node" parent="Sky3D"]
+[node name="TimeOfDay" type="Node" parent="Sky3D" unique_id=182393208]
 script = ExtResource("4_3455s")
 update_in_game = false
 update_in_editor = false
@@ -180,7 +180,7 @@ longitude = 108.0
 utc = 7.0
 celestials_update_time = 0.0
 
-[node name="Skydome" type="Node" parent="Sky3D"]
+[node name="Skydome" type="Node" parent="Sky3D" unique_id=1275794064]
 script = ExtResource("5_4lgn4")
 sky_visible = true
 dome_radius = 10.0

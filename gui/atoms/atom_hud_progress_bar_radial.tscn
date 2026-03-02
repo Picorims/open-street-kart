@@ -1,8 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://nssmueirk785"]
+[gd_scene format=3 uid="uid://nssmueirk785"]
 
 [ext_resource type="Texture2D" uid="uid://d0c3pfomksher" path="res://textures/hud/slot_item/item_slot_progress_bar.png" id="1_ecifp"]
 
-[node name="AtomHUDProgressBarRadial" type="TextureProgressBar"]
+[node name="AtomHUDProgressBarRadial" type="TextureProgressBar" unique_id=1166316450]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0

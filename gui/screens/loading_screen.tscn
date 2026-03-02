@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cdhkgu7db42wd"]
 
-[node name="LoadingScreen" type="Control"]
+[node name="LoadingScreen" type="Control" unique_id=291291701]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -8,7 +8,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="ColorRect" type="ColorRect" parent="."]
+[node name="ColorRect" type="ColorRect" parent="." unique_id=1520323198]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -17,7 +17,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.0696142, 0.146785, 0.165296, 1)
 
-[node name="Label" type="Label" parent="ColorRect"]
+[node name="Label" type="Label" parent="ColorRect" unique_id=1507150173]
 layout_mode = 1
 anchors_preset = 8
 anchor_left = 0.5

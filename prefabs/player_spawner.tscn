@@ -1,4 +1,4 @@
-[gd_scene load_steps=8 format=3 uid="uid://n8fkrinxntr"]
+[gd_scene format=3 uid="uid://n8fkrinxntr"]
 
 [ext_resource type="Script" uid="uid://vydn40bgwwo5" path="res://prefabs/player_spawner.gd" id="1_5ru0a"]
 
@@ -22,17 +22,17 @@ albedo_color = Color(0.188235, 0.686275, 0.980392, 1)
 material = SubResource("StandardMaterial3D_go6lo")
 size = Vector3(0.1, 0.1, 1)
 
-[node name="PlayerSpawner" type="Node3D"]
+[node name="PlayerSpawner" type="Node3D" unique_id=126272685]
 script = ExtResource("1_5ru0a")
 
-[node name="posDebug" type="MeshInstance3D" parent="."]
+[node name="posDebug" type="MeshInstance3D" parent="." unique_id=621867907]
 mesh = SubResource("SphereMesh_go6lo")
 
-[node name="xDebug" type="MeshInstance3D" parent="."]
+[node name="xDebug" type="MeshInstance3D" parent="." unique_id=1945066470]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0, 0)
 mesh = SubResource("BoxMesh_8o1yr")
 skeleton = NodePath("../zDebug")
 
-[node name="zDebug" type="MeshInstance3D" parent="."]
+[node name="zDebug" type="MeshInstance3D" parent="." unique_id=1128799217]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0.965512)
 mesh = SubResource("BoxMesh_50l63")

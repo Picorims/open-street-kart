@@ -1,4 +1,4 @@
-[gd_scene load_steps=3 format=3 uid="uid://cwnsa3f3y86fw"]
+[gd_scene format=3 uid="uid://cwnsa3f3y86fw"]
 
 [sub_resource type="BoxMesh" id="1"]
 size = Vector3(0.5, 0.5, 2)
@@ -6,12 +6,12 @@ size = Vector3(0.5, 0.5, 2)
 [sub_resource type="BoxMesh" id="3"]
 size = Vector3(0.5, 0.5, 2)
 
-[node name="GizmoLaneIndicator" type="Node3D"]
+[node name="GizmoLaneIndicator" type="Node3D" unique_id=1389158725]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=417305807]
 transform = Transform3D(1.00065, 0, 0, 0, 1.00065, 0, 0, 0, 2.44929, 0.000378732, 0.00273072, 0.000607927)
 mesh = SubResource("1")
 
-[node name="MeshInstance2" type="MeshInstance3D" parent="."]
+[node name="MeshInstance2" type="MeshInstance3D" parent="." unique_id=373826213]
 transform = Transform3D(0.887933, 0, 0, 0, 0.887933, 0, 0, 0, 2.38737, -1.23619e-07, -8.91276e-07, -1.9843e-07)
 mesh = SubResource("3")

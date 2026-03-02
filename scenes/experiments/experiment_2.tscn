@@ -1,4 +1,4 @@
-[gd_scene load_steps=12 format=3 uid="uid://cpupnq5qmhna6"]
+[gd_scene format=3 uid="uid://cpupnq5qmhna6"]
 
 [ext_resource type="Script" uid="uid://bcfqmg8h1ppo" path="res://scenes/experiments/car.gd" id="1_li6mi"]
 
@@ -34,35 +34,35 @@ size = Vector3(1.8, 0.5, 3)
 [sub_resource type="BoxMesh" id="BoxMesh_c38av"]
 size = Vector3(1.8, 0.5, 3)
 
-[node name="Node3D" type="Node3D"]
+[node name="Node3D" type="Node3D" unique_id=1641623701]
 
-[node name="Ground" type="StaticBody3D" parent="."]
+[node name="Ground" type="StaticBody3D" parent="." unique_id=154251661]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -1, 0)
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Ground" unique_id=1685612082]
 shape = SubResource("BoxShape3D_chq71")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Ground" unique_id=1633284309]
 mesh = SubResource("BoxMesh_kl8hj")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1323430076]
 environment = SubResource("Environment_bht1r")
 camera_attributes = SubResource("CameraAttributesPractical_rw73v")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=530903126]
 transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.766358, -0.431946, 0.475518, 0, 7, 0)
 
-[node name="Car" type="RigidBody3D" parent="."]
+[node name="Car" type="RigidBody3D" parent="." unique_id=1345098189]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.559193, 0)
 mass = 200.0
 script = ExtResource("1_li6mi")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Car"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Car" unique_id=579352529]
 shape = SubResource("BoxShape3D_ugfyw")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Car"]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Car" unique_id=1409008]
 mesh = SubResource("BoxMesh_c38av")
 skeleton = NodePath("../CollisionShape3D")
 
-[node name="Camera3D" type="Camera3D" parent="Car"]
+[node name="Camera3D" type="Camera3D" parent="Car" unique_id=1280434544]
 transform = Transform3D(-1, 0, 8.74228e-08, 0, 1, 0, -8.74228e-08, 0, -1, 0, 3, -5)

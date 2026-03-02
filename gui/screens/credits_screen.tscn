@@ -1,4 +1,4 @@
-[gd_scene load_steps=5 format=3 uid="uid://b3vknechm3qrh"]
+[gd_scene format=3 uid="uid://b3vknechm3qrh"]
 
 [ext_resource type="Script" uid="uid://chj682upigr44" path="res://gui/screens/credits_screen.gd" id="1_10m51"]
 [ext_resource type="Shader" uid="uid://bhdo7hy443n7o" path="res://shaders/blur_with_radius_background.gdshader" id="1_siwcc"]
@@ -13,7 +13,7 @@ shader_parameter/strength = 4.0
 shader_parameter/mix_percentage = 0.3
 shader_parameter/mix_color = Color(0, 0, 0, 1)
 
-[node name="CreditsScreen" type="Control"]
+[node name="CreditsScreen" type="Control" unique_id=288414517]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -22,7 +22,7 @@ grow_horizontal = 2
 grow_vertical = 2
 script = ExtResource("1_10m51")
 
-[node name="CreditsScreenMargin" type="MarginContainer" parent="."]
+[node name="CreditsScreenMargin" type="MarginContainer" parent="." unique_id=1984492081]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -34,32 +34,32 @@ theme_override_constants/margin_top = 64
 theme_override_constants/margin_right = 64
 theme_override_constants/margin_bottom = 64
 
-[node name="ColorRect" type="ColorRect" parent="CreditsScreenMargin"]
+[node name="ColorRect" type="ColorRect" parent="CreditsScreenMargin" unique_id=524203154]
 material = SubResource("ShaderMaterial_ejaqg")
 layout_mode = 2
 
-[node name="MarginContainer" type="MarginContainer" parent="CreditsScreenMargin"]
+[node name="MarginContainer" type="MarginContainer" parent="CreditsScreenMargin" unique_id=1780432458]
 layout_mode = 2
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 theme_override_constants/margin_right = 16
 theme_override_constants/margin_bottom = 16
 
-[node name="ScrollContainer" type="ScrollContainer" parent="CreditsScreenMargin/MarginContainer"]
+[node name="ScrollContainer" type="ScrollContainer" parent="CreditsScreenMargin/MarginContainer" unique_id=1411734943]
 layout_mode = 2
 
-[node name="VBoxContainer" type="VBoxContainer" parent="CreditsScreenMargin/MarginContainer/ScrollContainer"]
+[node name="VBoxContainer" type="VBoxContainer" parent="CreditsScreenMargin/MarginContainer/ScrollContainer" unique_id=657303888]
 layout_mode = 2
 size_flags_horizontal = 3
 size_flags_vertical = 3
 theme_override_constants/separation = 32
 
-[node name="OSK" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSK" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=596709035]
 layout_mode = 2
 theme_type_variation = &"HeaderLarge"
 text = "Open Street Kart"
 
-[node name="OSKNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=928444631]
 layout_mode = 2
 text = "Open Street Kart is an arcade kart game where you race in real life areas reconstructed from Open Street Map
 Copyright (c) 2025 Charly Schmidt aka Picorims<picorims.contact@gmail.com> and Open Street Kart contributors
@@ -68,34 +68,34 @@ This Source Code Form is subject to the terms of the Mozilla Public
 License, v. 2.0. If a copy of the MPL was not distributed with this
 file, You can obtain one at https://mozilla.org/MPL/2.0/."
 
-[node name="OSKAssets" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKAssets" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=2076471094]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Open Street Kart - Assets"
 
-[node name="OSKAssetsNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKAssetsNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=476856804]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 text = "Open Street Kart textures, materials, music, sound, and other artistic assets © 2025 by Charly Schmidt aka Picorims<picorims.contact@gmail.com> and Open Street Kart contributors (see notice on individual assets for the exact authors) is licensed under Creative Commons Attribution-ShareAlike 4.0 International (https://creativecommons.org/licenses/by-sa/4.0/)"
 autowrap_mode = 3
 
-[node name="OSKAssetsMilkyWay" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKAssetsMilkyWay" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=1568856411]
 layout_mode = 2
 theme_type_variation = &"HeaderSmall"
 text = "Milky way"
 
-[node name="OSKAssetsMilkyWayNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKAssetsMilkyWayNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=1344626988]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 text = "The Milky Way panorama (https://www.eso.org/public/images/eso0932a/) by ESO/S. Brunier, licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) and used in original and modified forms."
 autowrap_mode = 3
 
-[node name="OSKElevation" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKElevation" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=495004067]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Elevation Data"
 
-[node name="OSKElevationNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKElevationNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=2042921020]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 text = "Elevation is generated from the ASTER dataset (ASTGTMV003) (https://terra.nasa.gov/data/aster-data).
@@ -104,12 +104,12 @@ The source used is Earthdata Nasa service: https://www.earthdata.nasa.gov/data/c
 NASA/METI/AIST/Japan Spacesystems and U.S./Japan ASTER Science Team. (2019). \"ASTER Global Digital Elevation Model V003\" [Data set]. NASA Land Processes Distributed Active Archive Center. https://doi.org/10.5067/ASTER/ASTGTM.003 Date Accessed: 2025-07-04"
 autowrap_mode = 3
 
-[node name="OSKOSM" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKOSM" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=1093113255]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Geographical data, roads, etc."
 
-[node name="OSKOSMNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKOSMNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=450450933]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 text = "All other data is built from the OpenStreetMap database, fetched using the Overpass API.
@@ -118,12 +118,12 @@ OpenStreetMap data is made available under the ODbL license, and copyright belon
 For more information, see: https://www.openstreetmap.org/copyright"
 autowrap_mode = 3
 
-[node name="OSKAddons" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKAddons" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=2082165548]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
 text = "Addons"
 
-[node name="OSKAddonsNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer"]
+[node name="OSKAddonsNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=1632018178]
 custom_minimum_size = Vector2(200, 0)
 layout_mode = 2
 text = "Addons are used in this project. For more information, have a look at the `addons` directory, where each add-on specify their license.
@@ -132,7 +132,7 @@ text = "Addons are used in this project. For more information, have a look at th
 - Road Generator: MIT License"
 autowrap_mode = 3
 
-[node name="BackButton" type="Control" parent="."]
+[node name="BackButton" type="Control" parent="." unique_id=175900039]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 1
 anchors_preset = 7

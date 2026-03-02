@@ -1,15 +1,15 @@
-[gd_scene load_steps=4 format=3 uid="uid://cqejs1vq3nqq1"]
+[gd_scene format=3 uid="uid://cqejs1vq3nqq1"]
 
 [ext_resource type="Script" uid="uid://dnclarav5w8h2" path="res://scenes/main.gd" id="1_o5qli"]
 [ext_resource type="Theme" uid="uid://mcxm36operox" path="res://gui/menus_theme.tres" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://cdhkgu7db42wd" path="res://gui/screens/loading_screen.tscn" id="3_sugp2"]
 
-[node name="Main" type="Node3D"]
+[node name="Main" type="Node3D" unique_id=460982653]
 script = ExtResource("1_o5qli")
 
-[node name="World" type="Node3D" parent="."]
+[node name="World" type="Node3D" parent="." unique_id=1721218021]
 
-[node name="GUI" type="Control" parent="."]
+[node name="GUI" type="Control" parent="." unique_id=1709229474]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,5 +18,5 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("2_0wfyh")
 
-[node name="LoadingScreen" parent="." instance=ExtResource("3_sugp2")]
+[node name="LoadingScreen" parent="." unique_id=224776940 instance=ExtResource("3_sugp2")]
 visible = false

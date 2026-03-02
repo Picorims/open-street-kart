@@ -1,9 +1,9 @@
-[gd_scene load_steps=3 format=3 uid="uid://cp6p822dy2t0q"]
+[gd_scene format=3 uid="uid://cp6p822dy2t0q"]
 
 [ext_resource type="Script" uid="uid://cpw0wopdaijwt" path="res://scripts/freeze_managed_rigid_body_3d.gd" id="1_va6wp"]
 [ext_resource type="PackedScene" uid="uid://bru5i675j7hfp" path="res://models/collidable_assets/bench/bench.glb" id="2_kecco"]
 
-[node name="Node3D" type="RigidBody3D"]
+[node name="Node3D" type="RigidBody3D" unique_id=1729619415]
 collision_layer = 33
 mass = 80.0
 center_of_mass_mode = 1
@@ -14,9 +14,9 @@ script = ExtResource("1_va6wp")
 managed_freeze = true
 metadata/_custom_type_script = "uid://cpw0wopdaijwt"
 
-[node name="bench" parent="." instance=ExtResource("2_kecco")]
+[node name="bench" parent="." unique_id=420082696 instance=ExtResource("2_kecco")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.205, 0.715608)
 
-[node name="CollisionPolygon3D" type="CollisionPolygon3D" parent="."]
+[node name="CollisionPolygon3D" type="CollisionPolygon3D" parent="." unique_id=1187893877]
 depth = 1.53
 polygon = PackedVector2Array(-0.233, 0, 0.285, 0, 0.185, 0.46, -0.135, 0.455, -0.201, 0.829, -0.295, 0.827, -0.233, 0.412)

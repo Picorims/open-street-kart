@@ -1,4 +1,4 @@
-[gd_scene load_steps=4 format=3 uid="uid://vros5txa2cx"]
+[gd_scene format=3 uid="uid://vros5txa2cx"]
 
 [ext_resource type="Script" uid="uid://t255l5dlnsfg" path="res://gui/race_hud.gd" id="1_y0ggb"]
 [ext_resource type="Script" uid="uid://x5bai7hb16cc" path="res://gui/atoms/atom_hud_race_item_slot.gd" id="2_l530m"]
@@ -8,7 +8,7 @@ font_size = 64
 outline_size = 8
 outline_color = Color(0, 0, 0, 1)
 
-[node name="RaceHUD" type="Control" node_paths=PackedStringArray("cursors_holder")]
+[node name="RaceHUD" type="Control" unique_id=917045229 node_paths=PackedStringArray("cursors_holder")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,7 +18,7 @@ grow_vertical = 2
 script = ExtResource("1_y0ggb")
 cursors_holder = NodePath("ProgressBarContainer/ProgressBarMargin/ProgressBarSubContainer")
 
-[node name="ProgressBarContainer" type="Control" parent="."]
+[node name="ProgressBarContainer" type="Control" parent="." unique_id=1037121244]
 custom_minimum_size = Vector2(0, 256)
 layout_mode = 1
 anchors_preset = 12
@@ -28,7 +28,7 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 0
 
-[node name="ProgressBarMargin" type="MarginContainer" parent="ProgressBarContainer"]
+[node name="ProgressBarMargin" type="MarginContainer" parent="ProgressBarContainer" unique_id=1401650052]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -40,12 +40,12 @@ theme_override_constants/margin_top = 0
 theme_override_constants/margin_right = 128
 theme_override_constants/margin_bottom = 32
 
-[node name="ProgressBarSubContainer" type="Control" parent="ProgressBarContainer/ProgressBarMargin"]
+[node name="ProgressBarSubContainer" type="Control" parent="ProgressBarContainer/ProgressBarMargin" unique_id=1083865301]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 2
 size_flags_vertical = 8
 
-[node name="Bar" type="ColorRect" parent="ProgressBarContainer/ProgressBarMargin/ProgressBarSubContainer"]
+[node name="Bar" type="ColorRect" parent="ProgressBarContainer/ProgressBarMargin/ProgressBarSubContainer" unique_id=912669721]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -54,14 +54,14 @@ grow_horizontal = 2
 grow_vertical = 2
 size_flags_vertical = 8
 
-[node name="GroupPosition" type="ColorRect" parent="ProgressBarContainer/ProgressBarMargin/ProgressBarSubContainer"]
+[node name="GroupPosition" type="ColorRect" parent="ProgressBarContainer/ProgressBarMargin/ProgressBarSubContainer" unique_id=490536361]
 custom_minimum_size = Vector2(0, 8)
 layout_mode = 0
 offset_bottom = 8.0
 size_flags_vertical = 8
 color = Color(0.593134, 0.593134, 0.593134, 1)
 
-[node name="SelfRankingContainer" type="MarginContainer" parent="."]
+[node name="SelfRankingContainer" type="MarginContainer" parent="." unique_id=1128661223]
 layout_mode = 1
 anchors_preset = 3
 anchor_left = 1.0
@@ -75,29 +75,29 @@ grow_vertical = 0
 theme_override_constants/margin_right = 32
 theme_override_constants/margin_bottom = 32
 
-[node name="SelfRanking" type="Label" parent="SelfRankingContainer"]
+[node name="SelfRanking" type="Label" parent="SelfRankingContainer" unique_id=630712141]
 layout_mode = 2
 text = "?"
 label_settings = SubResource("LabelSettings_y0ggb")
 
-[node name="ItemSlotsContainer" type="MarginContainer" parent="."]
+[node name="ItemSlotsContainer" type="MarginContainer" parent="." unique_id=889224887]
 layout_mode = 0
 offset_right = 40.0
 offset_bottom = 40.0
 theme_override_constants/margin_left = 16
 theme_override_constants/margin_top = 16
 
-[node name="ItemSlotsHorizontalLayout" type="HBoxContainer" parent="ItemSlotsContainer"]
+[node name="ItemSlotsHorizontalLayout" type="HBoxContainer" parent="ItemSlotsContainer" unique_id=1636656973]
 layout_mode = 2
 
-[node name="AtomHUDRaceItemSlot" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout"]
+[node name="AtomHUDRaceItemSlot" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout" unique_id=228848886]
 custom_minimum_size = Vector2(96, 96)
 layout_mode = 2
 script = ExtResource("2_l530m")
 size_pixels = 96
 metadata/_custom_type_script = "uid://x5bai7hb16cc"
 
-[node name="AtomHUDRaceItemSlot2" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout"]
+[node name="AtomHUDRaceItemSlot2" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout" unique_id=1820366502]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 0
@@ -106,7 +106,7 @@ script = ExtResource("2_l530m")
 size_pixels = 64
 metadata/_custom_type_script = "uid://x5bai7hb16cc"
 
-[node name="AtomHUDRaceItemSlot3" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout"]
+[node name="AtomHUDRaceItemSlot3" type="Control" parent="ItemSlotsContainer/ItemSlotsHorizontalLayout" unique_id=1716159879]
 custom_minimum_size = Vector2(64, 64)
 layout_mode = 2
 size_flags_horizontal = 0

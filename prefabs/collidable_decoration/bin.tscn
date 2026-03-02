@@ -1,4 +1,4 @@
-[gd_scene load_steps=6 format=3 uid="uid://bncocaw56olxs"]
+[gd_scene format=3 uid="uid://bncocaw56olxs"]
 
 [ext_resource type="Script" uid="uid://cpw0wopdaijwt" path="res://scripts/freeze_managed_rigid_body_3d.gd" id="1_1x6ms"]
 [ext_resource type="PackedScene" uid="uid://cc8ya1q0lghvr" path="res://models/collidable_assets/bin/bin.glb" id="2_umpaq"]
@@ -16,7 +16,7 @@ top_radius = 0.3
 bottom_radius = 0.3
 height = 1.0
 
-[node name="Bin" type="RigidBody3D"]
+[node name="Bin" type="RigidBody3D" unique_id=1857956401]
 collision_layer = 33
 mass = 60.0
 center_of_mass_mode = 1
@@ -27,14 +27,14 @@ script = ExtResource("1_1x6ms")
 managed_freeze = true
 metadata/_custom_type_script = "uid://cpw0wopdaijwt"
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=720491800]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 shape = SubResource("CylinderShape3D_umpaq")
 
-[node name="DebugMesh" type="MeshInstance3D" parent="."]
+[node name="DebugMesh" type="MeshInstance3D" parent="." unique_id=1115365817]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
 visible = false
 mesh = SubResource("CylinderMesh_o7y3g")
 
-[node name="bin" parent="." instance=ExtResource("2_umpaq")]
+[node name="bin" parent="." unique_id=858708496 instance=ExtResource("2_umpaq")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
