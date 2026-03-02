@@ -6,8 +6,12 @@
 
 [sub_resource type="ShaderMaterial" id="ShaderMaterial_qj5ql"]
 shader = ExtResource("2_8c8eu")
+shader_parameter/corner_radius = 0.0
+shader_parameter/texture_width = 1.0
+shader_parameter/texture_height = 1.0
 shader_parameter/strength = 3.3
 shader_parameter/mix_percentage = 0.3
+shader_parameter/mix_color = Color(0, 0, 0, 1)
 
 [node name="PickTrackScreen" type="Control"]
 layout_mode = 3

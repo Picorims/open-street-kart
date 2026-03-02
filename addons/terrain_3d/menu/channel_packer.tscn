@@ -35,9 +35,10 @@ corner_radius_bottom_left = 5
 [sub_resource type="ButtonGroup" id="ButtonGroup_bs6ki"]
 
 [node name="Window" type="Window"]
+oversampling_override = 1.0
 title = "Terrain3D Channel Packer"
 initial_position = 1
-size = Vector2i(583, 891)
+size = Vector2i(685, 891)
 wrap_controls = true
 always_on_top = true
 

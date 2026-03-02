@@ -401,7 +401,7 @@ directional_shadow_max_distance = 200.0
 environment = SubResource("Environment_38m85")
 
 [node name="Camera" type="Camera3D" parent="."]
-transform = Transform3D(1, 0, 0, 0, 0.942642, 0.333808, 0, -0.333808, 0.942642, -6.988, 10.986, 29.206)
+transform = Transform3D(1, 0, 0, 0, 0.9426419, 0.3338081, 0, -0.3338081, 0.9426419, -6.988, 10.986, 29.206)
 cull_mask = 1
 current = true
 fov = 53.0
