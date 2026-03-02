@@ -12,8 +12,8 @@ colors = PackedColorArray(0.851769, 0.851769, 0.851769, 1, 1, 1, 1, 1)
 frequency = 0.092
 
 [sub_resource type="NoiseTexture2D" id="NoiseTexture2D_li6mi"]
-color_ramp = SubResource("Gradient_li6mi")
 noise = SubResource("FastNoiseLite_kl8hj")
+color_ramp = SubResource("Gradient_li6mi")
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_bht1r"]
 albedo_color = Color(0.410039, 0.813847, 0.514979, 1)

@@ -1,8 +1,9 @@
 [gd_scene load_steps=2 format=3 uid="uid://bhvrrmb8bk1bt"]
 
-[ext_resource type="Script" path="res://addons/terrain_3d/menu/bake_lod_dialog.gd" id="1_sf76d"]
+[ext_resource type="Script" uid="uid://cqmt8f5x5c2ad" path="res://addons/terrain_3d/menu/bake_lod_dialog.gd" id="1_sf76d"]
 
 [node name="bake_lod_dialog" type="ConfirmationDialog"]
+oversampling_override = 1.0
 title = "Bake Terrain3D Mesh"
 position = Vector2i(0, 36)
 size = Vector2i(400, 155)
@@ -13,7 +14,7 @@ script = ExtResource("1_sf76d")
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 392.0
-offset_bottom = 106.0
+offset_bottom = 110.0
 theme_override_constants/margin_left = 10
 theme_override_constants/margin_top = 10
 theme_override_constants/margin_right = 10

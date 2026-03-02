@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://btf4eewwb5v7s"]
 
-[ext_resource type="Script" path="res://addons/road-generator/nodes/road_point.gd" id="1"]
-[ext_resource type="Script" path="res://addons/road-generator/nodes/road_container.gd" id="2"]
-[ext_resource type="Material" path="res://addons/road-generator/resources/road_texture.material" id="3"]
+[ext_resource type="Script" uid="uid://dim53n5bn21we" path="res://addons/road-generator/nodes/road_point.gd" id="1"]
+[ext_resource type="Script" uid="uid://b30qgeohlvtee" path="res://addons/road-generator/nodes/road_container.gd" id="2"]
+[ext_resource type="Material" uid="uid://dpashsuk5lr4x" path="res://addons/road-generator/resources/road_texture.material" id="3"]
 [ext_resource type="PackedScene" uid="uid://cyjpoeddap1se" path="res://addons/road-generator/custom_containers/splitter_2x2.glb" id="4_7ogup"]
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_21yqs"]
@@ -10,8 +10,8 @@ data = PackedVector3Array(4, 0, 0, -0.574, 0, 4.0097, 0, 0, 0, 4, 0, 0, 3.3105, 
 
 [node name="splitter_2x2" type="Node3D"]
 script = ExtResource("2")
-material_resource = ExtResource("3")
 create_geo = false
+material_resource = ExtResource("3")
 use_lowpoly_preview = true
 generate_ai_lanes = true
 edge_containers = Array[NodePath]([NodePath(""), NodePath(""), NodePath("")])
@@ -32,10 +32,10 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4, 0, 12)
 script = ExtResource("1")
 traffic_dir = Array[int]([1, 1])
 lanes = Array[int]([0, 2])
-prior_pt_init = NodePath("../RP_001")
 terminated = true
 prior_mag = 16.0
 next_mag = 16.0
+prior_pt_init = NodePath("../RP_001")
 
 [node name="RP_003" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0, -16)
@@ -49,29 +49,29 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, 12)
 script = ExtResource("1")
 traffic_dir = Array[int]([2, 2])
 lanes = Array[int]([2, 0])
-prior_pt_init = NodePath("../RP_003")
 terminated = true
 prior_mag = 16.0
 next_mag = 16.0
+prior_pt_init = NodePath("../RP_003")
 
 [node name="cap" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 16)
 script = ExtResource("1")
 traffic_dir = Array[int]([2, 2, 1, 1])
 lanes = Array[int]([2, 4, 4, 2])
-prior_pt_init = NodePath("../cap_terminated")
 prior_mag = 1.70326
 next_mag = 16.0
+prior_pt_init = NodePath("../cap_terminated")
 
 [node name="cap_terminated" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 12)
 script = ExtResource("1")
 traffic_dir = Array[int]([2, 2, 1, 1])
 lanes = Array[int]([2, 4, 4, 2])
-next_pt_init = NodePath("../cap")
 terminated = true
 prior_mag = 1.73569
 next_mag = 1.73569
+next_pt_init = NodePath("../cap")
 
 [node name="splitter_2x3" parent="." instance=ExtResource("4_7ogup")]
 

@@ -14,7 +14,7 @@ config/name="Open Street Kart"
 config/version="1.0.0-alpha.7"
 config/tags=PackedStringArray("3d", "physics", "vehicle")
 run/main_scene="uid://cqejs1vq3nqq1"
-config/features=PackedStringArray("4.4", "Mobile")
+config/features=PackedStringArray("4.5", "Mobile")
 run/max_fps=60
 config/icon="res://icon.svg"
 

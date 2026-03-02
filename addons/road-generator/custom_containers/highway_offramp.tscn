@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://cbw5410mk0wgq"]
 
-[ext_resource type="Material" path="res://addons/road-generator/resources/road_texture.material" id="1"]
-[ext_resource type="Script" path="res://addons/road-generator/nodes/road_point.gd" id="2"]
-[ext_resource type="Script" path="res://addons/road-generator/nodes/road_container.gd" id="4"]
+[ext_resource type="Material" uid="uid://dpashsuk5lr4x" path="res://addons/road-generator/resources/road_texture.material" id="1"]
+[ext_resource type="Script" uid="uid://dim53n5bn21we" path="res://addons/road-generator/nodes/road_point.gd" id="2"]
+[ext_resource type="Script" uid="uid://b30qgeohlvtee" path="res://addons/road-generator/nodes/road_container.gd" id="4"]
 [ext_resource type="PackedScene" uid="uid://dqpky0vcyau4a" path="res://addons/road-generator/custom_containers/highway_offramp.glb" id="4_avn42"]
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_tqwce"]
@@ -10,8 +10,8 @@ data = PackedVector3Array(-5.777, 0, 6.4606, -9.0088, 0, 8.8026, -7.5554, 0.0158
 
 [node name="highway_offramp" type="Node3D"]
 script = ExtResource("4")
-material_resource = ExtResource("1")
 create_geo = false
+material_resource = ExtResource("1")
 use_lowpoly_preview = true
 generate_ai_lanes = true
 edge_containers = Array[NodePath]([NodePath(""), NodePath(""), NodePath("")])
@@ -39,19 +39,19 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.15635, 0, 16)
 script = ExtResource("2")
 traffic_dir = Array[int]([1])
 lanes = Array[int]([0])
-prior_pt_init = NodePath("../RAMP_02")
 terminated = true
 prior_mag = 15.064
 next_mag = 16.0
+prior_pt_init = NodePath("../RAMP_02")
 
 [node name="RAMP_02" type="Node3D" parent="."]
 transform = Transform3D(0.848769, 0, -0.528764, 0, 1, 0, 0.528764, 0, 0.848769, 16.901, 0, -24)
 script = ExtResource("2")
 traffic_dir = Array[int]([1])
 lanes = Array[int]([0])
-next_pt_init = NodePath("../RAMP_01")
 prior_mag = 12.9596
 next_mag = 12.9596
+next_pt_init = NodePath("../RAMP_01")
 
 [node name="highway_offramp" parent="." instance=ExtResource("4_avn42")]
 

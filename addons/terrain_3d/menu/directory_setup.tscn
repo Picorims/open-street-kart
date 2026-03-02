@@ -1,16 +1,17 @@
 [gd_scene format=3 uid="uid://by3kr2nqbqr67"]
 
 [node name="DirectorySetup" type="ConfirmationDialog"]
+oversampling_override = 1.0
 title = "Terrain3D Data Directory Setup"
 position = Vector2i(0, 36)
-size = Vector2i(750, 330)
+size = Vector2i(750, 364)
 visible = true
 
 [node name="Margin" type="MarginContainer" parent="."]
 offset_left = 8.0
 offset_top = 8.0
 offset_right = 742.0
-offset_bottom = 281.0
+offset_bottom = 319.0
 theme_override_constants/margin_left = 20
 theme_override_constants/margin_top = 20
 theme_override_constants/margin_right = 20

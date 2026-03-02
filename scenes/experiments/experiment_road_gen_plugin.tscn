@@ -1,16 +1,13 @@
-[gd_scene load_steps=5 format=3 uid="uid://ck72qymgj0awg"]
+[gd_scene load_steps=4 format=3 uid="uid://ck72qymgj0awg"]
 
-[ext_resource type="Script" uid="uid://krli7jl26b2q" path="res://addons/road-generator/nodes/road_manager.gd" id="1_axy0a"]
-[ext_resource type="Material" uid="uid://dpashsuk5lr4x" path="res://addons/road-generator/resources/road_texture.material" id="2_gjq32"]
-[ext_resource type="Script" uid="uid://bod027pxpx28l" path="res://addons/road-generator/nodes/road_container.gd" id="3_ye47y"]
-[ext_resource type="Script" uid="uid://cgv1qcg5hf3l" path="res://addons/road-generator/nodes/road_point.gd" id="4_gqjy8"]
+[ext_resource type="Script" uid="uid://cytw87rk2wf6m" path="res://addons/road-generator/nodes/road_manager.gd" id="1_axy0a"]
+[ext_resource type="Script" uid="uid://b30qgeohlvtee" path="res://addons/road-generator/nodes/road_container.gd" id="3_ye47y"]
+[ext_resource type="Script" uid="uid://dim53n5bn21we" path="res://addons/road-generator/nodes/road_point.gd" id="4_gqjy8"]
 
 [node name="Node3D" type="Node3D"]
 
 [node name="RoadManager" type="Node3D" parent="."]
 script = ExtResource("1_axy0a")
-material_resource = ExtResource("2_gjq32")
-metadata/_custom_type_script = "uid://krli7jl26b2q"
 
 [node name="Road_001" type="Node3D" parent="RoadManager"]
 script = ExtResource("3_ye47y")

@@ -1,8 +1,8 @@
 [gd_scene load_steps=6 format=3 uid="uid://carf53o7nq0qh"]
 
-[ext_resource type="Script" path="res://addons/road-generator/nodes/road_container.gd" id="1"]
-[ext_resource type="Script" path="res://addons/road-generator/nodes/road_point.gd" id="2"]
-[ext_resource type="Material" path="res://addons/road-generator/resources/road_texture.material" id="3"]
+[ext_resource type="Script" uid="uid://b30qgeohlvtee" path="res://addons/road-generator/nodes/road_container.gd" id="1"]
+[ext_resource type="Script" uid="uid://dim53n5bn21we" path="res://addons/road-generator/nodes/road_point.gd" id="2"]
+[ext_resource type="Material" uid="uid://dpashsuk5lr4x" path="res://addons/road-generator/resources/road_texture.material" id="3"]
 [ext_resource type="PackedScene" uid="uid://0lixivpeyg5" path="res://addons/road-generator/custom_containers/highway_onramp.glb" id="4_rjrnc"]
 
 [sub_resource type="ConcavePolygonShape3D" id="ConcavePolygonShape3D_4iuoy"]
@@ -10,8 +10,8 @@ data = PackedVector3Array(2, 0, 0, -2, 0, 4.1997, -2, 0, 0, 2, 0, 0, 2, 0, 4.199
 
 [node name="highway_onramp" type="Node3D"]
 script = ExtResource("1")
-material_resource = ExtResource("3")
 create_geo = false
+material_resource = ExtResource("3")
 use_lowpoly_preview = true
 generate_ai_lanes = true
 edge_containers = Array[NodePath]([NodePath(""), NodePath(""), NodePath("")])
@@ -39,19 +39,19 @@ transform = Transform3D(0.848769, 0, 0.528764, 0, 1, 0, -0.528764, 0, 0.848769, 
 script = ExtResource("2")
 traffic_dir = Array[int]([1])
 lanes = Array[int]([0])
-prior_pt_init = NodePath("../RAMP_02")
 prior_mag = 15.064
 next_mag = 16.0
+prior_pt_init = NodePath("../RAMP_02")
 
 [node name="RAMP_02" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.156, 0, -16)
 script = ExtResource("2")
 traffic_dir = Array[int]([1])
 lanes = Array[int]([0])
-next_pt_init = NodePath("../RAMP_01")
 terminated = true
 prior_mag = 12.9596
 next_mag = 12.9596
+next_pt_init = NodePath("../RAMP_01")
 
 [node name="highway_onramp2" parent="." instance=ExtResource("4_rjrnc")]
 
