@@ -52,6 +52,8 @@ func _create_wheel_pillar(pos: Vector3):
 		wheel.height = WHEEL_DEPTH
 		wheel.radius = WHEEL_RADIUS
 		wheel.material = MATERIAL
+		wheel.set_collision_layer_value(6, true)
+		wheel.set_collision_layer_value(7, true)
 
 func _on_curve_changed() -> void:
 	_last_update_request = Time.get_ticks_msec() # must be first to not instant trigger!

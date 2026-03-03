@@ -2,6 +2,15 @@
 
 [ext_resource type="Script" uid="uid://cyvsi72q8ngxt" path="res://prefabs/items/air_bomb.gd" id="1_th77x"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_th77x"]
+albedo_color = Color(0.9998151, 0.49990755, 0.49990755, 1)
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_th77x"]
+bounce = 1.0
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_faiuv"]
+radius = 5.0
+
 [sub_resource type="SphereMesh" id="SphereMesh_kg4lp"]
 radius = 0.2
 height = 0.4
@@ -9,13 +18,40 @@ height = 0.4
 [sub_resource type="SphereShape3D" id="SphereShape3D_th77x"]
 radius = 0.2
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_faiuv"]
+transparency = 1
+albedo_color = Color(1, 1, 1, 0.63529414)
+
+[sub_resource type="SphereMesh" id="SphereMesh_anjt0"]
+material = SubResource("StandardMaterial3D_faiuv")
+
 [node name="AirBomb" type="Node3D" unique_id=1457232564]
 script = ExtResource("1_th77x")
+exploding_debug_material = SubResource("StandardMaterial3D_th77x")
 
 [node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=276839364]
+physics_material_override = SubResource("PhysicsMaterial_th77x")
+gravity_scale = 2.0
+contact_monitor = true
+max_contacts_reported = 1
+
+[node name="ExplosionArea3D" type="Area3D" parent="RigidBody3D" unique_id=1625443362]
+collision_layer = 0
+collision_mask = 64
+monitoring = false
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D/ExplosionArea3D" unique_id=872363010]
+shape = SubResource("SphereShape3D_faiuv")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D" unique_id=101746688]
 mesh = SubResource("SphereMesh_kg4lp")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D" unique_id=1813344381]
 shape = SubResource("SphereShape3D_th77x")
+
+[node name="AuraMesh" type="MeshInstance3D" parent="RigidBody3D" unique_id=1388186944]
+mesh = SubResource("SphereMesh_anjt0")
+
+[connection signal="body_entered" from="RigidBody3D" to="." method="_on_rigid_body_3d_body_entered"]
+[connection signal="body_entered" from="RigidBody3D/ExplosionArea3D" to="." method="_on_explosion_area_3d_body_entered"]

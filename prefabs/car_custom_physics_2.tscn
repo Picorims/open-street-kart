@@ -152,7 +152,7 @@ radius = 1.0
 script = ExtResource("1_2glma")
 
 [node name="CarRigidBody" type="RigidBody3D" parent="." unique_id=1293076100 node_paths=PackedStringArray("interface")]
-collision_layer = 458753
+collision_layer = 458817
 mass = 400.0
 physics_material_override = SubResource("PhysicsMaterial_nblgo")
 gravity_scale = 2.0
