@@ -105,7 +105,7 @@ func _consume_first_slot() -> SlotItem:
 
 ## Tick the process with the provided delta.
 ## Can be called within a _process().
-func tick(delta: float, distance_to_first: float, use_item: bool) -> SlotItem:
+func tick(delta: float, distance_to_first: float, use_item: bool, rank: int) -> SlotItem:
 	now += delta
 	
 	if use_item and not _slots[0].is_disabled_or_empty():
@@ -132,7 +132,7 @@ func tick(delta: float, distance_to_first: float, use_item: bool) -> SlotItem:
 			
 			# replace empty with item if time ellapsed.
 			if (_slots[i].get_type() == SlotItem.EMPTY and _slots[i].time_is_up()):
-				_slots[i].set_type(_pick_random_item(speed_normalized_distance))
+				_slots[i].set_type(_pick_random_item(speed_normalized_distance, rank))
 				_slots[i].lifetime_s = ITEM_LIFETIME_SECONDS
 			
 			# remove expired item
@@ -144,11 +144,44 @@ func tick(delta: float, distance_to_first: float, use_item: bool) -> SlotItem:
 	
 	return SlotItem.EMPTY
 
+# Returns an item randomly taking into account the weight of each entry.
+func _weighted_random(entries: Dictionary[SlotItem, float]) -> SlotItem:
+	# TODO move in generic Math class?
+	var sum: float = 0
+	var end_interval_boundaries: Array[float] = []
+	var items: Array[SlotItem] = []
+	for key in entries:
+		var value: float = entries.get(key)
+		sum += value
+		end_interval_boundaries.append(sum)
+		items.append(key)
+	var random: float = randf() * sum
+	for i in range(end_interval_boundaries.size()):
+		var boundary: float = end_interval_boundaries[i]
+		if random < boundary:
+			return items[i]
+	return items[-1]
+		
 
-func _pick_random_item(_speed_norm_distance_to_first: float) -> SlotItem:
-	# TODO
-	push_warning("Random item pick not implemented.")
-	return SlotItem.SPEED_BOOST
+func _pick_random_item(_speed_norm_distance_to_first: float, rank: int) -> SlotItem:
+	var weights: Dictionary[SlotItem, float] = {}
+
+	var distance_weight_functions: Dictionary[SlotItem, Callable] = {}
+	distance_weight_functions.set(SlotItem.EMPTY, func weight_dist_empty(d: float): return 0)
+	distance_weight_functions.set(SlotItem.DISABLED, func weight_dist_disabled(d: float): return 0)
+	distance_weight_functions.set(SlotItem.SPEED_BOOST, func weight_dist_speed_boost(d: float): return d)
+
+	var ranking_weight_functions: Dictionary[SlotItem, Callable] = {}
+	ranking_weight_functions.set(SlotItem.EMPTY, func weight_rank_empty(r: int): return 0)
+	ranking_weight_functions.set(SlotItem.DISABLED, func weight_rank_disabled(r: int): return 0)
+	ranking_weight_functions.set(SlotItem.SPEED_BOOST, func weight_rank_speed_boost(r: int): return r)
+	
+	for item in SlotItem.values():
+		var rank_weight = ranking_weight_functions.get(item).call(rank)
+		var distance_weight = distance_weight_functions.get(item).call(_speed_norm_distance_to_first)
+		weights.set(item, rank_weight + distance_weight)
+	
+	return _weighted_random(weights)
 
 class SlotDisplayState:
 	var progress_ratio: float = 0
