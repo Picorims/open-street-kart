@@ -171,6 +171,10 @@ World terrain.
 
 You can use debug views to debug the terrain.
 
+#### %ItemsHolder
+
+Used by the game to spawn items.
+
 #### Troubleshooting
 
 In case of assert failures, make sure that all node references are defined correctly as explained above, and that the data loader is configured correctly.

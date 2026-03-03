@@ -1,0 +1,21 @@
+[gd_scene format=3 uid="uid://da4qi7s4ejat4"]
+
+[ext_resource type="Script" uid="uid://cyvsi72q8ngxt" path="res://prefabs/items/air_bomb.gd" id="1_th77x"]
+
+[sub_resource type="SphereMesh" id="SphereMesh_kg4lp"]
+radius = 0.2
+height = 0.4
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_th77x"]
+radius = 0.2
+
+[node name="AirBomb" type="Node3D" unique_id=1457232564]
+script = ExtResource("1_th77x")
+
+[node name="RigidBody3D" type="RigidBody3D" parent="." unique_id=276839364]
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RigidBody3D" unique_id=101746688]
+mesh = SubResource("SphereMesh_kg4lp")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RigidBody3D" unique_id=1813344381]
+shape = SubResource("SphereShape3D_th77x")

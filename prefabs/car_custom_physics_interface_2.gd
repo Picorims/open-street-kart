@@ -75,6 +75,11 @@ enum CarMode {
 		new_mesh.material = material
 		$CarRigidBody/DebugFrame.mesh = new_mesh
 
+@export var items_holder: Node3D:
+	set(v):
+		items_holder = v
+		$CarRigidBody.items_holder = v
+
 func _ready() -> void:
 	# /!\ Necessary for checkpoints to work!
 	assert(has_node("CarRigidBody"), "Car rigid body must be a direct child of the root CarCustomPhysics node.")
@@ -98,4 +103,6 @@ func respawn():
 func use_item(item: PlayerItemSlotsState.SlotItem) -> void:
 	if item == PlayerItemSlotsState.SlotItem.SPEED_BOOST:
 		$CarRigidBody.apply_speed_boost_seconds(2.5)
+	if item == PlayerItemSlotsState.SlotItem.AIR_BOMB:
+		$CarRigidBody.launch_air_bomb()
 	pass

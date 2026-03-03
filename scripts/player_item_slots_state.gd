@@ -32,6 +32,7 @@ enum SlotItem {
 	DISABLED,
 	EMPTY,
 	SPEED_BOOST,
+	AIR_BOMB,
 }
 
 ## initialized as DISABLED with timestamp at parent's now.
@@ -147,6 +148,7 @@ func tick(delta: float, distance_to_first: float, use_item: bool, rank: int) -> 
 # Returns an item randomly taking into account the weight of each entry.
 func _weighted_random(entries: Dictionary[SlotItem, float]) -> SlotItem:
 	# TODO move in generic Math class?
+	# TODO discard EMPTY and DISABLED?
 	var sum: float = 0
 	var end_interval_boundaries: Array[float] = []
 	var items: Array[SlotItem] = []
@@ -161,20 +163,25 @@ func _weighted_random(entries: Dictionary[SlotItem, float]) -> SlotItem:
 		if random < boundary:
 			return items[i]
 	return items[-1]
-		
+
 
 func _pick_random_item(_speed_norm_distance_to_first: float, rank: int) -> SlotItem:
 	var weights: Dictionary[SlotItem, float] = {}
 
-	var distance_weight_functions: Dictionary[SlotItem, Callable] = {}
-	distance_weight_functions.set(SlotItem.EMPTY, func weight_dist_empty(d: float): return 0)
-	distance_weight_functions.set(SlotItem.DISABLED, func weight_dist_disabled(d: float): return 0)
-	distance_weight_functions.set(SlotItem.SPEED_BOOST, func weight_dist_speed_boost(d: float): return d)
+	var distance_weight_functions: Dictionary[SlotItem, Callable] = {
+		SlotItem.EMPTY: func weight_dist_empty(d: float): return 0,
+		SlotItem.DISABLED: func weight_dist_disabled(d: float): return 0,
+		SlotItem.SPEED_BOOST: func weight_dist_speed_boost(d: float): return d,
+		SlotItem.AIR_BOMB: func weight_dist_air_bomb(d: float): return d*10,
+	}
+	
 
-	var ranking_weight_functions: Dictionary[SlotItem, Callable] = {}
-	ranking_weight_functions.set(SlotItem.EMPTY, func weight_rank_empty(r: int): return 0)
-	ranking_weight_functions.set(SlotItem.DISABLED, func weight_rank_disabled(r: int): return 0)
-	ranking_weight_functions.set(SlotItem.SPEED_BOOST, func weight_rank_speed_boost(r: int): return r)
+	var ranking_weight_functions: Dictionary[SlotItem, Callable] = {
+		SlotItem.EMPTY: func weight_rank_empty(r: int): return 0,
+		SlotItem.DISABLED: func weight_rank_disabled(r: int): return 0,
+		SlotItem.SPEED_BOOST: func weight_rank_speed_boost(r: int): return r,
+		SlotItem.AIR_BOMB: func weight_rank_air_bomb(r: float): return r*10,
+	}
 	
 	for item in SlotItem.values():
 		var rank_weight = ranking_weight_functions.get(item).call(rank)
