@@ -172,7 +172,7 @@ func _pick_random_item(_speed_norm_distance_to_first: float, rank: int) -> SlotI
 		SlotItem.EMPTY: func weight_dist_empty(d: float): return 0,
 		SlotItem.DISABLED: func weight_dist_disabled(d: float): return 0,
 		SlotItem.SPEED_BOOST: func weight_dist_speed_boost(d: float): return d,
-		SlotItem.AIR_BOMB: func weight_dist_air_bomb(d: float): return d*10,
+		SlotItem.AIR_BOMB: func weight_dist_air_bomb(d: float): return 0.2*d,
 	}
 	
 
@@ -180,7 +180,7 @@ func _pick_random_item(_speed_norm_distance_to_first: float, rank: int) -> SlotI
 		SlotItem.EMPTY: func weight_rank_empty(r: int): return 0,
 		SlotItem.DISABLED: func weight_rank_disabled(r: int): return 0,
 		SlotItem.SPEED_BOOST: func weight_rank_speed_boost(r: int): return r,
-		SlotItem.AIR_BOMB: func weight_rank_air_bomb(r: float): return r*10,
+		SlotItem.AIR_BOMB: func weight_rank_air_bomb(r: float): return 2*r,
 	}
 	
 	for item in SlotItem.values():
