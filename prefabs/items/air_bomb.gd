@@ -78,11 +78,11 @@ func _on_explosion_area_3d_body_entered(body: Node3D) -> void:
 
 	var area: Area3D = $RigidBody3D/ExplosionArea3D
 	# grows with time, so we need to invert it so it reduces with time instead.
-	var time_intensity: float = ((_elapsed - _explosion_start) / EXPLOSION_DURATION_SECONDS * -1) + 1
-	var distance_intensity: float = body.global_position.distance_to(area.global_position) / EXPLOSION_RADIUS
+	var time_intensity: float = ((_elapsed - _explosion_start) / EXPLOSION_DURATION_SECONDS * -1.0) + 1.0
+	var distance_intensity: float = 1.0 - (body.global_position.distance_to(area.global_position) / EXPLOSION_RADIUS)
 	var direction: Vector3 = (body.global_position - area.global_position).normalized()
-	var force: Vector3 = time_intensity * distance_intensity * direction * EXPLOSION_FORCE / 10
-	force += Vector3.UP * 9/10 * EXPLOSION_FORCE
+	var force: Vector3 = time_intensity * distance_intensity * direction * EXPLOSION_FORCE / 10.0
+	force += Vector3.UP * 0.9 * EXPLOSION_FORCE
 	if force.length() > MAX_FORCE:
 		force = force.normalized() * MAX_FORCE
 	rigid_body.apply_central_impulse(force)
