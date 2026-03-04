@@ -33,6 +33,9 @@ var current_direction: Vector3 = Vector3(1, 0, 0)
 		path = v
 		if (_brain != null):
 			_brain.path = v
+var items_holder: Node3D = null
+
+const AIR_BOMB_SCENE: PackedScene = preload("res://prefabs/items/air_bomb.tscn")
 
 const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
 const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
@@ -380,3 +383,15 @@ func _get_collider_of_colliding_raycast(raycast: RayCast3D) -> CollisionObject3D
 
 func apply_speed_boost_seconds(seconds: float):
 	_speed_boost_until_seconds = max(_speed_boost_until_seconds, _now_seconds + seconds)
+
+## Spawns an air bomb and launch it forward from the car
+## based on the direction it faces.
+func launch_air_bomb():
+	var air_bomb: AirBomb = AIR_BOMB_SCENE.instantiate()
+	if items_holder == null:
+		push_error("Cannot launch air bomb: items_holder is null.")
+		return
+	var init_velocity: Vector3 = (self.global_transform.basis.x * (30 + self.linear_velocity.length()) + Vector3.UP * 10)
+	air_bomb.init_velocity = init_velocity
+	items_holder.add_child(air_bomb)
+	air_bomb.global_position = self.global_position + Vector3(0,5,0)

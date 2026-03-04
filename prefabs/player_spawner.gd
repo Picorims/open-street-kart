@@ -9,6 +9,7 @@
 class_name PlayerSpawner extends Node3D
 
 @export var race_path: RacePath
+@export var items_holder: Node3D
 
 enum CountdownState {
 	THREE = 3,
@@ -46,6 +47,7 @@ var OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
 
 func _ready() -> void:
 	assert(race_path != null, "ERROR: race_path not configured on player spawner.")
+	assert(items_holder != null, "ERROR: items_holder not configured on player spawner.")
 
 func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	print("Initializing player spawner...")
@@ -58,6 +60,7 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	for i in range(count):
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 		self.add_child(car)
+		car.items_holder = items_holder
 		car.display_name = "p{0}".format([i + 1])
 		car.material = StandardMaterial3D.new()
 		car.material.albedo_color = Color(randf(), randf(), randf())

@@ -172,20 +172,25 @@ func _pretty_duration_from_us(us: float) -> String:
 
 func _process(delta: float) -> void:
 	if (not _race_finished and _started):
-		var distances_to_first: Dictionary[String, float] = _process_live_ranking()
-		_process_item_slots(delta, distances_to_first)
+		var stats_from_first: Dictionary[String, _CarStatsFromFirst] = _process_live_ranking()
+		_process_item_slots(delta, stats_from_first)
 
 func _physics_process(delta: float) -> void:
 	get_track_region_manager().tick(delta)
 
-func _process_item_slots(delta: float, distances_to_first: Dictionary[String, float]):
+func _process_item_slots(delta: float, stats_from_first: Dictionary[String, _CarStatsFromFirst]):
+	if stats_from_first.is_empty():
+		push_error("Received empty dictionary for slot processing. This should never happen.")
+		return
 	for id in _car_item_slots:
 		var is_you: bool = _display_names.get(id) == "you"
 		var slot_state: PlayerItemSlotsState = _car_item_slots.get(id)
+		var stats: _CarStatsFromFirst = stats_from_first.get(id)
 		var item_used: PlayerItemSlotsState.SlotItem = slot_state.tick(
 			delta,
-			distances_to_first.get(id),
-			Input.is_action_just_pressed("use") and is_you
+			stats.distance,
+			Input.is_action_just_pressed("use") and is_you,
+			stats.ranking
 		)
 		if not item_used == PlayerItemSlotsState.SlotItem.EMPTY:
 			player_spawner.get_car_by_id(id).use_item(item_used)
@@ -198,11 +203,16 @@ class _OffsetEntry:
 	var car_display_name: String
 	var car_offset: float
 	var color: Color
+	var ranking: int
+	
+class _CarStatsFromFirst:
+	var distance: float
+	var ranking: int
 
 ## Updates ranking info on the HUD during the track race.
 ## Not responsible for the final ranking.
 ## Returns the distance to the first car for each id
-func _process_live_ranking() -> Dictionary[String, float]:
+func _process_live_ranking() -> Dictionary[String, _CarStatsFromFirst]:
 	## smaller to bigger
 	var rankings: Array[_OffsetEntry] = []
 	var rankings_dict: Dictionary[String, _OffsetEntry] = {}
@@ -236,15 +246,20 @@ func _process_live_ranking() -> Dictionary[String, float]:
 		entry.ratio = (r.car_offset - rankings[0].car_offset) / max(distance_first_to_last, 0.01)
 		entry.color = r.color
 		ratios[r.car_display_name] = entry
-		if r.car_display_name == "you":
+		r.ranking = i
+		if r.car_display_name == "you": #HACK
 			_race_hud.set_self_ranking(i)
 		i -= 1
 	_race_hud.display_ratios(ratios)
 	_race_hud.update_group_pos(rankings[0].car_offset / path_length, rankings[-1].car_offset / path_length)
 
 	# return distances to first
-	var distances_to_first: Dictionary[String, float] = {}
+	var stats_from_first: Dictionary[String, _CarStatsFromFirst] = {}
 	for id in _ids:
-		distances_to_first.set(id, abs(rankings[-1].car_offset - rankings_dict.get(id).car_offset))
+		var stats = _CarStatsFromFirst.new()
+		stats.distance = abs(rankings[-1].car_offset - rankings_dict.get(id).car_offset)
+		stats.ranking = rankings_dict.get(id).ranking
+		stats_from_first.set(id, stats)
 		
-	return distances_to_first
+		
+	return stats_from_first

@@ -23,6 +23,7 @@ func _ready() -> void:
 	assert($Walls != null, "No walls root.")
 	assert($Arrows != null, "No arrows root.")
 	assert($TrackState.is_in_group("track_state"), "missing track_state group on TrackState")
+	assert($ItemsHolder != null, "No items holder root.")
 
 func launch(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	var state: TrackState = $TrackState

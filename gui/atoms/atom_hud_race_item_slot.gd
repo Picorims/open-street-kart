@@ -23,6 +23,7 @@ var _image: TextureRect = TextureRect.new()
 var _texture_atlas: Dictionary[PlayerItemSlotsState.SlotItem, Texture2D] = {
 	PlayerItemSlotsState.SlotItem.EMPTY: preload("res://textures/hud/slot_item/empty_status_icon.png"),
 	PlayerItemSlotsState.SlotItem.SPEED_BOOST: preload("res://textures/hud/slot_item/item_slot_speed_boost.png"),
+	PlayerItemSlotsState.SlotItem.AIR_BOMB: preload("res://textures/hud/slot_item/item_slot_air_bomb.png"),
 }
 
 func _ready() -> void:
