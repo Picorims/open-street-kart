@@ -20,7 +20,7 @@ var init_velocity: Vector3 = Vector3.ZERO:
 		_apply_velocity = true
 		
 var _apply_velocity: bool = false
-var _ellapsed: float = 0
+var _elapsed: float = 0
 var _explosion_start: float = -1
 var _exploding: bool = false
 
@@ -42,22 +42,21 @@ func _ready() -> void:
 	mesh_aura.visible = false
 
 func _physics_process(delta: float) -> void:
-	_ellapsed += delta
+	_elapsed += delta
 	if _apply_velocity:
 		$RigidBody3D.linear_velocity = init_velocity
 		_apply_velocity = false
 	if _exploding and _explosion_start < 0:
-		_explosion_start = _ellapsed
+		_explosion_start = _elapsed
 
 func _process(delta: float) -> void:
-	if _exploding and _ellapsed - _explosion_start > EXPLOSION_DURATION_SECONDS:
+	if _exploding and _elapsed - _explosion_start > EXPLOSION_DURATION_SECONDS:
 		self.queue_free()
 
 func _on_rigid_body_3d_body_entered(body: Node) -> void:
 	if _exploding:
 		push_warning("Tried to explode an air bomb more than once.")
 		return
-	print("air bomb triggered by: " + body.name)
 	_exploding = true
 	var area: Area3D = $RigidBody3D/ExplosionArea3D
 	area.monitoring = true
@@ -76,10 +75,10 @@ func _on_explosion_area_3d_body_entered(body: Node3D) -> void:
 		return
 	else:
 		rigid_body = body
-	print(body)
+
 	var area: Area3D = $RigidBody3D/ExplosionArea3D
 	# grows with time, so we need to invert it so it reduces with time instead.
-	var time_intensity: float = ((_ellapsed - _explosion_start) / EXPLOSION_DURATION_SECONDS * -1) + 1
+	var time_intensity: float = ((_elapsed - _explosion_start) / EXPLOSION_DURATION_SECONDS * -1) + 1
 	var distance_intensity: float = body.global_position.distance_to(area.global_position) / EXPLOSION_RADIUS
 	var direction: Vector3 = (body.global_position - area.global_position).normalized()
 	var force: Vector3 = time_intensity * distance_intensity * direction * EXPLOSION_FORCE / 10
