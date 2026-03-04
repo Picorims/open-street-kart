@@ -179,6 +179,9 @@ func _physics_process(delta: float) -> void:
 	get_track_region_manager().tick(delta)
 
 func _process_item_slots(delta: float, stats_from_first: Dictionary[String, _CarStatsFromFirst]):
+	if stats_from_first.is_empty():
+		push_error("Received empty dictionary for slot processing. This should never happen.")
+		return
 	for id in _car_item_slots:
 		var is_you: bool = _display_names.get(id) == "you"
 		var slot_state: PlayerItemSlotsState = _car_item_slots.get(id)
