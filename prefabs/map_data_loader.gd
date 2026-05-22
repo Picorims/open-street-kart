@@ -74,11 +74,12 @@ func lat_alt_lon_to_world_global_pos(lat_alt_lon: Vector3, verbose = false) -> V
 	return (lat_alt_lon - _origin) * _scale_transform
 
 func _get_root_of_current_scene(ok_callback: Callable) -> void:
-	var root_node: Node3D = get_tree().edited_scene_root.get_node("%ProceduralDataHolder")
+	#var root_node: Node3D = get_tree().edited_scene_root.get_node("%ProceduralDataHolder")
+	var root_node: Node3D = %ProceduralDataHolder
 	if root_node == null:
 		print("Missing %ProceduralDataHolder.")
 	else:
-		print("Using %ProceduralDataHolder of ", get_tree().edited_scene_root.name)
+		#print("Using %ProceduralDataHolder of ", get_tree().edited_scene_root.name)
 		ok_callback.call(root_node)
 	
 

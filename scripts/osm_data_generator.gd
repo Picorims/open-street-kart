@@ -26,7 +26,8 @@ var _root_node: Node3D
 var _deferred_raycasts: Array[SnapToGroundRayCast3D]
 ## It is important to append in the order of building.
 ## The previousRP of a point should always be placed somewhere before.
-var _roads_to_build: Array[RoadPointPlaceholder] = []
+var _road_points_to_build: Array[RoadPointPlaceholder] = []
+var _road_points_built := 0
 var _can_build_roads: bool = true
 var _road_manager: RoadManager = null
 var snaps_left_road: int = 0
@@ -35,9 +36,12 @@ static var snap_to_ground_ray_cast_3d_scene: PackedScene = preload("res://prefab
 const BIN_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bin.tscn")
 const BENCH_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bench.tscn")
 const BUS_STOP_POLE_SCENE: PackedScene = preload("res://prefabs/collidable_decoration/bus_stop_pole.tscn")
-const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10
+const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10.0
+const _ROAD_SIMPLIFICATION_THRESHOLD: float = 3.0
+const _MAX_ROADS_PER_PHYSICS_TICK: int = 1
+const VERBOSE = false
 
-class RoadPointPlaceholder extends Node3D:
+class RoadPointPlaceholder:
 	var lane_width: float = 0
 	var gutter_profile: Vector2 = Vector2(0, 0)
 	var traffic_dir: Array[RoadPoint.LaneDir] = []
@@ -46,13 +50,15 @@ class RoadPointPlaceholder extends Node3D:
 	var previous_rp: RoadPointPlaceholder = null
 	var prior_mag: float = 0
 	var next_mag: float = 0
+	var position: Vector3 = Vector3.ZERO
+	var transform: Transform3D
 	
 	func copy_settings_from(other: RoadPointPlaceholder, with_transform: bool):
 		self.lane_width = other.lane_width
 		self.gutter_profile = other.gutter_profile
 		self.traffic_dir = other.traffic_dir
 		if with_transform:
-			self.global_transform = other.global_transform
+			self.transform = other.transform
 			
 		
 func _ready() -> void:
@@ -241,68 +247,92 @@ func reload_action(data_holder: Node3D) -> void:
 
 var _last_log: float = 0
 func _physics_process(delta: float) -> void:
-	const VERBOSE = false
 	# need to wait for boundaries or no road will be kept!
-	if (snaps_left_road > 0 or snaps_left > 0): # and not Engine.is_editor_hint():
+	#if (snaps_left_road > 0 or snaps_left > 0): # and not Engine.is_editor_hint():
+		#_last_log += delta
+		#if _last_log > 10:
+			#print("snaps left for roads: ", snaps_left_road)
+			#print("snaps left for other things: ", snaps_left)
+			#_last_log = 0
+		#if (_deferred_raycasts.size() > 0):
+			#var raycast: SnapToGroundRayCast3D = _deferred_raycasts.back()
+			#if (raycast != null):
+				#raycast.force_raycast_update()
+				#_deferred_raycasts.pop_back()
+	if (_can_build_roads and _road_points_to_build.size() > 0 and snaps_left_road == 0):
 		_last_log += delta
 		if _last_log > 10:
-			print("snaps left for roads: ", snaps_left_road)
-			print("snaps left for other things: ", snaps_left)
+			print("Building roads...")
+			print("points left: ", _road_points_to_build.size() - _road_points_built)
 			_last_log = 0
-		if (_deferred_raycasts.size() > 0):
-			var raycast: SnapToGroundRayCast3D = _deferred_raycasts.back()
-			if (raycast != null):
-				raycast.force_raycast_update()
-				_deferred_raycasts.pop_back()
-	if (_can_build_roads and _roads_to_build.size() > 0 and snaps_left_road == 0):
-		print("Building roads...")
-		print("points: ", _roads_to_build.size())
+
 		# see: https://github.com/TheDuckCow/godot-road-generator/blob/main/demo/procedural_generator/procedural_generator.gd
 		# see: https://github.com/TheDuckCow/godot-road-generator/wiki/Class:-RoadPoint
 	
 		# separate function?
 		# build
-		for r in _roads_to_build:
-			if r.is_road_end:
-				# stored from end to start
-				var road_points = [r]
-				var curr_p: RoadPointPlaceholder = r
-				while (curr_p.previous_rp != null):
-					road_points.append(curr_p.previous_rp)
-					curr_p = curr_p.previous_rp
-				
-				var road_container: RoadContainer = RoadContainer.new()
-				_road_manager.add_child(road_container)
-				loader.persist_in_current_scene(road_container)
-				
-				var prev_rp: RoadPoint = null
-				if (VERBOSE): print("Building road of size: ", road_points.size())
-				for i in range(road_points.size() - 1, -1, -1):
-					var placeholder: RoadPointPlaceholder = road_points[i]
-					var rp: RoadPoint = RoadPoint.new()
-					road_container.add_child(rp)
-					rp.lane_width = placeholder.lane_width
-					rp.gutter_profile = placeholder.gutter_profile
-					rp.traffic_dir = placeholder.traffic_dir
-					rp.next_mag = placeholder.next_mag
-					rp.prior_mag = placeholder.prior_mag
-					rp.global_position = placeholder.global_position
-					rp.transform = placeholder.transform
-					rp.container = road_container
-					loader.persist_in_current_scene(rp)
-					
-					if (prev_rp != null):
-						var this_dir = RoadPoint.PointInit.PRIOR
-						var target_dir = RoadPoint.PointInit.NEXT
-						rp.connect_roadpoint(this_dir, prev_rp, target_dir)
-					prev_rp = rp
-		#separate function?
-		# flush
-		for r in _roads_to_build:
-			r.queue_free()
-		_roads_to_build = []
-		print("Building roads done.")
+		var roads_in_this_tick := 0
+		
+		while roads_in_this_tick < _MAX_ROADS_PER_PHYSICS_TICK and _road_points_built < _road_points_to_build.size():
+			var i := _road_points_built
+			if not _road_points_to_build[i].is_road_start:
+				push_error("OSMDataGenerator: roads to build status left in illegal state: first point isn't a road start.")
+				_can_build_roads = false
+				break
+			_build_one_road_in_scene()
+			roads_in_this_tick += 1
+			
+		if _road_points_built >= _road_points_to_build.size():
+			#separate function?
+			# flush
+			_road_points_to_build = []
+			_road_points_built = 0
+			_can_build_roads = false
+			print("Building roads done.")
 
+func _build_one_road_in_scene():
+	var road_container: RoadContainer = RoadContainer.new()
+	_road_manager.add_child(road_container)
+	loader.persist_in_current_scene(road_container)
+	var prev_rp: RoadPoint = null
+	const MAX_IT := 10_000
+	var count := 0
+	if VERBOSE:
+		print("Road build starts from index: ", _road_points_built)
+	var placeholder_p := _road_points_to_build[_road_points_built]
+	if placeholder_p.is_road_end:
+		push_error("OSMDataLoader._build_one_road_in_scene: The first point at current process position is a road end. A single point doesn't make sense!")
+		return
+	if not placeholder_p.is_road_start:
+		push_error("OSMDataLoader._build_one_road_in_scene: The first point at current process position must be a road start.")
+		return
+	while count < MAX_IT: # do:
+		count += 1
+		
+		placeholder_p = _road_points_to_build[_road_points_built]
+		var rp: RoadPoint = RoadPoint.new()
+		road_container.add_child(rp)
+		
+		rp.lane_width = placeholder_p.lane_width
+		rp.gutter_profile = placeholder_p.gutter_profile
+		rp.traffic_dir = placeholder_p.traffic_dir
+		rp.next_mag = placeholder_p.next_mag
+		rp.prior_mag = placeholder_p.prior_mag
+		rp.transform = placeholder_p.transform
+		rp.position = placeholder_p.position
+		rp.container = road_container
+		loader.persist_in_current_scene(rp)
+		
+		if (not placeholder_p.is_road_start):
+			var this_dir = RoadPoint.PointInit.PRIOR
+			var target_dir = RoadPoint.PointInit.NEXT
+			rp.connect_roadpoint(this_dir, prev_rp, target_dir) # warning here
+		prev_rp = rp
+
+		_road_points_built += 1
+		if _road_points_to_build[_road_points_built - 1].is_road_end: # while (not <condition>)
+			break
+	if VERBOSE: print("One road built in scene.")
 
 func _is_road(properties: Dictionary) -> bool:
 	if (not properties.has("highway")): return false
@@ -352,7 +382,7 @@ func _is_bin(properties: Dictionary) -> bool:
 func _is_bench(properties: Dictionary) -> bool:
 	return _is_amenity_kind("bench", properties)
 
-func _rotated_point(from_transform: Transform3D, from: Vector3, curr: Vector3, to: Vector3) -> Transform3D:
+func _rotated_point(from_transform: Transform3D, from: Vector3, to: Vector3) -> Transform3D:
 	# given this:
 	# A--M--C
 	# |\ | /
@@ -364,9 +394,10 @@ func _rotated_point(from_transform: Transform3D, from: Vector3, curr: Vector3, t
 	# For a smooth transition, we want to look in the direction of the
 	# [AC] axis, parallel to [BL] axis. We thus need to look at L.
 	# L = B - (A-M)
+	# We consider B being the origin to fit looking_at().
 	var segment_middle = (from + to) / 2
 	# var shouldLookAt = segmentMiddle + (to - segmentMiddle) + (curr - segmentMiddle)
-	var should_look_at = curr + (from - segment_middle)
+	var should_look_at = (from - segment_middle)
 	return from_transform.looking_at(should_look_at)
 
 ## Attach a temporary raycast 3D that will detect towards the ground the first colliding object
@@ -374,7 +405,7 @@ func _rotated_point(from_transform: Transform3D, from: Vector3, curr: Vector3, t
 ## The collision layers must match.
 ##
 ## This variant is designed to account for road processing requirements
-func _setup_snapping_road(target: RoadPointPlaceholder):
+func _setup_snapping_road(target: Node3D):
 	var snap_ray_cast: SnapToGroundRayCast3D = snap_to_ground_ray_cast_3d_scene.instantiate()
 	snap_ray_cast.offset = -0.4
 	target.add_child(snap_ray_cast)
@@ -420,6 +451,23 @@ func _append_interpolated_points(from: Vector3, to: Vector3, array: Array[Vector
 	for i in range(0, pointsToAdd):
 		array.append(lerp(from, to, (i + 1) * stepRatio))
 
+## Removes points very close to each other that doesn't play an important role
+## in defining the road trajectory
+func _simplify_road(meters_coords: Array[Vector3]) -> Array[Vector3]:
+	var new_array: Array[Vector3] = []
+	for i in range(meters_coords.size()):
+		if i == 0 or i == meters_coords.size()-1:
+			new_array.append(meters_coords[i])
+		else:
+			var close_to_previous: bool = new_array[-1].distance_to(meters_coords[i]) < _ROAD_SIMPLIFICATION_THRESHOLD
+			var close_to_next: bool = meters_coords[i].distance_to(meters_coords[i+1]) < _ROAD_SIMPLIFICATION_THRESHOLD
+			
+			if close_to_next and close_to_previous:
+				continue
+			
+			new_array.append(meters_coords[i])
+	return new_array
+
 func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
 	if (not feature.has("geometry")): return false
 	var geometry: Dictionary = feature.get("geometry")
@@ -447,53 +495,54 @@ func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
 	if (meters_coords.size() < 2):
 		return false
 	
+	#meters_coords = _simplify_road(meters_coords)
+	
 	var init_point: RoadPointPlaceholder = RoadPointPlaceholder.new()
-	roads_container.add_child(init_point)
-	loader.persist_in_current_scene(init_point)
+	#roads_container.add_child(init_point)
+	#loader.persist_in_current_scene(init_point)
 	init_point.lane_width = 3
 	init_point.gutter_profile = Vector2(3, -0.5)
 	var traffic_dir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
 	init_point.traffic_dir = traffic_dir
-	init_point.global_position = meters_coords[0]
+	init_point.position = meters_coords[0]
 	
 	# we need to do a 180 turn, to face opposite direction
 	# we do not use rotated because it does it around the origin, not itself
 	var to_mirrored = meters_coords[0] + 2 * (meters_coords[0] - meters_coords[1])
 	#initPoint.transform = initPoint.transform.looking_at(metersCoords[1])
-	init_point.transform = _rotated_point(init_point.transform, to_mirrored, meters_coords[0], meters_coords[1])
+	init_point.transform = _rotated_point(init_point.transform, to_mirrored, meters_coords[1])
 	
 	init_point.is_road_start = true
 	init_point.is_road_end = false
-	loader.persist_in_current_scene(init_point)
-	_roads_to_build.append(init_point)
+	#loader.persist_in_current_scene(init_point)
+	_road_points_to_build.append(init_point)
 	
 	var previous_rp = init_point
 	for i in range(1, meters_coords.size()):
 		var next_rp: RoadPointPlaceholder = RoadPointPlaceholder.new()
-		roads_container.add_child(next_rp)
-		loader.persist_in_current_scene(next_rp)
-		var prev = meters_coords[i - 1]
-		var curr = meters_coords[i]
+		#roads_container.add_child(next_rp)
+		#loader.persist_in_current_scene(next_rp)
+		var prev := meters_coords[i - 1]
+		var curr := meters_coords[i]
 		next_rp.is_road_start = false
 		next_rp.is_road_end = false
-		loader.persist_in_current_scene(next_rp)
 		next_rp.copy_settings_from(init_point, true) # issue here to copy transform
-		next_rp.global_position = curr
+		next_rp.position = curr
 		if (i == meters_coords.size() - 1):
 			next_rp.is_road_end = true
 			# we need to do a 180 turn, to face opposite direction
 			# we do not use rotated because it does it around the origin, not itself
 			var prev_mirrored = prev + 2 * (curr - prev)
 			#nextRP.transform = nextRP.transform.looking_at(lookingOpposite)
-			next_rp.transform = _rotated_point(next_rp.transform, prev, curr, prev_mirrored)
+			next_rp.transform = _rotated_point(next_rp.transform, prev, prev_mirrored)
 			next_rp.prior_mag = meters_coords[i - 1].distance_to(meters_coords[i]) / 2
 		else:
-			next_rp.transform = _rotated_point(next_rp.transform, meters_coords[i - 1], meters_coords[i], meters_coords[i + 1])
+			next_rp.transform = _rotated_point(next_rp.transform, meters_coords[i - 1], meters_coords[i + 1])
 			next_rp.prior_mag = meters_coords[i - 1].distance_to(meters_coords[i]) / 2
 			next_rp.next_mag = meters_coords[i].distance_to(meters_coords[i + 1]) / 2
 		
 		next_rp.previous_rp = previous_rp
-		_roads_to_build.append(next_rp)
+		_road_points_to_build.append(next_rp)
 		previous_rp = next_rp
 		
 	return true
@@ -525,7 +574,7 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 		return false
 	if (coordinates.size() > 1):
 		if (verbose): print("multi polygon not supported, only loading the first one.")
-	coordinates = coordinates[0]
+	#coordinates = coordinates[0]
 	if (coordinates.size() < 3):
 		if (verbose): print("building has not enough nodes (", coordinates.size(), "), cancel.")
 		return false
@@ -750,7 +799,8 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	snaps_left_road = 0
 	snaps_left = 0
 	_can_build_roads = false
-	_roads_to_build = []
+	_road_points_to_build = []
+	_road_points_built = 0
 		
 	print("Loading OSM data for road generation...")
 	_load_data()
@@ -809,10 +859,10 @@ func _regenerate_data(data_holder: Node3D) -> void:
 	var highway_nodes_count_success: int = 0
 	
 	for f: Dictionary in features:
-		if (f.has("properties")): # and roadsCount < 1000):
+		if (f.has("properties")):
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
-			if _is_road(properties):
+			if _is_road(properties):# and roads_count < 1000:
 				var success: bool = _build_road(f, roads_container)
 				roads_count += 1
 				if success:
@@ -848,6 +898,18 @@ func _regenerate_data(data_holder: Node3D) -> void:
 
 	print("Done, snapping and road building excluded.")
 	_can_build_roads = true
+	if VERBOSE:
+		var debug_roads_str: String = ""
+		for r in _road_points_to_build:
+			if r.is_road_start and r.is_road_end:
+				debug_roads_str += "!"
+			elif r.is_road_start:
+				debug_roads_str += "["
+			elif r.is_road_end:
+				debug_roads_str += "]"
+			else:
+				debug_roads_str += "-"
+		print("Roads to build: " + debug_roads_str)
 
 ## Returns a random int as a string
 func _rand_str() -> String:
