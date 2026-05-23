@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://44gbdq5cb18e"
-path.s3tc="res://.godot/imported/gizmo_blue_handle.png-9b907cdaab9687b5324401177feea47a.s3tc.ctex"
-path.etc2="res://.godot/imported/gizmo_blue_handle.png-9b907cdaab9687b5324401177feea47a.etc2.ctex"
+uid="uid://cvu4go677rxs8"
+path.s3tc="res://.godot/imported/road_uv_grid.png-82ee160ff47d3199ace13ad5aa8d2f96.s3tc.ctex"
+path.etc2="res://.godot/imported/road_uv_grid.png-82ee160ff47d3199ace13ad5aa8d2f96.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/road-generator/ui/gizmo_blue_handle.png"
-dest_files=["res://.godot/imported/gizmo_blue_handle.png-9b907cdaab9687b5324401177feea47a.s3tc.ctex", "res://.godot/imported/gizmo_blue_handle.png-9b907cdaab9687b5324401177feea47a.etc2.ctex"]
+source_file="res://addons/road-generator/resources/road_uv_grid.png"
+dest_files=["res://.godot/imported/road_uv_grid.png-82ee160ff47d3199ace13ad5aa8d2f96.s3tc.ctex", "res://.godot/imported/road_uv_grid.png-82ee160ff47d3199ace13ad5aa8d2f96.etc2.ctex"]
 
 [params]
 
