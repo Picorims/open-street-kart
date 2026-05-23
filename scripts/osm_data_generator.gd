@@ -17,6 +17,12 @@ const ROOT_NODE_NAME: String = "OSMData"
 @export var road_material: Material
 @export var building_material: Material
 
+enum ReloadKind {
+	ROADS,
+	BUILDINGS,
+	AMENITIES
+}
+
 var _road_kinds: Array[String]
 var _building_kinds: Array[String]
 var _amenity_kinds: Array[String]
@@ -238,11 +244,11 @@ func _load_data() -> void:
 	file.close()
 
 
-func reload_action(data_holder: Node3D) -> void:
+func reload_action(data_holder: Node3D, kind: ReloadKind) -> void:
 	if not boundaries_generator.is_loaded:
 		print("Cannot continue, boundaries not loaded.")
 	else:
-		_regenerate_data(data_holder)
+		_regenerate_data(data_holder, kind)
 		_can_build_roads = true
 
 var _last_log: float = 0
@@ -795,51 +801,65 @@ func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3
 
 	return true
 
-func _regenerate_data(data_holder: Node3D) -> void:
-	snaps_left_road = 0
-	snaps_left = 0
-	_can_build_roads = false
-	_road_points_to_build = []
-	_road_points_built = 0
+func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
+	if kind == ReloadKind.ROADS:
+		snaps_left_road = 0
+		snaps_left = 0
+		_can_build_roads = false
+		_road_points_to_build = []
+		_road_points_built = 0
 		
-	print("Loading OSM data for road generation...")
+	print("Loading OSM data for generation...")
 	_load_data()
 
-	_root_node = Node3D.new()
-	_root_node.name = ROOT_NODE_NAME
+	if (not data_holder.has_node(ROOT_NODE_NAME)):
+		_root_node = Node3D.new()
+		_root_node.name = ROOT_NODE_NAME
+		data_holder.add_child(_root_node)
+		loader.persist_in_current_scene(_root_node)
+	else:
+		_root_node = data_holder.get_node(ROOT_NODE_NAME)
 	
-	if (data_holder.has_node(ROOT_NODE_NAME)):
-		data_holder.get_node(ROOT_NODE_NAME).free()
+	var roads_container: Node3D = null
+	if (kind == ReloadKind.ROADS):
+		print("Setup road generator...")
+		if _root_node.has_node("Roads"):
+			_root_node.get_node("Roads").free()
+		roads_container = Node3D.new()
+		roads_container.name = "Roads"
+		_root_node.add_child(roads_container)
+		loader.persist_in_current_scene(roads_container)
+		var road_manager = RoadManager.new()
+		loader.terrain_connector.road_manager = road_manager
+		_road_manager = road_manager
+		road_manager.auto_refresh = false
+		road_manager.material_resource = road_material
+		road_manager.density = 8
+		road_manager.collision_layer += 16 # layer 5
+		road_manager.collision_layer += 4 # layer 3
+		road_manager.collision_layer += 256 # layer 9
+		roads_container.add_child(road_manager)
+		loader.persist_in_current_scene(road_manager)
 	
-	data_holder.add_child(_root_node)
-	loader.persist_in_current_scene(_root_node)
-		
-	print("Setup road generator...")
-	var roads_container = Node3D.new()
-	roads_container.name = "Roads"
-	_root_node.add_child(roads_container)
-	loader.persist_in_current_scene(roads_container)
-	var road_manager = RoadManager.new()
-	loader.terrain_connector.road_manager = road_manager
-	_road_manager = road_manager
-	road_manager.auto_refresh = false
-	road_manager.material_resource = road_material
-	road_manager.density = 8
-	road_manager.collision_layer += 16 # layer 5
-	road_manager.collision_layer += 4 # layer 3
-	road_manager.collision_layer += 256 # layer 9
-	roads_container.add_child(road_manager)
-	loader.persist_in_current_scene(road_manager)
+	var buildings_container: Node3D = null
+	if kind == ReloadKind.BUILDINGS:
+		if _root_node.has_node("Buildings"):
+			_root_node.get_node("Buildings").free()
+
+		buildings_container = Node3D.new()
+		_root_node.add_child(buildings_container)
+		buildings_container.name = "Buildings"
+		loader.persist_in_current_scene(buildings_container)
 	
-	var buildings_container = Node3D.new()
-	_root_node.add_child(buildings_container)
-	buildings_container.name = "Buildings"
-	loader.persist_in_current_scene(buildings_container)
-	
-	var collidable_assets_container = Node3D.new()
-	_root_node.add_child(collidable_assets_container)
-	collidable_assets_container.name = "Collidable Assets"
-	loader.persist_in_current_scene(collidable_assets_container)
+	var collidable_assets_container: Node3D = null
+	if kind == ReloadKind.AMENITIES:
+		if _root_node.has_node("Collidable Assets"):
+			_root_node.get_node("Collidable Assets").free()
+
+		collidable_assets_container = Node3D.new()
+		_root_node.add_child(collidable_assets_container)
+		collidable_assets_container.name = "Collidable Assets"
+		loader.persist_in_current_scene(collidable_assets_container)
 	
 	print("Creating structures")
 	assert(_data.features != null)
@@ -862,33 +882,31 @@ func _regenerate_data(data_holder: Node3D) -> void:
 		if (f.has("properties")):
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
-			if _is_road(properties):# and roads_count < 1000:
+			if _is_road(properties) and kind == ReloadKind.ROADS:# and roads_count < 1000:
 				var success: bool = _build_road(f, roads_container)
 				roads_count += 1
 				if success:
 					roads_count_success += 1
 			# if false:
 			# 	pass
-			elif _is_building(properties): # problem
+			elif _is_building(properties) and kind == ReloadKind.BUILDINGS: # problem
 				# if builds_count_success > 1000:
 				# 	continue
 				var success: bool = _build_building(f, buildings_container)
 				builds_count += 1
 				if success:
 					builds_count_success += 1
-			elif _is_supported_amenity(properties):
+			elif _is_supported_amenity(properties) and kind == ReloadKind.AMENITIES:
 				var success: bool = _build_amenity(f, collidable_assets_container)
 				amenities_count += 1
 				if success:
 					amenities_count_success += 1
-			elif _is_bus_stop(properties):
+			elif _is_bus_stop(properties) and kind == ReloadKind.AMENITIES:
 				var success: bool = _build_highway_node(f, collidable_assets_container)
 				highway_nodes_count += 1
 				if success:
 					highway_nodes_count_success += 1
-	
-	print("Refreshing road segments...")
-	
+		
 	print("Created ", roads_count_success, " roads. Tried: ", roads_count)
 	print("Created ", builds_count_success, " buildings. Tried: ", builds_count)
 	print("Created ", amenities_count_success, " amenities. Tried: ", amenities_count)
@@ -898,7 +916,7 @@ func _regenerate_data(data_holder: Node3D) -> void:
 
 	print("Done, snapping and road building excluded.")
 	_can_build_roads = true
-	if VERBOSE:
+	if VERBOSE and kind == ReloadKind.ROADS:
 		var debug_roads_str: String = ""
 		for r in _road_points_to_build:
 			if r.is_road_start and r.is_road_end:
