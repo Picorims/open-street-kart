@@ -45,6 +45,7 @@ const BUS_STOP_POLE_SCENE: PackedScene = preload("res://prefabs/collidable_decor
 const _MAX_LENGTH_BETWEEN_TWO_ROADS_POINTS: float = 10.0
 const _ROAD_SIMPLIFICATION_THRESHOLD: float = 3.0
 const _MAX_ROADS_PER_PHYSICS_TICK: int = 1
+const _ROADS_GEN_SLEEP_TIME_S: float = 0.1 # reduce editor lag by increasing this value
 const VERBOSE = false
 
 class RoadPointPlaceholder:
@@ -252,6 +253,7 @@ func reload_action(data_holder: Node3D, kind: ReloadKind) -> void:
 		_can_build_roads = true
 
 var _last_log: float = 0
+var _last_road_gen: float = 0
 func _physics_process(delta: float) -> void:
 	# need to wait for boundaries or no road will be kept!
 	#if (snaps_left_road > 0 or snaps_left > 0): # and not Engine.is_editor_hint():
@@ -265,11 +267,21 @@ func _physics_process(delta: float) -> void:
 			#if (raycast != null):
 				#raycast.force_raycast_update()
 				#_deferred_raycasts.pop_back()
-	if (_can_build_roads and _road_points_to_build.size() > 0 and snaps_left_road == 0):
-		_last_log += delta
-		if _last_log > 10:
+	_last_road_gen += delta
+	_last_log += delta
+	if (
+		_can_build_roads
+		and _road_points_to_build.size() > 0
+		and snaps_left_road == 0
+		and _last_road_gen > _ROADS_GEN_SLEEP_TIME_S
+	):
+		_last_road_gen = 0
+		if _last_log > 4:
 			print("Building roads...")
-			print("points left: ", _road_points_to_build.size() - _road_points_built)
+			var built := _road_points_built
+			var total := _road_points_to_build.size()
+			print("points left: ", total - built)
+			print("progress: %d/%d (%f %%)" % [built, total, float(built) / float(total) * 100.0])
 			_last_log = 0
 
 		# see: https://github.com/TheDuckCow/godot-road-generator/blob/main/demo/procedural_generator/procedural_generator.gd
@@ -480,6 +492,10 @@ func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
 	if (not geometry.has("coordinates")): return false
 	var coordinates: Array = geometry.get("coordinates")
 	if (coordinates.size() < 2): return false
+
+	var props = null
+	if feature.has("properties"):
+		props = feature.get("properties")
 	
 	var prev_meters: Vector3
 	var prev_exists: bool = false
@@ -503,12 +519,29 @@ func _build_road(feature: Dictionary, roads_container: Node3D) -> bool:
 	
 	#meters_coords = _simplify_road(meters_coords)
 	
+	var reverse_lanes: int = 1
+	var forward_lanes: int = 1
+	if props != null:
+		if props.has("lanes"):
+			if props.has("lanes:forward") and props.has("lanes:backward"):
+				forward_lanes = props.get("lanes:forward").to_int()
+				reverse_lanes = props.get("lanes:backward").to_int()
+			else:
+				var total: int = props.get("lanes").to_int()
+				reverse_lanes = total / 2
+				forward_lanes = total - reverse_lanes
+	
+	var traffic_dir: Array[RoadPoint.LaneDir] = []
+	for i in range(reverse_lanes):
+		traffic_dir.append(RoadPoint.LaneDir.REVERSE)
+	for i in range(forward_lanes):
+		traffic_dir.append(RoadPoint.LaneDir.FORWARD)
+	
 	var init_point: RoadPointPlaceholder = RoadPointPlaceholder.new()
 	#roads_container.add_child(init_point)
 	#loader.persist_in_current_scene(init_point)
 	init_point.lane_width = 3
 	init_point.gutter_profile = Vector2(3, -0.5)
-	var traffic_dir: Array[RoadPoint.LaneDir] = [RoadPoint.LaneDir.REVERSE, RoadPoint.LaneDir.FORWARD]
 	init_point.traffic_dir = traffic_dir
 	init_point.position = meters_coords[0]
 	
@@ -882,7 +915,7 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 		if (f.has("properties")):
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
-			if _is_road(properties) and kind == ReloadKind.ROADS:# and roads_count < 1000:
+			if _is_road(properties) and kind == ReloadKind.ROADS and roads_count < 1000:
 				var success: bool = _build_road(f, roads_container)
 				roads_count += 1
 				if success:

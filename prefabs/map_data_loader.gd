@@ -28,6 +28,7 @@ class_name MapDataLoader extends Node3D
 @export_tool_button("Reload surface", "ImageTexture3D") var reload_surface_action = Callable(self, "_reload_surface_action")
 @export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
 @export_tool_button("Reload OSM Roads", "Path3D") var reload_osm_roads_action = Callable(self, "_reload_osm_roads_action")
+@export_tool_button("Link Roads", "LinkButton") var link_roads_action = Callable(self, "_link_roads_action")
 @export_tool_button("Reload OSM Buildings", "Path3D") var reload_osm_buildings_action = Callable(self, "_reload_osm_buildings_action")
 @export_tool_button("Reload OSM Amenities", "Path3D") var reload_osm_amenities_action = Callable(self, "_reload_osm_amenities_action")
 @export_tool_button("Apply manual OSM mutations script", "Script") var apply_osm_mutations_action = Callable(self, "_apply_osm_mutations_action")
@@ -121,6 +122,14 @@ func _apply_osm_mutations_action():
 		print("=== applying manual OSM mutations script done (DO NOT FORGET TO SAVE!!!) ===")
 	)
 
+func _link_roads_action():
+	var linker = RoadLinker.new()
+	_get_root_of_current_scene(func(root_node: Node3D):
+		root_node.add_child(linker)
+		linker.linked.connect(func(): linker.queue_free())
+		var road_manager: RoadManager = root_node.get_node("OSMData/Roads").get_child(0)
+		linker.link_roads(road_manager, self)
+	)
 
 func persist_in_current_scene(node: Node3D) -> void:
 	node.owner = get_tree().edited_scene_root
