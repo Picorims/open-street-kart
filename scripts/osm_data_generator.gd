@@ -915,7 +915,7 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 		if (f.has("properties")):
 			var properties: Dictionary = f.get("properties")
 			# road? https://wiki.openstreetmap.org/wiki/Key:highway
-			if _is_road(properties) and kind == ReloadKind.ROADS and roads_count < 1000:
+			if _is_road(properties) and kind == ReloadKind.ROADS:
 				var success: bool = _build_road(f, roads_container)
 				roads_count += 1
 				if success:

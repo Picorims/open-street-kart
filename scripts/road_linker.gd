@@ -5,6 +5,13 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+# ROAD LINKING BROKEN
+# ROAD LINKING BROKEN
+# ROAD LINKING BROKEN
+# ROAD LINKING BROKEN
+# ROAD LINKING BROKEN
+# ROAD LINKING BROKEN
+
 @tool
 class_name RoadLinker extends Node3D
 
