@@ -921,8 +921,11 @@ func _build_geo():
 	# Aim for real-world texture proportions width:height of 2:1 matching texture,
 	# but then the hight of 1 full UV is half the with across all lanes, so another 2x
 	var single_uv_height:float = min_road_width * 4.0
-	var target_uv_tiles:int = int(clength / single_uv_height)
+	# MANUAL CODE EDIT NOT IN UPSTREAM:
+	#var target_uv_tiles:int = int(clength / single_uv_height)
+	var target_uv_tiles:int = max(int(clength / single_uv_height), 1)
 	var per_loop_uv_size:float = float(target_uv_tiles) / float(loops)
+	# END OF MANUAL CODE EDIT
 	var uv_width := 0.125 # 1/8 for breakdown of texture.
 
 	#print_debug("(re)building %s: Seg gen: %s loops, length: %s, lp: %s" % [
