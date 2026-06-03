@@ -2,22 +2,20 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ces84wva3tbm2"
-path.s3tc="res://.godot/imported/road_texture@1x.png-7cbabb6a11a96db2f98bb60d0a2795c3.s3tc.ctex"
-path.etc2="res://.godot/imported/road_texture@1x.png-7cbabb6a11a96db2f98bb60d0a2795c3.etc2.ctex"
+uid="uid://cxkcjpyugpxen"
+path="res://.godot/imported/road_post_gen_auto_edit_schemas.svg-d131b83920a0c96507f9f5bfc1df97f0.ctex"
 metadata={
-"imported_formats": ["s3tc_bptc", "etc2_astc"],
-"vram_texture": true
+"vram_texture": false
 }
 
 [deps]
 
-source_file="res://addons/road-generator/resources/road_texture@1x.png"
-dest_files=["res://.godot/imported/road_texture@1x.png-7cbabb6a11a96db2f98bb60d0a2795c3.s3tc.ctex", "res://.godot/imported/road_texture@1x.png-7cbabb6a11a96db2f98bb60d0a2795c3.etc2.ctex"]
+source_file="res://docs/road_post_gen_auto_edit_schemas.svg"
+dest_files=["res://.godot/imported/road_post_gen_auto_edit_schemas.svg-d131b83920a0c96507f9f5bfc1df97f0.ctex"]
 
 [params]
 
-compress/mode=2
+compress/mode=0
 compress/high_quality=false
 compress/lossy_quality=0.7
 compress/uastc_level=0
@@ -25,7 +23,7 @@ compress/rdo_quality_loss=0.0
 compress/hdr_compression=1
 compress/normal_map=0
 compress/channel_pack=0
-mipmaps/generate=true
+mipmaps/generate=false
 mipmaps/limit=-1
 roughness/mode=0
 roughness/src_normal=""
@@ -39,4 +37,7 @@ process/normal_map_invert_y=false
 process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
-detect_3d/compress_to=0
+detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

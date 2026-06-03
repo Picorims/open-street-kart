@@ -51,8 +51,6 @@ func _ready() -> void:
 
 func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 	print("Initializing player spawner...")
-	$"../MapDataLoader"._reload_boundaries_action()
-	$"../MapDataLoader"._reload_osm_action()
 	var count: int = 0
 	if (mode == TrackState.GameMode.AGAINST_CLOCK):
 		count = 1

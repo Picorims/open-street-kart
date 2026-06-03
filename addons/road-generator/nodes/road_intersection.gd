@@ -303,6 +303,9 @@ func _add_road_mesh() -> void:
 	add_child(_mesh)
 	_mesh.name = "intersection_mesh"
 	_mesh.layers = container.render_layers
+	## MANUAL ADDON CODE EDIT ==
+	_mesh.visibility_range_end = 1200
+	## END OF MANUAL ADDON CODE EDIT ==
 	if container.debug_scene_visible and is_instance_valid(_mesh):
 		_mesh.owner = container.get_owner()
 

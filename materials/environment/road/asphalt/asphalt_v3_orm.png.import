@@ -2,9 +2,9 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://ces84wva3tbm2"
-path.s3tc="res://.godot/imported/road_texture@1x.png-7cbabb6a11a96db2f98bb60d0a2795c3.s3tc.ctex"
-path.etc2="res://.godot/imported/road_texture@1x.png-7cbabb6a11a96db2f98bb60d0a2795c3.etc2.ctex"
+uid="uid://blvgo24rehctm"
+path.s3tc="res://.godot/imported/asphalt_v3_orm.png-15dc497535a57e2c240a3948a59048fd.s3tc.ctex"
+path.etc2="res://.godot/imported/asphalt_v3_orm.png-15dc497535a57e2c240a3948a59048fd.etc2.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc", "etc2_astc"],
 "vram_texture": true
@@ -12,8 +12,8 @@ metadata={
 
 [deps]
 
-source_file="res://addons/road-generator/resources/road_texture@1x.png"
-dest_files=["res://.godot/imported/road_texture@1x.png-7cbabb6a11a96db2f98bb60d0a2795c3.s3tc.ctex", "res://.godot/imported/road_texture@1x.png-7cbabb6a11a96db2f98bb60d0a2795c3.etc2.ctex"]
+source_file="res://materials/environment/road/asphalt/asphalt_v3_orm.png"
+dest_files=["res://.godot/imported/asphalt_v3_orm.png-15dc497535a57e2c240a3948a59048fd.s3tc.ctex", "res://.godot/imported/asphalt_v3_orm.png-15dc497535a57e2c240a3948a59048fd.etc2.ctex"]
 
 [params]
 
