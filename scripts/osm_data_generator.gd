@@ -611,9 +611,10 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 	if (coordinates.size() == 0):
 		if (verbose): print("No building coordinates data, cancel.")
 		return false
-	if (coordinates.size() > 1):
-		if (verbose): print("multi polygon not supported, only loading the first one.")
-	#coordinates = coordinates[0]
+	if not geometry.get("type") == "LineString":
+		if (coordinates.size() > 1):
+			if (verbose): print("multi polygon not supported, only loading the first one.")
+		coordinates = coordinates[0]
 	if (coordinates.size() < 3):
 		if (verbose): print("building has not enough nodes (", coordinates.size(), "), cancel.")
 		return false
@@ -637,6 +638,7 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 
 	var in_ground_height: float = 5
 	var above_ground_height: float = 10
+	var height: float = in_ground_height + above_ground_height
 	const MAX_VALUE: float = 1000000
 	var origin: Vector3 = Vector3(MAX_VALUE, 0, MAX_VALUE)
 	# find smallest x and z to define the origin (the corner of the building bounding box)
@@ -663,17 +665,24 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 		var next_index = (i + 1) % meters_coords.size()
 		var bottom_l = meters_coords[i]
 		var bottom_r = meters_coords[next_index]
-		var top_l = bottom_l + Vector3(0, in_ground_height + above_ground_height, 0)
-		var top_r = bottom_r + Vector3(0, in_ground_height + above_ground_height, 0)
+		var top_l = bottom_l + Vector3(0, height, 0)
+		var top_r = bottom_r + Vector3(0, height, 0)
+		var width = bottom_l.distance_to(bottom_r)
 
 		# first triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
+		surface_tool.set_uv(Vector2(0, height))
 		surface_tool.add_vertex(top_l)
+		surface_tool.set_uv(Vector2(width, 0))
 		surface_tool.add_vertex(bottom_r)
+		surface_tool.set_uv(Vector2(0, 0))
 		surface_tool.add_vertex(bottom_l)
 
 		# second triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
+		surface_tool.set_uv(Vector2(width, height))
 		surface_tool.add_vertex(top_r)
+		surface_tool.set_uv(Vector2(width, 0))
 		surface_tool.add_vertex(bottom_r)
+		surface_tool.set_uv(Vector2(0, height))
 		surface_tool.add_vertex(top_l)
 		
 		# occluder
@@ -925,8 +934,8 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 			# if false:
 			# 	pass
 			elif _is_building(properties) and kind == ReloadKind.BUILDINGS: # problem
-				# if builds_count_success > 1000:
-				# 	continue
+				#if builds_count_success > 1000:
+					#continue
 				var success: bool = _build_building(f, buildings_container)
 				builds_count += 1
 				if success:
