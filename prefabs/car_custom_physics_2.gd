@@ -11,7 +11,7 @@ extends RigidBody3D
 
 var current_direction: Vector3 = Vector3(1, 0, 0)
 @export var show_debug_arrows: bool = false
-@export var acceleration_force: float = 6_000
+@export var acceleration_force: float = 9_000
 @export var rotation_force: float = 100
 @export var speed_multiplier: float = 1.0
 @export var spring_strength: float = 250_000
@@ -37,8 +37,8 @@ var items_holder: Node3D = null
 
 const AIR_BOMB_SCENE: PackedScene = preload("res://prefabs/items/air_bomb.tscn")
 
-const DRIFT_LEFT_RIGHT_FACTOR: float = 0.75
-const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1
+const DRIFT_LEFT_RIGHT_FACTOR: float = 1.2
+const DRIFT_ADDED_DIRECTION_MULTIPLIER: float = 1.6
 
 const BRAKE_FORCE_FACTOR: float = 0.1
 const BACKWARDS_FORCE_FACTOR: float = 0.70
@@ -158,7 +158,9 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 		_disable_drift()
 	if _drifting:
 		# example: if left right factor is 0.75 and added direction multiplier is 1, the range is:
-		# 0.25 to 1.75 in given direction
+		# 0.25 to 1.75 in given direction 
+		# (-1 * 0.75) + 1 = 0.25
+		# (1 * 0.75) + 1 = 1.75
 		left_right = (left_right * DRIFT_LEFT_RIGHT_FACTOR) + DRIFT_ADDED_DIRECTION_MULTIPLIER * _drifting_direction
 
 	if not on_ground:
