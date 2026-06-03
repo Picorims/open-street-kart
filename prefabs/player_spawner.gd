@@ -32,18 +32,7 @@ var _car_root_node_map: Dictionary[String, CarCustomPhysics2] = {}
 
 signal go
 
-var TrackSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
-	TrackState.SpeedMode.CHILL: 15,
-	TrackState.SpeedMode.CASUAL: 20,
-	TrackState.SpeedMode.CHALLENGING: 25,
-	TrackState.SpeedMode.CRAZY: 32,
-}
-var OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
-	TrackState.SpeedMode.CHILL: 4,
-	TrackState.SpeedMode.CASUAL: 6,
-	TrackState.SpeedMode.CHALLENGING: 8,
-	TrackState.SpeedMode.CRAZY: 10,
-}
+
 
 func _ready() -> void:
 	assert(race_path != null, "ERROR: race_path not configured on player spawner.")
@@ -77,8 +66,10 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 			car.mode = CarCustomPhysics2.CarMode.BOT
 		car.path = race_path
 		car.speed_multiplier = 1.0
-		car.max_speed_meters_per_second = TrackSpeedDict.get(speed)
-		car.max_speed_out_of_bounds_meters_per_second = OutOfBoundsSpeedDict.get(speed)
+		assert(TrackState.TrackSpeedDict.has(speed), "mising speed for mode %s" % speed)
+		assert(TrackState.OutOfBoundsSpeedDict.has(speed), "mising OOB speed for mode %s" % speed)
+		car.max_speed_meters_per_second = TrackState.TrackSpeedDict.get(speed)
+		car.max_speed_out_of_bounds_meters_per_second = TrackState.OutOfBoundsSpeedDict.get(speed)
 		car.basis = self.basis
 		car.global_transform = self.global_transform
 		car.global_position += self.basis.x * -i + self.basis.z * (i % 4) + self.basis.y * 5

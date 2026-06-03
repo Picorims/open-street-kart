@@ -11,7 +11,7 @@ extends RigidBody3D
 
 var current_direction: Vector3 = Vector3(1, 0, 0)
 @export var show_debug_arrows: bool = false
-@export var acceleration_force: float = 6_000
+@export var acceleration_force: float = 9_000
 @export var rotation_force: float = 100
 @export var speed_multiplier: float = 1.0
 @export var spring_strength: float = 250_000

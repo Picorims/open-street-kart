@@ -46,6 +46,19 @@ enum SpeedMode {
 	CRAZY
 }
 
+const TrackSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
+	TrackState.SpeedMode.CHILL: 25,
+	TrackState.SpeedMode.CASUAL: 30,
+	TrackState.SpeedMode.CHALLENGING: 35,
+	TrackState.SpeedMode.CRAZY: 40,
+}
+const OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
+	TrackState.SpeedMode.CHILL: 6,
+	TrackState.SpeedMode.CASUAL: 8,
+	TrackState.SpeedMode.CHALLENGING: 9,
+	TrackState.SpeedMode.CRAZY: 11,
+}
+
 func _ready() -> void:
 	assert(loop_checkpoints.size() > 0, "ERROR: No loop checkpoint list specified.")
 	assert(player_spawner != null, "ERROR: No player spawner specified.")
@@ -122,7 +135,7 @@ func start():
 	_started = true
 
 	for id in _ids:
-		_car_item_slots[id] = PlayerItemSlotsState.new(_speed, _mode)
+		_car_item_slots[id] = PlayerItemSlotsState.new(TrackSpeedDict.get(_speed), _mode)
 
 func _stop():
 	_race_finished = true
