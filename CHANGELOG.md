@@ -20,7 +20,7 @@ Dates are in format YYYY-MM-DD (year, month, day)
 - Migrated from Godot Physics to Jolt Physics.
 - Migrated from mesh to Terrain3D for terrain.
 - Road initial generation now includes adjusted lanes.
-- Manually cleaned-up road-generation.
+- Manually cleaned-up road-generation and terrain.
 
 # [1.0.0-alpha.7] - 2026-01-14
 

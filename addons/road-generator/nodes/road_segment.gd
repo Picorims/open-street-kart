@@ -146,7 +146,7 @@ func _add_road_mesh() -> void:
 	road_mesh = MeshInstance3D.new()
 	
 	## MANUAL ADDON CODE EDIT ==
-	road_mesh.visibility_range_end = 600
+	road_mesh.visibility_range_end = 1200
 	## END OF MANUAL ADDON CODE EDIT ==
 	
 	add_child(road_mesh)
