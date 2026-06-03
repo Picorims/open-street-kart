@@ -4,6 +4,10 @@ An arcade kart game where you race in real life areas reconstructed from Open St
 
 ![thumbnail](./thumbnail.png)
 
+# Disclaimer
+
+*I do not endorse the use or reuse of this project for the following purposes, which includes but is not limited to: harassment, hate, racism, xenophobia, antisemitism, homophobia, lgbtqia+ phobia, promotion of Gen AI for replacing jobs (in art in particular), promotion of facism or technofacism, discrimination against disabled people as well as minorities.*
+
 # Credits
 
 ## Project
@@ -50,3 +54,11 @@ Addons are used in this project. For more information, have a look at the `addon
 - Debug Draw 3D: MIT License
 - Road Generator: MIT License
 - Sky3D: MIT License
+
+# About past AI-usage
+
+AI has been used between somewhere around May 2025 until late March 2026, for fancy auto-completion of code and code reviews only.
+
+Shall community contributions occur in the future, I will do my best to avoid agentic and vibe-coded PRs from being accepted, even though it is impossible to guarantee no AI usage. The point being, if it is used as a purely technical tool and that the majority of the work is human, understood, with full responsibility taken, it is OK, because in that case I should not be able to notice anyways.
+
+**I will however *never* accept any usage of AI in artistic manners, which includes but is not limited to: 3D models, textures, SFX, music, shaders (especially critical to understand the code there), fonts. Offer for AI based translation will be refused as well.
