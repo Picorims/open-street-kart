@@ -613,7 +613,7 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 		return false
 	if (coordinates.size() > 1):
 		if (verbose): print("multi polygon not supported, only loading the first one.")
-	#coordinates = coordinates[0]
+	coordinates = coordinates[0]
 	if (coordinates.size() < 3):
 		if (verbose): print("building has not enough nodes (", coordinates.size(), "), cancel.")
 		return false
@@ -925,8 +925,8 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 			# if false:
 			# 	pass
 			elif _is_building(properties) and kind == ReloadKind.BUILDINGS: # problem
-				# if builds_count_success > 1000:
-				# 	continue
+				#if builds_count_success > 1000:
+					#continue
 				var success: bool = _build_building(f, buildings_container)
 				builds_count += 1
 				if success:
