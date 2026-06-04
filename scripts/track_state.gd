@@ -28,6 +28,11 @@ var _car_item_slots: Dictionary[String, PlayerItemSlotsState]
 var _race_hud: RaceHUD
 var _race_finished_gui: RaceFinishedGUI
 
+var _camera := Camera3D.new()
+var _player_car: CarCustomPhysics2
+var _cam_target_angle := Quaternion.IDENTITY
+var _cam_current_angle := Quaternion.IDENTITY
+
 var _last_estimated_rankings: Array[_OffsetEntry] = []
 var _race_finished: bool = false
 var _track_region_manager: TrackRegionManager = TrackRegionManager.new()
@@ -59,12 +64,17 @@ const OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
 	TrackState.SpeedMode.CRAZY: 11,
 }
 
+const CAM_DISTANCE_FROM_PLAYER := 4.0
+const CAM_HEIGHT_FROM_PLAYER := 1.5
+const CAM_UPDATE_MIN_SPEED := 1.0
+const CAM_EASING_RATIO := 0.6
+const CAM_MAX_SPEED := 0.5
+
 func _ready() -> void:
 	assert(loop_checkpoints.size() > 0, "ERROR: No loop checkpoint list specified.")
 	assert(player_spawner != null, "ERROR: No player spawner specified.")
 	assert(%ProceduralDataHolder != null, "missing procedural data holder")
 	
-	var proc_data_holder: Node3D = %ProceduralDataHolder
 	var _buildings = get_tree().get_nodes_in_group("buildings")
 	for n in _buildings:
 		get_track_region_manager().register_node(n)
@@ -121,7 +131,11 @@ func init(mode: GameMode, speed: SpeedMode):
 	for c in player_spawner.car_root_nodes:
 		_display_names.set(c.name, c.display_name)
 		_ids.append(c.name)
+		if c.display_name == "you":
+			_player_car = c
 
+	add_child(_camera)
+	_init_camera()
 
 	player_spawner.countdown()
 	player_spawner.go.connect(func():
@@ -187,6 +201,7 @@ func _process(delta: float) -> void:
 	if (not _race_finished and _started):
 		var stats_from_first: Dictionary[String, _CarStatsFromFirst] = _process_live_ranking()
 		_process_item_slots(delta, stats_from_first)
+	_update_camera()
 
 func _physics_process(delta: float) -> void:
 	get_track_region_manager().tick(delta)
@@ -276,3 +291,34 @@ func _process_live_ranking() -> Dictionary[String, _CarStatsFromFirst]:
 		
 		
 	return stats_from_first
+
+func _init_camera():
+	var pos := _player_car.current_position
+	var basis := _player_car.car_basis
+	pos -= basis.x * CAM_DISTANCE_FROM_PLAYER
+	var pos_ground = pos
+	pos += basis.y * CAM_HEIGHT_FROM_PLAYER
+	_camera.look_at_from_position(pos_ground, pos)
+
+func _update_camera():
+	var car_velocity := _player_car.current_velocity
+	var car_position := _player_car.current_position
+	if car_velocity.length() > CAM_UPDATE_MIN_SPEED:
+		var dir := car_velocity.normalized()
+		if _player_car.car_basis.x.dot(car_velocity) > 0:
+			dir *= -1
+		var vel_basis := Basis(_player_car.car_basis)
+		#var dir_minus_z_as_forward := dir.rotated(vel_basis.y, 0.5 * PI)
+		var dir_minus_z_as_forward = dir
+		#vel_basis.looking_at(dir_minus_z_as_forward)
+		_cam_target_angle = Quaternion(vel_basis)
+	_cam_current_angle = _cam_current_angle.slerp(_cam_target_angle, CAM_EASING_RATIO).normalized()
+	#_cam_current_angle = _cam_target_angle
+	var pos := car_position
+	var dir_basis := Basis(_cam_current_angle)
+	pos -= dir_basis.x * CAM_DISTANCE_FROM_PLAYER
+	var pos_ground = pos
+	pos += dir_basis.y * CAM_HEIGHT_FROM_PLAYER
+	_camera.look_at_from_position(pos_ground, car_position)
+	#_camera.look_at(car_position)
+	_camera.global_position = pos

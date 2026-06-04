@@ -221,9 +221,6 @@ layers = 2
 mesh = SubResource("BoxMesh_e45dh")
 skeleton = NodePath("../WheelFLFrame")
 
-[node name="Camera3D" type="Camera3D" parent="CarRigidBody" unique_id=2113612485]
-transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, -5.4, 1.6, 0)
-
 [node name="FrontRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=2079048968]
 target_position = Vector3(1, 0, 0)
 
