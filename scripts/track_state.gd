@@ -30,10 +30,10 @@ var _race_finished_gui: RaceFinishedGUI
 
 var _camera := Camera3D.new()
 var _player_car: CarCustomPhysics2
-var _cam_target_angle_hor := Quaternion.IDENTITY.normalized()
-var _cam_target_angle_vert := Quaternion.IDENTITY.normalized()
-var _cam_current_angle_hor := Quaternion.IDENTITY.normalized()
-var _cam_current_angle_vert := Quaternion.IDENTITY.normalized()
+#var _cam_target_angle_hor := Quaternion.IDENTITY.normalized()
+#var _cam_target_angle_vert := Quaternion.IDENTITY.normalized()
+#var _cam_current_angle_hor := Quaternion.IDENTITY.normalized()
+#var _cam_current_angle_vert := Quaternion.IDENTITY.normalized()
 
 var _last_estimated_rankings: Array[_OffsetEntry] = []
 var _race_finished: bool = false
@@ -69,8 +69,8 @@ const OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
 const CAM_DISTANCE_FROM_PLAYER := 4.0
 const CAM_HEIGHT_FROM_PLAYER := 1.5
 const CAM_UPDATE_MIN_SPEED := 1.0
-const CAM_EASING_RATIO_HOR := 0.95
-const CAM_EASING_RATIO_VERT := 0.8
+const CAM_EASING_RATIO_HOR := 0.98
+const CAM_EASING_RATIO_VERT := 0.05
 const CAM_MAX_SPEED := 0.5
 
 func _ready() -> void:
@@ -302,7 +302,11 @@ func _init_camera():
 	var pos_ground = pos
 	pos += basis.y * CAM_HEIGHT_FROM_PLAYER
 	_camera.look_at_from_position(pos_ground, pos)
+	target_pos = pos
+	current_pos = target_pos
 
+var target_pos := Vector3.ZERO
+var current_pos := Vector3.ZERO
 func _update_camera():
 	var car_velocity := _player_car.current_velocity
 	var car_position := _player_car.current_position
@@ -311,33 +315,50 @@ func _update_camera():
 		var dir := car_velocity.normalized()
 		if _player_car.car_basis.x.dot(car_velocity) < 0:
 			dir *= -1
+		#var dir_basis_hor = Basis(Vector3.UP, -Vector2(dir.x,dir.z).angle()).orthonormalized()
+		#var debug_p := car_position + car_basis.z * 4
+		#DebugDraw3D.draw_arrow(debug_p, debug_p + dir, Color.AQUAMARINE, 0.05)
+		target_pos = -dir.slide(Vector3.UP).normalized() * CAM_DISTANCE_FROM_PLAYER
+		target_pos.y -= dir.y * PI
 		#dir = dir.project(Vector3.UP).normalized()
-		var hor_angle := -Vector2(dir.x,dir.z).normalized().angle()
-		var vel_basis_hor := Basis(Vector3.UP, hor_angle).orthonormalized()
-		var vert_angle := Vector2(Vector2(dir.x,dir.z).length(),dir.y).normalized().angle()
-		var vel_basis_vert := Basis(vel_basis_hor.z, vert_angle).orthonormalized()
+		#var hor_angle := -Vector2(dir.x,dir.z).normalized().angle()
+		#var vel_basis_hor := Basis(Vector3.UP, hor_angle).orthonormalized()
+		#var vert_angle := Vector2(Vector2(dir.x,dir.z).length(),dir.y).normalized().angle()
+		#var vel_basis_vert := Basis(vel_basis_hor.z, vert_angle).orthonormalized()
 		#print(vel_basis_vert)
 		#vel_basis.looking_at(dir)
-		_cam_target_angle_hor = Quaternion(vel_basis_hor).normalized()
-		_cam_target_angle_vert = Quaternion(vel_basis_vert).normalized()
-	_cam_current_angle_hor = _cam_current_angle_hor.slerp(_cam_target_angle_hor, CAM_EASING_RATIO_HOR).normalized()
-	_cam_current_angle_vert = _cam_current_angle_vert.slerp(_cam_target_angle_vert, CAM_EASING_RATIO_VERT).normalized()
+		#_cam_target_angle_hor = Quaternion(vel_basis_hor).normalized()
+		#_cam_target_angle_vert = Quaternion(vel_basis_vert).normalized()
+	#_cam_current_angle_hor = _cam_current_angle_hor.slerp(_cam_target_angle_hor, CAM_EASING_RATIO_HOR).normalized()
+	#_cam_current_angle_vert = _cam_current_angle_vert.slerp(_cam_target_angle_vert, CAM_EASING_RATIO_VERT).normalized()
 	#_cam_current_angle = _cam_target_angle
-	var pos := car_position
-	var dir_basis_hor := Basis(_cam_current_angle_hor).orthonormalized()
-	var dir_basis_vert := Basis(_cam_current_angle_vert).orthonormalized()
-	var hor_axis := dir_basis_hor.x
-	pos -= hor_axis * CAM_DISTANCE_FROM_PLAYER
-	var vert_axis = dir_basis_vert.y
-	pos += vert_axis * CAM_HEIGHT_FROM_PLAYER
+	#var pos := car_position
+	#var dir_basis_hor := Basis(_cam_current_angle_hor).orthonormalized()
+	#var dir_basis_vert := Basis(_cam_current_angle_vert).orthonormalized()
+	#var hor_axis := dir_basis_hor.x
+	#pos -= hor_axis * CAM_DISTANCE_FROM_PLAYER
+	#var vert_axis = dir_basis_vert.y
+	#pos += vert_axis * CAM_HEIGHT_FROM_PLAYER
 	#print(dir_basis_vert)
 	#print(dir_basis_hor.x.normalized(), dir_basis_vert.y.normalized())
-	var debug_p = car_position + car_basis.z * 4
-	DebugDraw3D.draw_arrow(debug_p, debug_p + hor_axis, Color.ROSY_BROWN, 0.005)
-	DebugDraw3D.draw_arrow(debug_p, debug_p + vert_axis, Color.AQUAMARINE, 0.005)
-	DebugDraw2D.set_text("hor_axis", hor_axis)
-	DebugDraw2D.set_text("vert_axis", vert_axis)
-	var pos_ground = pos
-	_camera.look_at_from_position(pos_ground, car_position)
+	#var debug_p = car_position + car_basis.z * 4
+	#DebugDraw3D.draw_arrow(debug_p, debug_p + hor_axis, Color.ROSY_BROWN, 0.005)
+	#DebugDraw3D.draw_arrow(debug_p, debug_p + vert_axis, Color.AQUAMARINE, 0.005)
+	#DebugDraw2D.set_text("hor_axis", hor_axis)
+	#DebugDraw2D.set_text("vert_axis", vert_axis)
+	#var pos_ground = pos
+	var ratio_h := CAM_EASING_RATIO_HOR
+	var ratio_v := CAM_EASING_RATIO_VERT
+	current_pos = Vector3(
+		ratio_h * target_pos.x + (1.0 - ratio_h) * current_pos.x,
+		ratio_v * target_pos.y + (1.0 - ratio_v) * current_pos.y,
+		ratio_h * target_pos.z + (1.0 - ratio_h) * current_pos.z,
+	)
+	DebugDraw2D.set_text("target_pos_cam", target_pos)
+	DebugDraw2D.set_text("current_pos_cam", current_pos)
+
+	var pos = car_position + current_pos
+	_camera.look_at_from_position(pos, car_position)
+	pos.y += CAM_HEIGHT_FROM_PLAYER
 	_camera.global_position = pos
 	#_camera.look_at(car_position)
