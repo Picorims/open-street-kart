@@ -34,6 +34,8 @@ var current_direction: Vector3 = Vector3(1, 0, 0)
 		if (_brain != null):
 			_brain.path = v
 var items_holder: Node3D = null
+var current_velocity := Vector3.ZERO
+var current_position := Vector3.ZERO
 
 const AIR_BOMB_SCENE: PackedScene = preload("res://prefabs/items/air_bomb.tscn")
 
@@ -79,7 +81,6 @@ var _drifting_direction: float = 0 # 1 or -1, see signf()
 var _now_seconds: float = 0
 var _speed_boost_until_seconds: float = -1
 var _brain: ACarBrain
-var _cam: Camera3D
 var _time_since_not_moving_seconds: float = 0
 var _last_xz_speed_squared: float = 0
 
@@ -90,8 +91,6 @@ func is_in_speed_boost() -> bool:
 	return _now_seconds < _speed_boost_until_seconds
 
 func _ready() -> void:
-	_cam = $Camera3D
-	assert(_cam != null, "ERROR: No cam configured on the car.")
 	assert(interface != null, "ERROR: interface not assigned.")
 	wheel_ray_casts = [$WheelFRRayCast3D, $WheelBLRayCast3D, $WheelBRRayCast3D, $WheelFLRayCast3D]
 	for r in wheel_ray_casts:
@@ -112,6 +111,9 @@ func _ready() -> void:
 			var typedBody: FreezeManagedRigidBody3D = body
 			typedBody.managed_freeze = false
 	)
+	
+	current_position = global_position
+
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_brain == null):
@@ -184,6 +186,8 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	_soft_clamp_speed(state, out_of_bounds)
 	_brain.populated_lin_vel = state.linear_velocity
 	_brain.populated_ang_vel = state.angular_velocity
+	current_velocity = state.linear_velocity
+	current_position = global_position
 
 func _disable_drift() -> void:
 	_drifting = false
@@ -327,10 +331,6 @@ func _wheels_on_ground() -> int:
 		
 	return wheels_on_ground
 
-func _input(event):
-	if (event.is_action_pressed("toggle_cam")):
-		$Camera3D.current = not $Camera3D.current
-
 func _process(delta: float) -> void:
 	interface.speed_boost_effects = is_in_speed_boost()
 	
@@ -346,9 +346,8 @@ func _process(delta: float) -> void:
 	
 	# debug =============================
 	var debug_pos = global_position + Vector3(0, 3, 0)
-	if (_cam.current):
-		DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
-		DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
+	DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
+	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
 	if (show_debug_arrows):
 		DebugDraw3D.draw_arrow(debug_pos, debug_pos + linear_velocity, Color(0, 0, 1), 0.1)
 		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_centrifugal_force, Color(0, 1, 0), 0.1)

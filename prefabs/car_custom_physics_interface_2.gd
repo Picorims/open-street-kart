@@ -80,6 +80,27 @@ enum CarMode {
 		items_holder = v
 		$CarRigidBody.items_holder = v
 
+@export var current_velocity: Vector3:
+	get():
+		return $CarRigidBody.current_velocity
+	set(v):
+		pass
+@export var current_position: Vector3:
+	get():
+		return $CarRigidBody.current_position
+	set(v):
+		pass
+@export var going_backwards: bool:
+	get():
+		return $CarRigidBody._going_backwards
+	set(v):
+		pass
+@export var car_basis: Basis:
+	get():
+		return $CarRigidBody.global_basis
+	set(v):
+		pass
+
 func _ready() -> void:
 	# /!\ Necessary for checkpoints to work!
 	assert(has_node("CarRigidBody"), "Car rigid body must be a direct child of the root CarCustomPhysics node.")

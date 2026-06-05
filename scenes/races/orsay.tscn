@@ -173976,3 +173976,6 @@ script = ExtResource("16_54g0d")
 metadata/_custom_type_script = "uid://jdm53vw7ecik"
 
 [node name="ItemsHolder" type="Node3D" parent="." unique_id=850152014]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=625401073]
+transform = Transform3D(-0.21473514, 0.7049232, -0.675997, 0, 0.69214314, 0.7217602, 0.9766723, 0.15498728, -0.14862745, 520, 170, 1700)
