@@ -32,6 +32,7 @@ var _camera := Camera3D.new()
 var _player_car: CarCustomPhysics2
 var _cam_target_pos := Vector3.ZERO
 var _cam_current_pos := Vector3.ZERO
+var _camera_initialized := false
 
 var _last_estimated_rankings: Array[_OffsetEntry] = []
 var _race_finished: bool = false
@@ -67,8 +68,8 @@ const OutOfBoundsSpeedDict: Dictionary[TrackState.SpeedMode, float] = {
 const CAM_DISTANCE_FROM_PLAYER := 4.0
 const CAM_HEIGHT_FROM_PLAYER := 1.5
 const CAM_UPDATE_MIN_SPEED := 1.0
-const CAM_EASING_RATIO_HOR := 0.98
-const CAM_EASING_RATIO_VERT := 0.05
+const CAM_EASING_RATIO_HOR := 0.95
+const CAM_EASING_RATIO_VERT := 0.005
 const CAM_MAX_SPEED := 0.5
 
 func _ready() -> void:
@@ -136,7 +137,6 @@ func init(mode: GameMode, speed: SpeedMode):
 			_player_car = c
 
 	add_child(_camera)
-	_init_camera()
 
 	player_spawner.countdown()
 	player_spawner.go.connect(func():
@@ -202,10 +202,14 @@ func _process(delta: float) -> void:
 	if (not _race_finished and _started):
 		var stats_from_first: Dictionary[String, _CarStatsFromFirst] = _process_live_ranking()
 		_process_item_slots(delta, stats_from_first)
-	_update_camera()
 
 func _physics_process(delta: float) -> void:
 	get_track_region_manager().tick(delta)
+	if not _camera_initialized and _player_car.current_position:
+		_init_camera()
+		_camera_initialized = true
+	if _camera_initialized:
+		_update_camera()
 
 func _process_item_slots(delta: float, stats_from_first: Dictionary[String, _CarStatsFromFirst]):
 	if stats_from_first.is_empty():
@@ -294,27 +298,42 @@ func _process_live_ranking() -> Dictionary[String, _CarStatsFromFirst]:
 	return stats_from_first
 
 func _init_camera():
-	var pos := _player_car.current_position
+	var car_pos := _player_car.current_position
 	var basis := _player_car.car_basis
-	pos -= basis.x * CAM_DISTANCE_FROM_PLAYER
-	var pos_ground = pos
-	pos += basis.y * CAM_HEIGHT_FROM_PLAYER
-	_camera.look_at_from_position(pos_ground, pos)
-	_cam_target_pos = pos
+	
+	var local_pos = Vector3.ZERO
+	local_pos -= basis.x.slide(Vector3.UP).normalized() * CAM_DISTANCE_FROM_PLAYER
+	var pos_ground = car_pos + local_pos
+	local_pos += basis.y * CAM_HEIGHT_FROM_PLAYER
+	var pos = car_pos + local_pos
+	print("Cam init at: ", pos)
+	print("Cam will look at: ", car_pos, "from: ", pos_ground)
+	#_camera.look_at_from_position(pos_ground, car_pos)
+	#_camera.global_position = pos
+	_cam_target_pos = local_pos
 	_cam_current_pos = _cam_target_pos
+	#DebugDraw3D.draw_arrow(pos_ground, car_pos, Color.RED, 0.05, true, 10)
+	_camera.current = true
+	DebugDraw2D.set_text("_cam_target_pos_cam", _cam_target_pos, 0, Color.WHITE, 5)
+	DebugDraw2D.set_text("current_pos_cam", _cam_current_pos, 0, Color.WHITE, 5)
+	_update_camera(true)
 
-func _update_camera():
+
+func _update_camera(force := false):
+	if not _started and not force:
+		return
 	var car_velocity := _player_car.current_velocity
 	var car_position := _player_car.current_position
 	var car_basis := _player_car.car_basis
-	if car_velocity.length() > CAM_UPDATE_MIN_SPEED:
+	var meaningless_vel: bool = car_velocity.is_zero_approx() or (abs(car_velocity.x) < 0.1 and abs(car_velocity.x) < 0.1)
+	if car_velocity.length() > CAM_UPDATE_MIN_SPEED and not meaningless_vel:
 		var dir := car_velocity.normalized()
 		if _player_car.car_basis.x.dot(car_velocity) < 0:
 			dir *= -1
 		_cam_target_pos = -dir.slide(Vector3.UP).normalized() * CAM_DISTANCE_FROM_PLAYER
 		# I'll be honest, Idk why PI, but it looks nice with it.
 		# When I coded this, I was so desperate that I just went with trying things
-		# that might work. Sorry!
+		# that might work. Sorry! (Probably only amplifies vertical cam movement.)
 		_cam_target_pos.y -= dir.y * PI
 	var ratio_h := CAM_EASING_RATIO_HOR
 	var ratio_v := CAM_EASING_RATIO_VERT

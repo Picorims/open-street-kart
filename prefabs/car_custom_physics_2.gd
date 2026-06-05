@@ -111,6 +111,9 @@ func _ready() -> void:
 			var typedBody: FreezeManagedRigidBody3D = body
 			typedBody.managed_freeze = false
 	)
+	
+	current_position = global_position
+
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_brain == null):

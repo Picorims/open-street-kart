@@ -56,12 +56,7 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 		if (i == count - 1):
 			car.mode = CarCustomPhysics2.CarMode.USER
 			car.display_name = "you"
-			var cam: Camera3D = car.get_node("CarRigidBody/Camera3D")
-			if (cam != null):
-				cam.current = true
-				car.show_debug_arrows = true
-			else:
-				push_error("ERROR: Could not set user as main camera focus.")
+			#car.show_debug_arrows = true
 		else:
 			car.mode = CarCustomPhysics2.CarMode.BOT
 		car.path = race_path
