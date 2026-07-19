@@ -13,15 +13,17 @@ const ROOT_NODE_NAME: String = "OSMData"
 
 @export var loader: MapDataLoader
 @export var boundaries_generator: BoundariesGenerator
-@export var elevation_generator: ElevationMeshGenerator
 @export var road_material: Material
 @export var building_material: Material
 
 enum ReloadKind {
 	ROADS,
 	BUILDINGS,
-	AMENITIES
+	AMENITIES,
+	TERRAIN_PAINT
 }
+
+
 
 var _road_kinds: Array[String]
 var _building_kinds: Array[String]
@@ -72,7 +74,6 @@ func _ready() -> void:
 	assert(loader != null)
 	assert(boundaries_generator != null)
 	assert(road_material != null)
-	assert(elevation_generator != null)
 	_road_kinds = [
 		"motorway",
 		"trunk",
@@ -843,7 +844,53 @@ func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3
 
 	return true
 
+func _init_terrain_paint():
+	# loader.terrain.assets.clear_textures()
+	# var mats: TrackMaterials = loader.track_materials
+	# assert(mats != null, "Materials not initialized for terrain painting.")
+	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.GRASS, "Grass", mats.grass)
+	# #_load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.ROCK, "Rock", mats.rock)
+	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.SCRUB, "Scrub", mats.grass)
+	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.FOREST_FLOOR, "ForestFloor", mats.grass)
+	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.FIELD_FLOOR, "FieldFloor", mats.grass)
+	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.CONSTRUCTION_SITE_FLOOR, "ConstructionSiteFloor", mats.grass)
+	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.BASSIN, "Bassin", mats.grass)
+	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.ATHLETISM_FLOOR, "AthletismFloor", mats.grass)
+	
+# func _load_terrain_mat(terrain: Terrain3D, id: int, name: String, mat: StandardMaterial3D, size := 1024):
+# 	print("Registering Terrain3D Material: %s widh id %d" % [name, id])
+# 	var albedo_height_img = Image.create_empty(size, size, true, Image.Format.FORMAT_RGBA8)
+# 	var albedo_src = mat.albedo_texture.get_image()
+# 	var normal_src = mat.normal_texture.get_image()
+# 	var height_src = mat.heightmap_texture.get_image()
+# 	var rough_src = mat.roughness_texture.get_image()
+# 	albedo_src.decompress()
+# 	normal_src.decompress()
+# 	height_src.decompress()
+# 	rough_src.decompress()
+# 	for x in albedo_height_img.get_width():
+# 		for y in albedo_height_img.get_height():
+# 			var albedo: Color = albedo_src.get_pixel(x,y)
+# 			var height: Color = height_src.get_pixel(x,y)
+# 			albedo_height_img.set_pixel(x,y, Color(albedo.r, albedo.g, albedo.b, height.r))
+	
+# 	var normal_rough_img = Image.create_empty(size, size, true, Image.FORMAT_RGBA8)
+# 	for x in normal_rough_img.get_width():
+# 		for y in normal_rough_img.get_height():
+# 			var normal: Color = normal_src.get_pixel(x,y)
+# 			var rough: Color = rough_src.get_pixel(x,y)
+# 			normal_rough_img.set_pixel(x,y, Color(normal.r, normal.g, normal.b, rough.r))
+	
+# 	var terrain_3d_asset = Terrain3DTextureAsset.new()
+# 	terrain_3d_asset.name = name
+# 	terrain_3d_asset.albedo_texture = ImageTexture.create_from_image(albedo_height_img)
+# 	terrain_3d_asset.normal_texture = ImageTexture.create_from_image(normal_rough_img)
+	
+# 	terrain.assets.set_texture(id, terrain_3d_asset)
+
 func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
+	if kind == ReloadKind.TERRAIN_PAINT:
+		_init_terrain_paint()
 	if kind == ReloadKind.ROADS:
 		snaps_left_road = 0
 		snaps_left = 0

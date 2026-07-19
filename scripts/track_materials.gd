@@ -8,10 +8,13 @@
 
 class_name TrackMaterials extends Resource
 
-@export var athletism_floor: String = "res://materials/environment/terrain/athletism_floor.tres"
-@export var bassin: String = "res://materials/environment/terrain/bassin_plastic.tres"
-@export var constructions_site_floor: String = "res://materials/environment/terrain/construction_site_floor.tres"
-@export var field_floor: String = "res://materials/environment/terrain/field_floor.tres"
-@export var forest_floor: String = "res://materials/environment/terrain/forest_floor.tres"
-@export var grass: String = "res://materials/environment/grass/grass_v2.tres"
-@export var scrub: String = "res://materials/environment/terrain/scrub.tres"
+enum TerrainTexture {
+	GRASS = 0,
+	ROCK = 1,
+	SCRUB = 2,
+	FOREST_FLOOR = 3,
+	FIELD_FLOOR = 4,
+	CONSTRUCTION_SITE_FLOOR = 5,
+	BASSIN = 6,
+	ATHLETISM_FLOOR = 7,
+}
