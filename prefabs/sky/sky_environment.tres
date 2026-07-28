@@ -1,0 +1,21 @@
+[gd_resource type="Environment" format=3 uid="uid://b7b6rvv4ybrkx"]
+
+[ext_resource type="Texture2D" uid="uid://c8k0ryjkc8c1j" path="res://textures/packs/kenney_skyboxes/Skyboxes/skybox-day.png" id="1_p7tb6"]
+
+[sub_resource type="PanoramaSkyMaterial" id="PanoramaSkyMaterial_mvy14"]
+panorama = ExtResource("1_p7tb6")
+energy_multiplier = 1.15
+
+[sub_resource type="Sky" id="Sky_vp3ih"]
+sky_material = SubResource("PanoramaSkyMaterial_mvy14")
+
+[resource]
+background_mode = 2
+sky = SubResource("Sky_vp3ih")
+ssr_enabled = true
+ssil_enabled = true
+fog_enabled = true
+fog_light_color = Color(0.76306057, 0.8544011, 1, 1)
+fog_density = 0.0002
+fog_sky_affect = 0.0
+adjustment_enabled = true
