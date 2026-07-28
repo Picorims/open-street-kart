@@ -24,15 +24,16 @@ class_name MapDataLoader extends Node3D
 @export var width_meters: int = 1000
 ## heightmap height times scaling factor times meters per pixel (resolution)
 @export var length_meters: int = 1000
+## Materials used for terrain3D ground textures.
+@export var track_materials: TrackMaterials
 # icons: Godot EditorIcons; https://godot-editor-icons.github.io/
-@export_tool_button("Reload surface", "ImageTexture3D") var reload_surface_action = Callable(self, "_reload_surface_action")
 @export_tool_button("Reload Boundaries Data", "Area3D") var reload_boundaries_action = Callable(self, "_reload_boundaries_action")
 @export_tool_button("Reload OSM Roads", "Path3D") var reload_osm_roads_action = Callable(self, "_reload_osm_roads_action")
 @export_tool_button("Link Roads", "LinkButton") var link_roads_action = Callable(self, "_link_roads_action")
-@export_tool_button("Reload OSM Buildings", "Path3D") var reload_osm_buildings_action = Callable(self, "_reload_osm_buildings_action")
-@export_tool_button("Reload OSM Amenities", "Path3D") var reload_osm_amenities_action = Callable(self, "_reload_osm_amenities_action")
+@export_tool_button("Reload OSM Buildings", "ConvexPolygonShape2D") var reload_osm_buildings_action = Callable(self, "_reload_osm_buildings_action")
+@export_tool_button("Reload OSM Amenities", "Breakpoint") var reload_osm_amenities_action = Callable(self, "_reload_osm_amenities_action")
+@export_tool_button("Reload OSM Terrain3D painting", "StandardMaterial3D") var reload_osm_terrain3d_painting_action = Callable(self, "_reload_osm_terrain3d_painting_action")
 @export_tool_button("Apply manual OSM mutations script", "Script") var apply_osm_mutations_action = Callable(self, "_apply_osm_mutations_action")
-@export var floor_material: Material
 
 var _origin: Vector3
 var _scale_transform: Vector3
@@ -86,25 +87,20 @@ func _get_root_of_current_scene(ok_callback: Callable) -> void:
 		ok_callback.call(root_node)
 	
 
-func _reload_surface_action():
-	_get_root_of_current_scene(func(root_node: Node3D):
-		print("=== reloading surface elevation ===")
-		$Surface.reload_action(floor_material, root_node)
-		print("=== reloading surface done (DO NOT FORGET TO SAVE!!!) ===")
-	)
-
 func _reload_osm_roads_action():
 	_reload_osm_action(OSMDataGenerator.ReloadKind.ROADS)
 func _reload_osm_buildings_action():
 	_reload_osm_action(OSMDataGenerator.ReloadKind.BUILDINGS)
 func _reload_osm_amenities_action():
 	_reload_osm_action(OSMDataGenerator.ReloadKind.AMENITIES)
+func _reload_osm_terrain3d_painting_action():
+	_reload_osm_action(OSMDataGenerator.ReloadKind.TERRAIN_PAINT)
 
 func _reload_osm_action(kind: OSMDataGenerator.ReloadKind):
 	_get_root_of_current_scene(func(root_node: Node3D):
-		print("=== reloading roads ===")
+		print("=== reloading requested OSM data ===")
 		$OSMDataGenerator.reload_action(root_node, kind)
-		print("=== reloading roads done (DO NOT FORGET TO SAVE!!!) ===")
+		print("=== reloading requested OSM data done (DO NOT FORGET TO SAVE!!!) ===")
 	)
 
 func _reload_boundaries_action():

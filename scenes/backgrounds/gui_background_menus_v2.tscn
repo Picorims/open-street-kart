@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://2gi8mf0dua0d"]
 
 [ext_resource type="Script" uid="uid://ce48thbtmeide" path="res://scenes/backgrounds/gui_background_menus_v_2.gd" id="1_yn5x8"]
-[ext_resource type="Material" uid="uid://bwmmwf7nnqfjw" path="res://materials/environment/grass/grass.tres" id="2_yn5x8"]
+[ext_resource type="Material" uid="uid://bwmmwf7nnqfjw" path="res://materials/environment/terrain/grass.tres" id="2_yn5x8"]
 [ext_resource type="Script" uid="uid://djfbsux76aler" path="res://addons/sky_3d/src/Sky3D.gd" id="3_bfp1c"]
 [ext_resource type="Script" uid="uid://urs71svgv33f" path="res://addons/sky_3d/src/TimeOfDay.gd" id="4_3455s"]
 [ext_resource type="Script" uid="uid://cqhc4p7ripl4s" path="res://addons/sky_3d/src/Skydome.gd" id="5_4lgn4"]

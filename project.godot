@@ -18,13 +18,20 @@ config/features=PackedStringArray("4.6", "Mobile")
 run/max_fps=60
 config/icon="res://icon.svg"
 
+[debug]
+
+gdscript/warnings/directory_rules={
+"res://addons": 0,
+"res://addons/osk_plugin": 1
+}
+
 [debug_draw_3d]
 
 settings/addon_root_folder="res://addons/debug_draw_3d"
 
 [editor_plugins]
 
-enabled=PackedStringArray("res://addons/road-generator/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
+enabled=PackedStringArray("res://addons/at-icons/plugin.cfg", "res://addons/osk_plugin/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
 
 [gui]
 

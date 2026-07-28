@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://chvhjn0fseid0"]
 
 [ext_resource type="Environment" uid="uid://cdrbw2frpojjg" path="res://materials/menu_night_environment.tres" id="1_idtbq"]
-[ext_resource type="Material" uid="uid://bwmmwf7nnqfjw" path="res://materials/environment/grass/grass.tres" id="2_l16to"]
+[ext_resource type="Material" uid="uid://bwmmwf7nnqfjw" path="res://materials/environment/terrain/grass.tres" id="2_l16to"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_yr0dy"]
 material = ExtResource("2_l16to")

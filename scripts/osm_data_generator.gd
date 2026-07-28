@@ -10,18 +10,21 @@
 class_name OSMDataGenerator extends Node3D
 
 const ROOT_NODE_NAME: String = "OSMData"
+const BASE_TEX_AND_AUTOSHADER_EXCLUDED_MASK := 0b00000111_11111111_11111111_11111110
 
 @export var loader: MapDataLoader
 @export var boundaries_generator: BoundariesGenerator
-@export var elevation_generator: ElevationMeshGenerator
 @export var road_material: Material
 @export var building_material: Material
 
 enum ReloadKind {
 	ROADS,
 	BUILDINGS,
-	AMENITIES
+	AMENITIES,
+	TERRAIN_PAINT
 }
+
+
 
 var _road_kinds: Array[String]
 var _building_kinds: Array[String]
@@ -72,7 +75,6 @@ func _ready() -> void:
 	assert(loader != null)
 	assert(boundaries_generator != null)
 	assert(road_material != null)
-	assert(elevation_generator != null)
 	_road_kinds = [
 		"motorway",
 		"trunk",
@@ -399,6 +401,99 @@ func _is_bin(properties: Dictionary) -> bool:
 
 func _is_bench(properties: Dictionary) -> bool:
 	return _is_amenity_kind("bench", properties)
+	
+## Returns the painting priority if true, or -1 if false
+func _is_terrain_area(properties: Dictionary) -> int:
+	if properties.has("natural"):
+		var v = properties.get("natural")
+		if v == "scrub":
+			return 20
+		elif v == "water":
+			return 100
+		elif v == "wetland":
+			return 95
+	if properties.has("landuse"):
+		var v = properties.get("landuse")
+		if v == "grass":
+			return 10
+		elif v == "forest":
+			return 80
+		elif v == "wood":
+			return 80
+		elif v == "railway":
+			return 110
+		elif v == "farmland":
+			return 50
+		elif v == "meadow":
+			return 40
+		elif v == "construction":
+			return 30
+	if properties.has("leisure"):
+		var v = properties.get("leisure")
+		if v == "pitch":
+			return 90
+		elif v == "track":
+			return 90
+		elif v == "park":
+			return 80
+		elif v == "swimming_pool":
+			return 100
+	if properties.has("area") and properties.get("area") == "yes":
+		if properties.has("highway") and properties.get("highway") == "pedestrian":
+			return 99
+	return -1
+
+func _map_feature_to_texture(properties: Dictionary) -> TrackMaterials.TerrainTexture:
+	if properties.has("natural"):
+		var v = properties.get("natural")
+		if v == "scrub":
+			return TrackMaterials.TerrainTexture.SCRUB
+		elif v == "water":
+			return TrackMaterials.TerrainTexture.GRASS # TODO
+		elif v == "wetland":
+			return TrackMaterials.TerrainTexture.GRASS # TODO
+	if properties.has("landuse"):
+		var v = properties.get("landuse")
+		if v == "grass":
+			return TrackMaterials.TerrainTexture.GRASS
+		elif v == "forest":
+			return TrackMaterials.TerrainTexture.FOREST_FLOOR
+		elif v == "wood":
+			return TrackMaterials.TerrainTexture.FOREST_FLOOR
+		elif v == "railway":
+			return TrackMaterials.TerrainTexture.SCRUB
+		elif v == "farmland":
+			return TrackMaterials.TerrainTexture.FIELD_FLOOR
+		elif v == "meadow":
+			return TrackMaterials.TerrainTexture.GRASS # TODO ?
+		elif v == "construction":
+			return TrackMaterials.TerrainTexture.CONSTRUCTION_SITE_FLOOR
+	if properties.has("leisure"): # TODO soccer (artificial grass), horse riding (packed gravel?), sand surface
+		var v = properties.get("leisure")
+		if v == "pitch":
+			return TrackMaterials.TerrainTexture.ATHLETISM_FLOOR
+		elif v == "track":
+			return TrackMaterials.TerrainTexture.ATHLETISM_FLOOR
+		elif v == "park":
+			return TrackMaterials.TerrainTexture.GRASS # TODO ?
+		elif v == "swimming_pool":
+			return TrackMaterials.TerrainTexture.GRASS # TODO
+	if properties.has("area") and properties.get("area") == "yes":
+		if properties.has("highway") and properties.get("highway") == "pedestrian":
+			return 99
+	return TrackMaterials.TerrainTexture.GRASS
+	
+func _map_feature_to_color(properties: Dictionary) -> Color:
+	if properties.has("leisure"):
+		if properties.has("sport"):
+			var sport = properties.get("sport")
+			if sport == "athletics" or sport == "running":
+				return Color(1.0, 0.43, 0.074, 1.0)
+			elif sport == "tennis":
+				return Color(0.305, 0.379, 0.689, 1.0)
+			return Color(0.248, 0.784, 0.49, 1.0)
+	return Color.WHITE
+
 
 func _rotated_point(from_transform: Transform3D, from: Vector3, to: Vector3) -> Transform3D:
 	# given this:
@@ -843,6 +938,76 @@ func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3
 
 	return true
 
+## Take an array of features and paint terrain based on its properties.
+func _paint_terrain(areas: Array[Dictionary]):
+	areas.sort_custom(func(a,b): return _is_terrain_area(a.get("properties")) > _is_terrain_area(b.get("properties")))
+	## Array[Array[Array[Vector2]]] - array of poly groups,
+	## a group is an array of polygons, a polygon is an array of vectors.
+	var polygons: Array[Array]
+	polygons.assign(areas.map(func(feature: Dictionary):
+		if not feature.has("geometry"):
+			return []
+		var geo = feature.get("geometry")
+		if not geo.has("type") or not geo.has("coordinates"):
+			return []
+		var type = geo.get("type")
+		var coords = geo.get("coordinates")
+		if type == "Polygon" and coords[0] != null:
+			var poly: Array = []
+			# we need to flip the X axis because X and longitude have opposite directions
+			poly.append(coords[0].map(func(v: Array): return Vector2(-v[0] + loader.width_meters, v[2])))
+			return poly
+		elif type == "MultiPolygon":
+			# 4D array, each polygon is typed as Polygon, and I don't know
+			# why there is a 1 item array at the root of its coords.
+			# But we need to get rid of it by accessing 0. Worst case,
+			# some data is ignored.
+			var polys: Array = []
+			for array in coords:
+				if array[0] != null:
+					# we need to flip the X axis because X and longitude have opposite directions
+					polys.append(array[0].map(func(v: Array): return Vector2(-v[0] + loader.width_meters, v[2])))
+			return polys
+		return []
+	))
+	var regions = loader.terrain.data.get_regions_active()
+	var vertex_spacing = loader.terrain.vertex_spacing
+	var count = 0
+	var length = regions.size()
+	for r in regions:
+		count += 1
+		#if count > 5:
+			#break
+		var color_map := r.get_map(Terrain3DRegion.TYPE_COLOR)
+		var control_map := r.get_map(Terrain3DRegion.TYPE_CONTROL)
+		
+		for x in control_map.get_width():
+			for y in control_map.get_height():
+				var vertex_pos = r.location * r.region_size + Vector2i(x,y)
+				var relative_pos_meters = vertex_pos * vertex_spacing
+				for i in range(polygons.size()):
+					var poly_group: Array[Array]
+					poly_group.assign(polygons[i])
+					if poly_group == null:
+						continue
+					# Array[Vector2]
+					for poly: Array[Vector2] in poly_group:
+						if Geometry2D.is_point_in_polygon(relative_pos_meters, poly):
+							print(relative_pos_meters, "is in", poly)
+							var props: Dictionary = areas[i].get("properties")
+							color_map.set_pixel(x, y, _map_feature_to_color(props))
+							var ctrl_px := Terrain3DUtil.as_uint(control_map.get_pixel(x, y).r)
+							var base_tex_px := Terrain3DUtil.enc_base(_map_feature_to_texture(props))
+							var auto_shader_off_px := Terrain3DUtil.enc_auto(false)
+							var new_px = ctrl_px & BASE_TEX_AND_AUTOSHADER_EXCLUDED_MASK | base_tex_px | auto_shader_off_px
+							control_map.set_pixel(x, y, Color(Terrain3DUtil.as_float(new_px), 0., 0., 1.))
+							break
+		
+		r.modified = true
+		print("processed regions: %d / %d" % [count, length])
+	loader.terrain.data.update_maps()
+
+
 func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 	if kind == ReloadKind.ROADS:
 		snaps_left_road = 0
@@ -920,6 +1085,9 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 	var highway_nodes_count: int = 0
 	var highway_nodes_count_success: int = 0
 	
+	## array of features
+	var terrain_areas: Array[Dictionary] = []
+	
 	for f: Dictionary in features:
 		if (f.has("properties")):
 			var properties: Dictionary = f.get("properties")
@@ -950,7 +1118,12 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 				highway_nodes_count += 1
 				if success:
 					highway_nodes_count_success += 1
-		
+			elif _is_terrain_area(properties) > -1 and kind == ReloadKind.TERRAIN_PAINT:
+				terrain_areas.append(f)
+	
+	if kind == ReloadKind.TERRAIN_PAINT:
+		_paint_terrain(terrain_areas)
+	
 	print("Created ", roads_count_success, " roads. Tried: ", roads_count)
 	print("Created ", builds_count_success, " buildings. Tried: ", builds_count)
 	print("Created ", amenities_count_success, " amenities. Tried: ", amenities_count)

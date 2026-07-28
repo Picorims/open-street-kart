@@ -1,0 +1,42 @@
+[gd_scene format=3 uid="uid://swr8h6cu3kuf"]
+
+[ext_resource type="Script" uid="uid://bmvnncbblsq7f" path="res://addons/osk_plugin/channel_pack_material.gd" id="1_0we0q"]
+
+[node name="ChannelPackMaterial" type="VBoxContainer" unique_id=99052698]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_0we0q")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1377910975]
+layout_mode = 2
+
+[node name="PickMaterial" type="Button" parent="HBoxContainer" unique_id=1254078149]
+layout_mode = 2
+text = "Pick Selected Material from FileSystem dock"
+
+[node name="Path" type="Label" parent="HBoxContainer" unique_id=1299333684]
+layout_mode = 2
+
+[node name="Info" type="Label" parent="." unique_id=1958300598]
+custom_minimum_size = Vector2(120, 0)
+layout_mode = 2
+text = "Note: this tool is made to work with exported materials from Material Maker. Which means the roughness and ambiant occlusion are already packed in the same image (red for AO, green for roughness)."
+autowrap_mode = 3
+
+[node name="ChannelPack" type="Button" parent="." unique_id=487994916]
+layout_mode = 2
+text = "Channel Pack"
+
+[node name="Status" type="Label" parent="." unique_id=96092915]
+layout_mode = 2
+
+[node name="FixImport" type="Button" parent="." unique_id=1503211938]
+layout_mode = 2
+text = "Fix Import"
+
+[connection signal="pressed" from="HBoxContainer/PickMaterial" to="." method="_on_pick_material_pressed"]
+[connection signal="pressed" from="ChannelPack" to="." method="_on_channel_pack_pressed"]
+[connection signal="pressed" from="FixImport" to="." method="_on_fix_import_pressed"]

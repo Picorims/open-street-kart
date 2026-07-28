@@ -1,0 +1,100 @@
+[gd_resource type="Terrain3DAssets" format=3 uid="uid://c7i1e6qu27vb"]
+
+[ext_resource type="Texture2D" uid="uid://buwq2lkamek26" path="res://materials/environment/terrain/grass_v2_t3d_albedo_ao_height.png" id="1_o5gdg"]
+[ext_resource type="Texture2D" uid="uid://drxqpdttqgctl" path="res://materials/environment/terrain/grass_v2_t3d_normal_rough.png" id="2_tmjbk"]
+[ext_resource type="Texture2D" uid="uid://dtw06e0eveymj" path="res://materials/environment/terrain/rock_t3d_albedo_ao_height.png" id="3_yt8mt"]
+[ext_resource type="Texture2D" uid="uid://urn0qnq4rhxb" path="res://materials/environment/terrain/rock_t3d_normal_rough.png" id="4_w4ahk"]
+[ext_resource type="Texture2D" uid="uid://bb7gfasevlisa" path="res://materials/environment/terrain/scrub_t3d_albedo_ao_height.png" id="5_cmtag"]
+[ext_resource type="Texture2D" uid="uid://rtcis1daaxhk" path="res://materials/environment/terrain/scrub_t3d_normal_rough.png" id="6_savmr"]
+[ext_resource type="Texture2D" uid="uid://d1uqvsnx180os" path="res://materials/environment/terrain/forest_floor_t3d_albedo_ao_height.png" id="7_iu2xv"]
+[ext_resource type="Texture2D" uid="uid://caytka6nqtvdo" path="res://materials/environment/terrain/forest_floor_t3d_normal_rough.png" id="8_k530k"]
+[ext_resource type="Texture2D" uid="uid://bpb14ljwgo21c" path="res://materials/environment/terrain/field_floor_t3d_albedo_ao_height.png" id="9_jfg46"]
+[ext_resource type="Texture2D" uid="uid://bk5cp8tgjh7lm" path="res://materials/environment/terrain/field_floor_t3d_normal_rough.png" id="10_i5bsf"]
+[ext_resource type="Texture2D" uid="uid://c2gogeijkk48y" path="res://materials/environment/terrain/construction_site_floor_t3d_albedo_ao_height.png" id="11_2lm3o"]
+[ext_resource type="Texture2D" uid="uid://ci0ru6ptn1l3u" path="res://materials/environment/terrain/construction_site_floor_t3d_normal_rough.png" id="12_71h2h"]
+[ext_resource type="Texture2D" uid="uid://2jgjba77edgy" path="res://materials/environment/terrain/bassin_plastic_t3d_albedo_ao_height.png" id="13_tcata"]
+[ext_resource type="Texture2D" uid="uid://blkjcf33e30k" path="res://materials/environment/terrain/bassin_plastic_t3d_normal_rough.png" id="14_00i0l"]
+[ext_resource type="Texture2D" uid="uid://bjqacmxxh58yc" path="res://materials/environment/terrain/athletism_floor_t3d_albedo_ao_height.png" id="15_26t3e"]
+[ext_resource type="Texture2D" uid="uid://bokqdx3o82ffp" path="res://materials/environment/terrain/athletism_floor_t3d_normal_rough.png" id="16_85q0j"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_xxaun"]
+transparency = 4
+cull_mode = 2
+vertex_color_use_as_albedo = true
+backlight_enabled = true
+backlight = Color(0.5, 0.5, 0.5, 1)
+distance_fade_mode = 1
+distance_fade_min_distance = 128.0
+distance_fade_max_distance = 96.0
+
+[sub_resource type="Terrain3DMeshAsset" id="Terrain3DMeshAsset_bux6k"]
+generated_type = 1
+height_offset = 0.5
+material_override = SubResource("StandardMaterial3D_xxaun")
+last_lod = 0
+last_shadow_lod = 0
+lod0_range = 128.0
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_hk7wr"]
+name = "Grass"
+albedo_texture = ExtResource("1_o5gdg")
+normal_texture = ExtResource("2_tmjbk")
+uv_scale = 0.3
+detiling_rotation = 0.128
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_p7ho4"]
+name = "Rock"
+id = 1
+albedo_texture = ExtResource("3_yt8mt")
+normal_texture = ExtResource("4_w4ahk")
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_tmtbi"]
+name = "Scrub"
+id = 2
+albedo_texture = ExtResource("5_cmtag")
+normal_texture = ExtResource("6_savmr")
+uv_scale = 0.3
+detiling_rotation = 1.0
+detiling_shift = 1.0
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_341sj"]
+name = "Forest Floor"
+id = 3
+albedo_texture = ExtResource("7_iu2xv")
+normal_texture = ExtResource("8_k530k")
+uv_scale = 0.2
+detiling_rotation = 0.736
+detiling_shift = 0.224
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_dgwix"]
+name = "Field Floor"
+id = 4
+albedo_texture = ExtResource("9_jfg46")
+normal_texture = ExtResource("10_i5bsf")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_a253g"]
+name = "Construction Floor"
+id = 5
+albedo_texture = ExtResource("11_2lm3o")
+normal_texture = ExtResource("12_71h2h")
+uv_scale = 0.4
+detiling_rotation = 1.0
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_6ek4j"]
+name = "Bassin Floor"
+id = 6
+albedo_texture = ExtResource("13_tcata")
+normal_texture = ExtResource("14_00i0l")
+uv_scale = 0.4
+
+[sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_dg7ya"]
+name = "Athletism Floor"
+id = 7
+albedo_texture = ExtResource("15_26t3e")
+normal_texture = ExtResource("16_85q0j")
+uv_scale = 0.4
+
+[resource]
+mesh_list = Array[Terrain3DMeshAsset]([SubResource("Terrain3DMeshAsset_bux6k")])
+texture_list = Array[Terrain3DTextureAsset]([SubResource("Terrain3DTextureAsset_hk7wr"), SubResource("Terrain3DTextureAsset_p7ho4"), SubResource("Terrain3DTextureAsset_tmtbi"), SubResource("Terrain3DTextureAsset_341sj"), SubResource("Terrain3DTextureAsset_dgwix"), SubResource("Terrain3DTextureAsset_a253g"), SubResource("Terrain3DTextureAsset_6ek4j"), SubResource("Terrain3DTextureAsset_dg7ya")])
