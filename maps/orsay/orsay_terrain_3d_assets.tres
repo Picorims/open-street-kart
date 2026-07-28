@@ -40,6 +40,7 @@ name = "Grass"
 albedo_texture = ExtResource("1_o5gdg")
 normal_texture = ExtResource("2_tmjbk")
 uv_scale = 0.3
+detiling_rotation = 0.128
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_p7ho4"]
 name = "Rock"
@@ -52,14 +53,18 @@ name = "Scrub"
 id = 2
 albedo_texture = ExtResource("5_cmtag")
 normal_texture = ExtResource("6_savmr")
-uv_scale = 0.4
+uv_scale = 0.3
+detiling_rotation = 1.0
+detiling_shift = 1.0
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_341sj"]
 name = "Forest Floor"
 id = 3
 albedo_texture = ExtResource("7_iu2xv")
 normal_texture = ExtResource("8_k530k")
-uv_scale = 0.4
+uv_scale = 0.2
+detiling_rotation = 0.736
+detiling_shift = 0.224
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_dgwix"]
 name = "Field Floor"
@@ -74,6 +79,7 @@ id = 5
 albedo_texture = ExtResource("11_2lm3o")
 normal_texture = ExtResource("12_71h2h")
 uv_scale = 0.4
+detiling_rotation = 1.0
 
 [sub_resource type="Terrain3DTextureAsset" id="Terrain3DTextureAsset_6ek4j"]
 name = "Bassin Floor"

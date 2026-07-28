@@ -10,7 +10,7 @@
 class_name OSMDataGenerator extends Node3D
 
 const ROOT_NODE_NAME: String = "OSMData"
-const BASE_TEX_EXCLUDED_MASK := 0b00000111_11111111_11111111_11111111
+const BASE_TEX_AND_AUTOSHADER_EXCLUDED_MASK := 0b00000111_11111111_11111111_11111110
 
 @export var loader: MapDataLoader
 @export var boundaries_generator: BoundariesGenerator
@@ -481,7 +481,7 @@ func _map_feature_to_texture(properties: Dictionary) -> TrackMaterials.TerrainTe
 	if properties.has("area") and properties.get("area") == "yes":
 		if properties.has("highway") and properties.get("highway") == "pedestrian":
 			return 99
-	return -1
+	return TrackMaterials.TerrainTexture.GRASS
 	
 func _map_feature_to_color(properties: Dictionary) -> Color:
 	if properties.has("leisure"):
@@ -938,28 +938,46 @@ func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3
 
 	return true
 
-
+## Take an array of features and paint terrain based on its properties.
 func _paint_terrain(areas: Array[Dictionary]):
-	areas.sort_custom(func(a,b): return _is_terrain_area(a) > _is_terrain_area(b))
-	var polygons = areas.map(func(feature: Dictionary):
+	areas.sort_custom(func(a,b): return _is_terrain_area(a.get("properties")) > _is_terrain_area(b.get("properties")))
+	## Array[Array[Array[Vector2]]] - array of poly groups,
+	## a group is an array of polygons, a polygon is an array of vectors.
+	var polygons: Array[Array]
+	polygons.assign(areas.map(func(feature: Dictionary):
 		if not feature.has("geometry"):
-			return null
+			return []
 		var geo = feature.get("geometry")
 		if not geo.has("type") or not geo.has("coordinates"):
-			return null
+			return []
 		var type = geo.get("type")
-		var coords = geo.get("coords")
-		if type == "Polygon":
-			return [coords[0].map(func(v: Array[float]): return Vector2(v[0], v[2]))]
+		var coords = geo.get("coordinates")
+		if type == "Polygon" and coords[0] != null:
+			var poly: Array = []
+			# we need to flip the X axis because X and longitude have opposite directions
+			poly.append(coords[0].map(func(v: Array): return Vector2(-v[0] + loader.width_meters, v[2])))
+			return poly
 		elif type == "MultiPolygon":
-			var polys: Array[Polygon2D] = []
+			# 4D array, each polygon is typed as Polygon, and I don't know
+			# why there is a 1 item array at the root of its coords.
+			# But we need to get rid of it by accessing 0. Worst case,
+			# some data is ignored.
+			var polys: Array = []
 			for array in coords:
-				polys.append(array.map(func(v: Array[float]): return Vector2(v[0], v[2])))
+				if array[0] != null:
+					# we need to flip the X axis because X and longitude have opposite directions
+					polys.append(array[0].map(func(v: Array): return Vector2(-v[0] + loader.width_meters, v[2])))
 			return polys
-	)
+		return []
+	))
 	var regions = loader.terrain.data.get_regions_active()
 	var vertex_spacing = loader.terrain.vertex_spacing
+	var count = 0
+	var length = regions.size()
 	for r in regions:
+		count += 1
+		#if count > 5:
+			#break
 		var color_map := r.get_map(Terrain3DRegion.TYPE_COLOR)
 		var control_map := r.get_map(Terrain3DRegion.TYPE_CONTROL)
 		
@@ -968,20 +986,25 @@ func _paint_terrain(areas: Array[Dictionary]):
 				var vertex_pos = r.location * r.region_size + Vector2i(x,y)
 				var relative_pos_meters = vertex_pos * vertex_spacing
 				for i in range(polygons.size()):
-					var poly_group = polygons[i]
+					var poly_group: Array[Array]
+					poly_group.assign(polygons[i])
 					if poly_group == null:
 						continue
+					# Array[Vector2]
 					for poly: Array[Vector2] in poly_group:
 						if Geometry2D.is_point_in_polygon(relative_pos_meters, poly):
-							color_map.set_pixel(x, y, _map_feature_to_color(areas[i]))
-							#var ctrl_px: int = control_map.data.get("data")[control_map.get_width() * y + x]
+							print(relative_pos_meters, "is in", poly)
+							var props: Dictionary = areas[i].get("properties")
+							color_map.set_pixel(x, y, _map_feature_to_color(props))
 							var ctrl_px := Terrain3DUtil.as_uint(control_map.get_pixel(x, y).r)
-							var base_tex_px = Terrain3DUtil.enc_base(_map_feature_to_texture(areas[i]))
-							var new_px = ctrl_px & BASE_TEX_EXCLUDED_MASK | base_tex_px
+							var base_tex_px := Terrain3DUtil.enc_base(_map_feature_to_texture(props))
+							var auto_shader_off_px := Terrain3DUtil.enc_auto(false)
+							var new_px = ctrl_px & BASE_TEX_AND_AUTOSHADER_EXCLUDED_MASK | base_tex_px | auto_shader_off_px
 							control_map.set_pixel(x, y, Color(Terrain3DUtil.as_float(new_px), 0., 0., 1.))
 							break
 		
 		r.modified = true
+		print("processed regions: %d / %d" % [count, length])
 	loader.terrain.data.update_maps()
 
 
@@ -1062,7 +1085,8 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 	var highway_nodes_count: int = 0
 	var highway_nodes_count_success: int = 0
 	
-	var terrain_areas = []
+	## array of features
+	var terrain_areas: Array[Dictionary] = []
 	
 	for f: Dictionary in features:
 		if (f.has("properties")):

@@ -171576,204 +171576,204 @@ surface_material_override/0 = ExtResource("15_v4fro")
 [node name="@OccluderInstance3D@73648" type="OccluderInstance3D" parent="ProceduralDataHolder/OSMData/Buildings/Building__way_1369396782" unique_id=1817145079]
 occluder = SubResource("ArrayOccluder3D_iliyt")
 
-[node name="Boundaries" type="Node3D" parent="ProceduralDataHolder" unique_id=906044274]
+[node name="Boundaries" type="Node3D" parent="ProceduralDataHolder" unique_id=554940791]
 
-[node name="Race" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=938933400]
+[node name="Race" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1534545040]
 collision_layer = 0
 collision_mask = 131072
 script = ExtResource("5_b80ht")
 
-[node name="@CollisionPolygon3D@33147" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/Race" unique_id=601818993]
+[node name="@CollisionPolygon3D@46386" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/Race" unique_id=1387138992]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1519.213, 4823.7866, 1146.4105, 4344.888, 750.0406, 4042.877, 871.12836, 3317.7385, 723.55096, 2898.2847, 939.0558, 2497.644, 815.39996, 2251.8496, 689.402, 2147.7654, 486.24908, 2100.4543, 250.40521, 2015.2944, 101.22742, 1652.6139, 129.18117, 1198.5397, 317.3446, 1050.2614, 528.12823, 1252.0846, 807.8213, 1668.978, 863.2917, 1845.5315, 1081.2705, 1971.6571, 1275.4734, 2148.2104, 1368.0049, 2740.7668, 1233.6716, 2892.0508, 1349.1161, 3160.1094, 1522.4807, 3295.4746, 1485.7458, 3774.4844, 1682.029, 4026.513, 1621.7128, 4206.74, 1753.6437, 4191.1553, 1972.8447, 4247.817, 2576.0996, 4442.4043, 2846.8286, 4656.6953, 2575.2573, 4858.407, 2409.199, 5223.871, 1668.3347, 5287.991, 851.3078, 4946.5728, 192.5019, 4386.4106, 167.51875, 3847.3992, 390.56955, 3824.801, 699.9678, 4064.3618, 937.28326, 4429.825, 1103.2505, 4597.696, 1519.213, 4823.7866)
 
-[node name="LocalRaceBoundary_O0RY1" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=2060962558]
+[node name="LocalRaceBoundary_O0RY1" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=318110907]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33149" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_O0RY1" unique_id=453360895]
+[node name="@CollisionPolygon3D@46388" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_O0RY1" unique_id=1236972080]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(845.4677, 1813.36, 743.8976, 1846.5333, 606.4715, 1785.0847, 540.47546, 1518.5846, 407.12637, 1540.626, 541.4677, 1881.1539, 357.16574, 2053.032, 134.43393, 1657.2894, 176.94044, 1215.9055, 332.93362, 1099.1309, 642.857, 1457.136, 845.4677, 1813.36)
 
-[node name="LocalRaceBoundary_rMDtB" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1801234429]
+[node name="LocalRaceBoundary_rMDtB" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=981146081]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33151" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_rMDtB" unique_id=1597979577]
+[node name="@CollisionPolygon3D@46390" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_rMDtB" unique_id=682290728]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(523.2202, 1849.6504, 741.9207, 1944.2723, 826.36365, 2082.977, 985.979, 2152.3293, 1038.9381, 2459.7952, 930.04645, 2455.0085, 404.2205, 2043.5698, 523.2202, 1849.6504)
 
-[node name="LocalRaceBoundary_2NFjK" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=980693741]
+[node name="LocalRaceBoundary_2NFjK" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=497466446]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33153" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_2NFjK" unique_id=126988430]
+[node name="@CollisionPolygon3D@46392" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_2NFjK" unique_id=123682487]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(735.3737, 1826.0505, 855.0543, 1930.0233, 1055.4363, 2098.7844, 1109.1405, 2596.9414, 1339.3723, 2600.0583, 1276.2234, 2153.888, 866.75037, 1786.6432, 735.3737, 1826.0505)
 
-[node name="LocalRaceBoundary_zAurw" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=566916020]
+[node name="LocalRaceBoundary_zAurw" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1892845785]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33155" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_zAurw" unique_id=1438909774]
+[node name="@CollisionPolygon3D@46394" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_zAurw" unique_id=1974736399]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1030.8494, 2451.8916, 1027.507, 2555.9758, 921.3682, 2757.6875, 1002.42615, 3002.035, 789.7843, 3063.4836, 764.2347, 2833.3853, 909.9972, 2470.816, 1030.8494, 2451.8916)
 
-[node name="LocalRaceBoundary_BH72x" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=32952736]
+[node name="LocalRaceBoundary_BH72x" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=590240877]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33157" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_BH72x" unique_id=1282012682]
+[node name="@CollisionPolygon3D@46396" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_BH72x" unique_id=81468435]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1133.9468, 2583.0266, 1016.30505, 2770.6006, 1097.8794, 3141.0737, 1330.3885, 3057.4724, 1273.6714, 2617.7583, 1133.9468, 2583.0266)
 
-[node name="LocalRaceBoundary_5qidE" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=2142319456]
+[node name="LocalRaceBoundary_5qidE" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=182749370]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33159" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_5qidE" unique_id=1134061405]
+[node name="@CollisionPolygon3D@46398" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_5qidE" unique_id=1669752509]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(994.61835, 3003.9275, 945.9885, 3068.493, 1000.34546, 3204.0808, 1059.2766, 3281.337, 870.1305, 3282.8953, 766.2171, 3010.2727, 994.61835, 3003.9275)
 
-[node name="LocalRaceBoundary_ZlcFG" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1596389440]
+[node name="LocalRaceBoundary_ZlcFG" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=164925292]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33161" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_ZlcFG" unique_id=1654954267]
+[node name="@CollisionPolygon3D@46400" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_ZlcFG" unique_id=1312941119]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1049.379, 3153.6528, 1089.472, 3232.4673, 1255.6359, 3254.5088, 1245.0723, 3327.0894, 1160.5488, 3349.1306, 1159.2264, 3467.3525, 1315.0419, 3569.767, 1508.5907, 3336.5515, 1329.3999, 3022.8518, 1049.379, 3153.6528)
 
-[node name="LocalRaceBoundary_JKlYI" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1774453780]
+[node name="LocalRaceBoundary_JKlYI" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=633904805]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33163" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_JKlYI" unique_id=1701798358]
+[node name="@CollisionPolygon3D@46402" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_JKlYI" unique_id=258772475]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1009.6946, 3256.0671, 1171.248, 3281.337, 1013.25073, 3323.861, 1009.6946, 3256.0671)
 
-[node name="LocalRaceBoundary_jV3Kf" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=342697797]
+[node name="LocalRaceBoundary_jV3Kf" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1765437895]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33165" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_jV3Kf" unique_id=1916861682]
+[node name="@CollisionPolygon3D@46404" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_jV3Kf" unique_id=1019000529]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1077.3356, 3306.495, 1097.5146, 3405.7927, 1039.6681, 3476.8147, 1198.5078, 3574.4424, 1153.1733, 3587.1328, 1081.3755, 3555.6294, 1052.4741, 3814.003, 813.8155, 3791.9617, 865.60046, 3232.4673, 1077.3356, 3306.495)
 
-[node name="LocalRaceBoundary_1bjYk" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=746842714]
+[node name="LocalRaceBoundary_1bjYk" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=342680862]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33167" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_1bjYk" unique_id=1252532384]
+[node name="@CollisionPolygon3D@46406" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_1bjYk" unique_id=1958261235]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1036.0485, 3791.9617, 1111.2129, 3828.252, 1260.7977, 3823.4653, 1329.8236, 3866.1008, 1235.0045, 3856.6387, 1173.1141, 3899.1628, 1035.5969, 3886.5837, 953.5919, 3883.3555, 891.5701, 3921.204, 865.6047, 4004.694, 1005.5224, 4047.3298, 917.6104, 4168.6685, 738.88403, 4038.0903, 774.6249, 3744.6506, 1036.0485, 3791.9617)
 
-[node name="LocalRaceBoundary_yQMzR" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=524382327]
+[node name="LocalRaceBoundary_yQMzR" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=6473230]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33169" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_yQMzR" unique_id=910840770]
+[node name="@CollisionPolygon3D@46408" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_yQMzR" unique_id=1040369821]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1290.3484, 3533.4766, 1249.7819, 3656.4854, 1135.734, 3637.5608, 1120.0233, 3750.9958, 1120.8351, 3779.3826, 1291.4431, 3790.4033, 1419.4005, 3856.6387, 1416.453, 3918.0872, 1336.5029, 3935.3418, 1266.794, 3922.7627, 1156.0354, 3962.17, 1012.1126, 3946.4739, 942.03, 3974.749, 1100.6017, 4009.481, 1161.5442, 4100.8745, 1526.514, 4075.605, 1569.4171, 3864.431, 1481.328, 3539.8218, 1290.3484, 3533.4766)
 
-[node name="LocalRaceBoundary_Z8ogH" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=289022594]
+[node name="LocalRaceBoundary_Z8ogH" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=12066501]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33171" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_Z8ogH" unique_id=985901815]
+[node name="@CollisionPolygon3D@46410" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_Z8ogH" unique_id=249013731]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(996.11926, 4047.3298, 1061.8984, 4143.399, 1128.8539, 4170.227, 1214.3488, 4293.1245, 1384.7567, 4464.891, 1525.2148, 4691.761, 1419.6362, 4693.431, 893.6851, 4159.2065, 996.11926, 4047.3298)
 
-[node name="LocalRaceBoundary_HlFZY" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1130704239]
+[node name="LocalRaceBoundary_HlFZY" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=905423782]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33173" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_HlFZY" unique_id=520554781]
+[node name="@CollisionPolygon3D@46412" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_HlFZY" unique_id=309940033]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1170.435, 4080.3918, 1314.804, 4278.987, 1500.2853, 4482.257, 1569.7345, 4650.7954, 1733.7761, 4654.024, 1727.1305, 4420.8086, 1755.1252, 4351.456, 1822.8535, 4351.456, 1856.1166, 4412.905, 2268.044, 4430.2705, 1985.4866, 4193.8267, 1585.4744, 4097.758, 1168.6218, 4070.9297, 1170.435, 4080.3918)
 
-[node name="LocalRaceBoundary_tjtTI" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=520985444]
+[node name="LocalRaceBoundary_tjtTI" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=961737131]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33175" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_tjtTI" unique_id=1582180705]
+[node name="@CollisionPolygon3D@46414" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_tjtTI" unique_id=838748386]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(2258.0305, 4411.346, 2225.5503, 4488.4907, 2227.163, 4545.264, 2344.3918, 4565.747, 2467.3118, 4564.1885, 2415.7615, 4748.5347, 2578.1055, 4860.411, 2855.2932, 4628.754, 2467.0825, 4278.987, 2258.0305, 4411.346)
 
-[node name="LocalRaceBoundary_MOZ3X" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1458027160]
+[node name="LocalRaceBoundary_MOZ3X" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1587166976]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33177" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_MOZ3X" unique_id=1545745227]
+[node name="@CollisionPolygon3D@46416" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_MOZ3X" unique_id=353853933]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(2443.1765, 4715.472, 2033.2, 4709.127, 2032.6497, 4909.281, 1831.5093, 4988.095, 1908.2926, 5136.151, 2498.6284, 5114.1094, 2578.2852, 4866.7563, 2443.1765, 4715.472)
 
-[node name="LocalRaceBoundary_iH35y" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=2042993956]
+[node name="LocalRaceBoundary_iH35y" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=2060566117]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33179" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_iH35y" unique_id=1353853120]
+[node name="@CollisionPolygon3D@46418" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_iH35y" unique_id=1664258856]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1849.0653, 4995.8877, 1762.9648, 5070.0264, 1674.7657, 5016.3706, 1636.1774, 4989.654, 1548.7452, 5019.5986, 1063.095, 4791.0586, 788.8202, 4680.7407, 620.56494, 4310.49, 372.6479, 4568.864, 991.5003, 5153.5166, 1846.0203, 5329.959, 1952.3429, 5189.696, 1849.0653, 4995.8877)
 
-[node name="LocalRaceBoundary_7jA52" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=137023222]
+[node name="LocalRaceBoundary_7jA52" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=362576106]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33181" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_7jA52" unique_id=1081619191]
+[node name="@CollisionPolygon3D@46420" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_7jA52" unique_id=111856366]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1510.7239, 4680.7407, 1546.6993, 4726.493, 1800.2104, 4717.031, 1778.8667, 4468.008, 2174.5037, 4468.008, 2182.7737, 4591.0166, 2255.8555, 4611.4995, 2349.2947, 4627.196, 2404.3706, 4624.0786, 2382.1494, 4674.507, 1981.3318, 4657.1406, 1993.9896, 4825.7905, 1897.0592, 4852.5073, 1817.3766, 4932.8804, 1740.0603, 4874.549, 1697.0394, 4913.956, 1646.5791, 4857.294, 1625.0388, 4931.322, 1418.2239, 4865.1978, 1394.2605, 4687.086, 1510.7239, 4680.7407)
 
-[node name="LocalRaceBoundary_rDBoy" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=586980039]
+[node name="LocalRaceBoundary_rDBoy" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1204125946]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33183" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_rDBoy" unique_id=1843992139]
+[node name="@CollisionPolygon3D@46422" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_rDBoy" unique_id=1997907714]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(1444.5696, 4848.9453, 1140.7804, 4697.661, 812.50415, 4571.647, 629.01624, 4108.333, 452.6871, 4117.7954, 322.7189, 3871.8894, 322.43533, 3752.1091, 552.5307, 3752.1091, 906.9495, 4347.8936, 1456.6722, 4719.7026, 1444.5696, 4848.9453)
 
-[node name="LocalRaceBoundary_xHkrR" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1213628153]
+[node name="LocalRaceBoundary_xHkrR" type="Area3D" parent="ProceduralDataHolder/Boundaries" unique_id=1427321647]
 collision_layer = 0
 collision_mask = 65536
 script = ExtResource("11_4nwxh")
 
-[node name="@CollisionPolygon3D@33185" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_xHkrR" unique_id=1086749607]
+[node name="@CollisionPolygon3D@46424" type="CollisionPolygon3D" parent="ProceduralDataHolder/Boundaries/LocalRaceBoundary_xHkrR" unique_id=1646259209]
 transform = Transform3D(1, 8.742278e-08, 3.821371e-15, 0, -4.371139e-08, 1, -8.742278e-08, 1, 4.371139e-08, 0, 0, 0)
 depth = 9500.0
 polygon = PackedVector2Array(611.3413, 4373.0522, 588.7537, 4243.8096, 407.62308, 4193.382, 272.89536, 4004.249, 219.2401, 3783.6128, -127.224014, 3903.393, 155.82762, 4426.597, 376.5161, 4647.2334, 611.3413, 4373.0522)
