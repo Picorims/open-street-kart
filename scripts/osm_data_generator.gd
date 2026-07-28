@@ -10,6 +10,7 @@
 class_name OSMDataGenerator extends Node3D
 
 const ROOT_NODE_NAME: String = "OSMData"
+const BASE_TEX_EXCLUDED_MASK := 0b00000111_11111111_11111111_11111111
 
 @export var loader: MapDataLoader
 @export var boundaries_generator: BoundariesGenerator
@@ -400,6 +401,99 @@ func _is_bin(properties: Dictionary) -> bool:
 
 func _is_bench(properties: Dictionary) -> bool:
 	return _is_amenity_kind("bench", properties)
+	
+## Returns the painting priority if true, or -1 if false
+func _is_terrain_area(properties: Dictionary) -> int:
+	if properties.has("natural"):
+		var v = properties.get("natural")
+		if v == "scrub":
+			return 20
+		elif v == "water":
+			return 100
+		elif v == "wetland":
+			return 95
+	if properties.has("landuse"):
+		var v = properties.get("landuse")
+		if v == "grass":
+			return 10
+		elif v == "forest":
+			return 80
+		elif v == "wood":
+			return 80
+		elif v == "railway":
+			return 110
+		elif v == "farmland":
+			return 50
+		elif v == "meadow":
+			return 40
+		elif v == "construction":
+			return 30
+	if properties.has("leisure"):
+		var v = properties.get("leisure")
+		if v == "pitch":
+			return 90
+		elif v == "track":
+			return 90
+		elif v == "park":
+			return 80
+		elif v == "swimming_pool":
+			return 100
+	if properties.has("area") and properties.get("area") == "yes":
+		if properties.has("highway") and properties.get("highway") == "pedestrian":
+			return 99
+	return -1
+
+func _map_feature_to_texture(properties: Dictionary) -> TrackMaterials.TerrainTexture:
+	if properties.has("natural"):
+		var v = properties.get("natural")
+		if v == "scrub":
+			return TrackMaterials.TerrainTexture.SCRUB
+		elif v == "water":
+			return TrackMaterials.TerrainTexture.GRASS # TODO
+		elif v == "wetland":
+			return TrackMaterials.TerrainTexture.GRASS # TODO
+	if properties.has("landuse"):
+		var v = properties.get("landuse")
+		if v == "grass":
+			return TrackMaterials.TerrainTexture.GRASS
+		elif v == "forest":
+			return TrackMaterials.TerrainTexture.FOREST_FLOOR
+		elif v == "wood":
+			return TrackMaterials.TerrainTexture.FOREST_FLOOR
+		elif v == "railway":
+			return TrackMaterials.TerrainTexture.SCRUB
+		elif v == "farmland":
+			return TrackMaterials.TerrainTexture.FIELD_FLOOR
+		elif v == "meadow":
+			return TrackMaterials.TerrainTexture.GRASS # TODO ?
+		elif v == "construction":
+			return TrackMaterials.TerrainTexture.CONSTRUCTION_SITE_FLOOR
+	if properties.has("leisure"): # TODO soccer (artificial grass), horse riding (packed gravel?), sand surface
+		var v = properties.get("leisure")
+		if v == "pitch":
+			return TrackMaterials.TerrainTexture.ATHLETISM_FLOOR
+		elif v == "track":
+			return TrackMaterials.TerrainTexture.ATHLETISM_FLOOR
+		elif v == "park":
+			return TrackMaterials.TerrainTexture.GRASS # TODO ?
+		elif v == "swimming_pool":
+			return TrackMaterials.TerrainTexture.GRASS # TODO
+	if properties.has("area") and properties.get("area") == "yes":
+		if properties.has("highway") and properties.get("highway") == "pedestrian":
+			return 99
+	return -1
+	
+func _map_feature_to_color(properties: Dictionary) -> Color:
+	if properties.has("leisure"):
+		if properties.has("sport"):
+			var sport = properties.get("sport")
+			if sport == "athletics" or sport == "running":
+				return Color(1.0, 0.43, 0.074, 1.0)
+			elif sport == "tennis":
+				return Color(0.305, 0.379, 0.689, 1.0)
+			return Color(0.248, 0.784, 0.49, 1.0)
+	return Color.WHITE
+
 
 func _rotated_point(from_transform: Transform3D, from: Vector3, to: Vector3) -> Transform3D:
 	# given this:
@@ -844,53 +938,54 @@ func _build_highway_node(feature: Dictionary, collidable_assets_container: Node3
 
 	return true
 
-func _init_terrain_paint():
-	# loader.terrain.assets.clear_textures()
-	# var mats: TrackMaterials = loader.track_materials
-	# assert(mats != null, "Materials not initialized for terrain painting.")
-	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.GRASS, "Grass", mats.grass)
-	# #_load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.ROCK, "Rock", mats.rock)
-	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.SCRUB, "Scrub", mats.grass)
-	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.FOREST_FLOOR, "ForestFloor", mats.grass)
-	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.FIELD_FLOOR, "FieldFloor", mats.grass)
-	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.CONSTRUCTION_SITE_FLOOR, "ConstructionSiteFloor", mats.grass)
-	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.BASSIN, "Bassin", mats.grass)
-	# _load_terrain_mat(loader.terrain, TrackMaterials.TerrainTexture.ATHLETISM_FLOOR, "AthletismFloor", mats.grass)
-	
-# func _load_terrain_mat(terrain: Terrain3D, id: int, name: String, mat: StandardMaterial3D, size := 1024):
-# 	print("Registering Terrain3D Material: %s widh id %d" % [name, id])
-# 	var albedo_height_img = Image.create_empty(size, size, true, Image.Format.FORMAT_RGBA8)
-# 	var albedo_src = mat.albedo_texture.get_image()
-# 	var normal_src = mat.normal_texture.get_image()
-# 	var height_src = mat.heightmap_texture.get_image()
-# 	var rough_src = mat.roughness_texture.get_image()
-# 	albedo_src.decompress()
-# 	normal_src.decompress()
-# 	height_src.decompress()
-# 	rough_src.decompress()
-# 	for x in albedo_height_img.get_width():
-# 		for y in albedo_height_img.get_height():
-# 			var albedo: Color = albedo_src.get_pixel(x,y)
-# 			var height: Color = height_src.get_pixel(x,y)
-# 			albedo_height_img.set_pixel(x,y, Color(albedo.r, albedo.g, albedo.b, height.r))
-	
-# 	var normal_rough_img = Image.create_empty(size, size, true, Image.FORMAT_RGBA8)
-# 	for x in normal_rough_img.get_width():
-# 		for y in normal_rough_img.get_height():
-# 			var normal: Color = normal_src.get_pixel(x,y)
-# 			var rough: Color = rough_src.get_pixel(x,y)
-# 			normal_rough_img.set_pixel(x,y, Color(normal.r, normal.g, normal.b, rough.r))
-	
-# 	var terrain_3d_asset = Terrain3DTextureAsset.new()
-# 	terrain_3d_asset.name = name
-# 	terrain_3d_asset.albedo_texture = ImageTexture.create_from_image(albedo_height_img)
-# 	terrain_3d_asset.normal_texture = ImageTexture.create_from_image(normal_rough_img)
-	
-# 	terrain.assets.set_texture(id, terrain_3d_asset)
+
+func _paint_terrain(areas: Array[Dictionary]):
+	areas.sort_custom(func(a,b): return _is_terrain_area(a) > _is_terrain_area(b))
+	var polygons = areas.map(func(feature: Dictionary):
+		if not feature.has("geometry"):
+			return null
+		var geo = feature.get("geometry")
+		if not geo.has("type") or not geo.has("coordinates"):
+			return null
+		var type = geo.get("type")
+		var coords = geo.get("coords")
+		if type == "Polygon":
+			return [coords[0].map(func(v: Array[float]): return Vector2(v[0], v[2]))]
+		elif type == "MultiPolygon":
+			var polys: Array[Polygon2D] = []
+			for array in coords:
+				polys.append(array.map(func(v: Array[float]): return Vector2(v[0], v[2])))
+			return polys
+	)
+	var regions = loader.terrain.data.get_regions_active()
+	var vertex_spacing = loader.terrain.vertex_spacing
+	for r in regions:
+		var color_map := r.get_map(Terrain3DRegion.TYPE_COLOR)
+		var control_map := r.get_map(Terrain3DRegion.TYPE_CONTROL)
+		
+		for x in control_map.get_width():
+			for y in control_map.get_height():
+				var vertex_pos = r.location * r.region_size + Vector2i(x,y)
+				var relative_pos_meters = vertex_pos * vertex_spacing
+				for i in range(polygons.size()):
+					var poly_group = polygons[i]
+					if poly_group == null:
+						continue
+					for poly: Array[Vector2] in poly_group:
+						if Geometry2D.is_point_in_polygon(relative_pos_meters, poly):
+							color_map.set_pixel(x, y, _map_feature_to_color(areas[i]))
+							#var ctrl_px: int = control_map.data.get("data")[control_map.get_width() * y + x]
+							var ctrl_px := Terrain3DUtil.as_uint(control_map.get_pixel(x, y).r)
+							var base_tex_px = Terrain3DUtil.enc_base(_map_feature_to_texture(areas[i]))
+							var new_px = ctrl_px & BASE_TEX_EXCLUDED_MASK | base_tex_px
+							control_map.set_pixel(x, y, Color(Terrain3DUtil.as_float(new_px), 0., 0., 1.))
+							break
+		
+		r.modified = true
+	loader.terrain.data.update_maps()
+
 
 func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
-	if kind == ReloadKind.TERRAIN_PAINT:
-		_init_terrain_paint()
 	if kind == ReloadKind.ROADS:
 		snaps_left_road = 0
 		snaps_left = 0
@@ -967,6 +1062,8 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 	var highway_nodes_count: int = 0
 	var highway_nodes_count_success: int = 0
 	
+	var terrain_areas = []
+	
 	for f: Dictionary in features:
 		if (f.has("properties")):
 			var properties: Dictionary = f.get("properties")
@@ -997,7 +1094,12 @@ func _regenerate_data(data_holder: Node3D, kind: ReloadKind) -> void:
 				highway_nodes_count += 1
 				if success:
 					highway_nodes_count_success += 1
-		
+			elif _is_terrain_area(properties) > -1 and kind == ReloadKind.TERRAIN_PAINT:
+				terrain_areas.append(f)
+	
+	if kind == ReloadKind.TERRAIN_PAINT:
+		_paint_terrain(terrain_areas)
+	
 	print("Created ", roads_count_success, " roads. Tried: ", roads_count)
 	print("Created ", builds_count_success, " buildings. Tried: ", builds_count)
 	print("Created ", amenities_count_success, " amenities. Tried: ", amenities_count)
