@@ -90,6 +90,17 @@ layout_mode = 2
 text = "The Milky Way panorama (https://www.eso.org/public/images/eso0932a/) by ESO/S. Brunier, licensed under CC BY 4.0 (https://creativecommons.org/licenses/by/4.0/) and used in original and modified forms."
 autowrap_mode = 3
 
+[node name="OSKAssetsSkybox" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=312039353]
+layout_mode = 2
+theme_type_variation = &"HeaderSmall"
+text = "Day skybox"
+
+[node name="OSKAssetsSkyboxNotice" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=228267793]
+custom_minimum_size = Vector2(200, 0)
+layout_mode = 2
+text = "Skyboxes asset pack - Kenney (kenney.nl) - CC0-1.0 - 2026"
+autowrap_mode = 3
+
 [node name="OSKElevation" type="Label" parent="CreditsScreenMargin/MarginContainer/ScrollContainer/VBoxContainer" unique_id=495004067]
 layout_mode = 2
 theme_type_variation = &"HeaderMedium"
