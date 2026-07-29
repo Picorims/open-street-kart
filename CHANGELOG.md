@@ -8,11 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 Dates are in format YYYY-MM-DD (year, month, day)
 
 
-# [1.0.0-alpha.7] - 2026-01-14
+# [1.0.0-alpha.8] - 2026-07-29
 
 ## Added
 
 - Added prototype air-bomb item.
+- Added OpenStreetMap based terrain texturing. 
 
 ## Changed
 
@@ -20,7 +21,10 @@ Dates are in format YYYY-MM-DD (year, month, day)
 - Migrated from Godot Physics to Jolt Physics.
 - Migrated from mesh to Terrain3D for terrain.
 - Road initial generation now includes adjusted lanes.
-- Manually cleaned-up road-generation and terrain.
+- Manually cleaned-up road-generation and terrain, including intersections.
+- Changed the skybox.
+- Improved camera tracking.
+- Adjust vehicle settings.
 
 # [1.0.0-alpha.7] - 2026-01-14
 

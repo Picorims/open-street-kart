@@ -24,6 +24,7 @@
 [ext_resource type="Material" uid="uid://pk7bh6318xwy" path="res://materials/environment/building/render/render.tres" id="15_v4fro"]
 [ext_resource type="Script" uid="uid://jdm53vw7ecik" path="res://prefabs/wall_of_wheels/wall_of_wheels.gd" id="16_54g0d"]
 [ext_resource type="PackedScene" uid="uid://rfckpj1pp2gu" path="res://prefabs/arrow_placeholder.tscn" id="16_gyrkw"]
+[ext_resource type="Environment" uid="uid://b7b6rvv4ybrkx" path="res://prefabs/sky/sky_environment.tres" id="27_v4fro"]
 [ext_resource type="Script" uid="uid://cxweefihubwf4" path="res://addons/road-generator/connectors/terrain3d_road_connector.gd" id="29_kxvjr"]
 [ext_resource type="Terrain3DAssets" uid="uid://c7i1e6qu27vb" path="res://maps/orsay/orsay_terrain_3d_assets.tres" id="32_i2ftp"]
 
@@ -47487,10 +47488,6 @@ point_count = 3
 
 [node name="Orsay" type="Node3D" unique_id=1726262296]
 script = ExtResource("1_bhu62")
-
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1176662271]
-transform = Transform3D(0.642413, 0.515284, -0.567263, 0, 0.740206, 0.67238, 0.766358, -0.431946, 0.475518, 0, 7, 0)
-shadow_enabled = true
 
 [node name="PlayerSpawner" parent="." unique_id=1444482798 node_paths=PackedStringArray("race_path", "items_holder") instance=ExtResource("2_4kx0e")]
 transform = Transform3D(0.479534, 0, -0.877523, 0, 1, 0, 0.877523, 0, 0.479534, 532.3, 149.738, 1694.87)
@@ -173970,3 +173967,11 @@ metadata/_custom_type_script = "uid://jdm53vw7ecik"
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=625401073]
 transform = Transform3D(-0.21473514, 0.7049232, -0.675997, 0, 0.69214314, 0.7217602, 0.9766723, 0.15498728, -0.14862745, 520, 170, 1700)
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1176662271]
+transform = Transform3D(-0.8498927, 0.35464787, -0.38975292, 0, 0.7396311, 0.6730125, 0.52695584, 0.5719884, -0.6286071, 0, 406.1867, 0)
+shadow_enabled = true
+shadow_reverse_cull_face = true
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1028348086]
+environment = ExtResource("27_v4fro")
