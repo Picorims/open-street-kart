@@ -11,7 +11,7 @@ class_name CreateServScreen extends CenterContainer
 @onready var create_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/CreateButton
 @onready var back_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/BackButton
 
-@onready var port: LineEdit = $UIBlockContainer/Port
+@onready var port: SpinBox = $UIBlockContainer/Port
 @onready var username: LineEdit = $UIBlockContainer/Username
 @onready var password: LineEdit = $UIBlockContainer/Password
 
@@ -20,7 +20,7 @@ signal back
 
 func _ready() -> void:
 	create_button.pressed.connect(func():
-		create.emit(port.text, username.text, password.text)
+		create.emit(int(port.value), username.text, password.text)
 	)
 	back_button.pressed.connect(func():
 		back.emit()

@@ -3,6 +3,8 @@
 [ext_resource type="Script" uid="uid://dnclarav5w8h2" path="res://scenes/main.gd" id="1_o5qli"]
 [ext_resource type="Theme" uid="uid://mcxm36operox" path="res://gui/menus_theme.tres" id="2_0wfyh"]
 [ext_resource type="PackedScene" uid="uid://cdhkgu7db42wd" path="res://gui/screens/loading_screen.tscn" id="3_sugp2"]
+[ext_resource type="Script" uid="uid://brm6vts4q5oyb" path="res://scripts/multi/server_manager.gd" id="4_tbgi4"]
+[ext_resource type="Script" uid="uid://b3uqdgxeucqw4" path="res://scripts/multi/client_manager.gd" id="5_tefeu"]
 
 [node name="Main" type="Node3D" unique_id=460982653]
 script = ExtResource("1_o5qli")
@@ -20,3 +22,12 @@ theme = ExtResource("2_0wfyh")
 
 [node name="LoadingScreen" parent="." unique_id=224776940 instance=ExtResource("3_sugp2")]
 visible = false
+
+[node name="ServerInterface" type="Node" parent="." unique_id=1542525324]
+editor_description = "Only one of these two (server or client) can be active at a time on any device. It does not make sense to be both, either you host or join."
+
+[node name="ServerManager" type="Node" parent="ServerInterface" unique_id=822773762]
+script = ExtResource("4_tbgi4")
+
+[node name="ClientManager" type="Node" parent="ServerInterface" unique_id=1092404477]
+script = ExtResource("5_tefeu")

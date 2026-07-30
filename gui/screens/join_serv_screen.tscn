@@ -30,13 +30,19 @@ horizontal_alignment = 1
 layout_mode = 2
 placeholder_text = "Address"
 
-[node name="Port" type="LineEdit" parent="UIBlockContainer" unique_id=1813841019]
+[node name="Port" type="SpinBox" parent="UIBlockContainer" unique_id=126913409]
 layout_mode = 2
-placeholder_text = "Port"
+min_value = 1025.0
+max_value = 65535.0
+value = 32123.0
+rounded = true
+prefix = "Port"
+custom_arrow_step = 1.0
+custom_arrow_round = true
 
 [node name="Username" type="LineEdit" parent="UIBlockContainer" unique_id=449441785]
 layout_mode = 2
-placeholder_text = "Port"
+placeholder_text = "Username"
 
 [node name="Password" type="LineEdit" parent="UIBlockContainer" unique_id=1655406568]
 layout_mode = 2
@@ -47,6 +53,7 @@ custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_82uek")
 text = "Join"
+disabled = null
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
 [node name="BackButton" type="Control" parent="UIBlockContainer" unique_id=790218668]
@@ -54,4 +61,5 @@ custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_82uek")
 text = "Back"
+disabled = null
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"

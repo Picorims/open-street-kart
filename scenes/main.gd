@@ -47,6 +47,9 @@ const TRACK_SCENES: Dictionary[Main.Track, PackedScene] = {
 	Track.ORSAY_HILLS: preload("res://scenes/races/orsay.tscn")
 }
 
+@onready var _server_manager: ServerManager = $ServerInterface/ServerManager
+@onready var _client_manager: ClientManager = $ServerInterface/ClientManager
+
 var _current_background: _BackgroundKind = _BackgroundKind.UNSET
 var _current_screen: _Screen = _Screen.NONE
 
@@ -65,7 +68,7 @@ func get_selected_speed() -> TrackState.SpeedMode:
 
 func _ready():
 	print("Loading...")
-	DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
+	#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 	DebugDraw2D.config.text_block_offset.y = 150
 	_apply_background(_BackgroundKind.MENU_BACKGROUND_3D)
 	_apply_screen(_Screen.HOME)
@@ -146,7 +149,7 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			var new_screen: JoinServScreen = _SCREEN_JOIN_SERV.instantiate()
 			$GUI.add_child(new_screen)
 			new_screen.join.connect(func(address, port, username, password):
-				print('TODO join')
+				_create_client(address, port, username, password)
 				_apply_screen(_Screen.LOBBY, {"is_host": false})
 			)
 			new_screen.back.connect(func():
@@ -158,7 +161,7 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			var new_screen: CreateServScreen = _SCREEN_CREATE_SERV.instantiate()
 			$GUI.add_child(new_screen)
 			new_screen.create.connect(func(port, username, password):
-				print('TODO create')
+				_create_server(port, username, password)
 				_apply_screen(_Screen.LOBBY, {"is_host": true})
 			)
 			new_screen.back.connect(func():
@@ -178,7 +181,11 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
 			)
 
+func _create_server(port: int, username: String, password: String):
+	_server_manager.start_server(port)
 
+func _create_client(address: String, port: int, username: String, password: String):
+	_client_manager.connect_to_server(address, port)
 
 ## If background is different, apply it.
 func _apply_background(background_kind: _BackgroundKind):

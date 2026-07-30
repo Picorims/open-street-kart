@@ -12,7 +12,7 @@ class_name JoinServScreen extends CenterContainer
 @onready var back_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/BackButton
 
 @onready var address: LineEdit = $UIBlockContainer/Address
-@onready var port: LineEdit = $UIBlockContainer/Port
+@onready var port: SpinBox = $UIBlockContainer/Port
 @onready var username: LineEdit = $UIBlockContainer/Username
 @onready var password: LineEdit = $UIBlockContainer/Password
 
@@ -21,7 +21,7 @@ signal back
 
 func _ready() -> void:
 	join_button.pressed.connect(func():
-		join.emit(address.text, port.text, username.text, password.text)
+		join.emit(address.text, int(port.value), username.text, password.text)
 	)
 	back_button.pressed.connect(func():
 		back.emit()
