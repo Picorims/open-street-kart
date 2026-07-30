@@ -12,9 +12,18 @@ func connect_to_server(host_ip: String, port: int):
 	network.create_client(host_ip, port)
 	
 	multiplayer.multiplayer_peer = network
-	multiplayer.connected_to_server.connect(on_connected_to_server)
+	multiplayer.connected_to_server.connect(_on_connected_to_server)
+	multiplayer.server_disconnected.connect(_on_disconnected_from_server)
 	
 	print("Connecting to %s:%d" % [host_ip, port])
 
-func on_connected_to_server():
+func _on_connected_to_server():
 	print("Connected to server!")
+
+func _on_disconnected_from_server():
+	print("Forcefully disconnected from server.")
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+
+func disconnect_from_server():
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+	print("Intentionally disconnected from server.")

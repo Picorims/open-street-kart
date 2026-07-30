@@ -16,3 +16,8 @@ func start_server(port: int):
 	multiplayer.multiplayer_peer = network
 	
 	print("starting server on port %d." % [port])
+	
+func close_server():
+	multiplayer.multiplayer_peer.close()
+	multiplayer.multiplayer_peer = OfflineMultiplayerPeer.new()
+	print("Server closed.")

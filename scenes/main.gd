@@ -172,12 +172,14 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			_clear_gui()
 			var new_screen: LobbyScreen = _LOBBY_SERV.instantiate()
 			$GUI.add_child(new_screen)
-			new_screen.is_host = settings.get("is_host")
+			var is_host: bool = settings.get("is_host")
+			new_screen.is_host = is_host
 			new_screen.launch.connect(func(port, username, password):
 				print('TODO launch')
 			)
 			new_screen.quit.connect(func():
 				print("TODO quit")
+				_disconnect_or_close_server(is_host)
 				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
 			)
 
@@ -186,6 +188,12 @@ func _create_server(port: int, username: String, password: String):
 
 func _create_client(address: String, port: int, username: String, password: String):
 	_client_manager.connect_to_server(address, port)
+
+func _disconnect_or_close_server(is_host: bool):
+	if is_host:
+		_server_manager.close_server()
+	else:
+		_client_manager.disconnect_from_server()
 
 ## If background is different, apply it.
 func _apply_background(background_kind: _BackgroundKind):
