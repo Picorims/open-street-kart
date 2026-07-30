@@ -8,31 +8,21 @@
 
 class_name HomeScreen extends Control
 
-signal play
+signal play_single
+signal play_multi
 signal open_credits
 signal quit
 
+@onready var play_single_button: AtomGUIBlurredBgndMenuButton = $VBoxContainer/VBoxContainer/PlaySingleButton
+@onready var play_multi_button: AtomGUIBlurredBgndMenuButton = $VBoxContainer/VBoxContainer/PlayMultiButton
+@onready var credits_button: AtomGUIBlurredBgndMenuButton = $VBoxContainer/VBoxContainer/CreditsButton
+@onready var quit_button: AtomGUIBlurredBgndMenuButton = $VBoxContainer/VBoxContainer/QuitButton
+
+
 func _ready() -> void:
-	_connect_button_to_signal(
-		$VBoxContainer/VBoxContainer/PlayButton,
-		"play",
-		play
-	)
-	
-	_connect_button_to_signal(
-		$VBoxContainer/VBoxContainer/CreditsButton,
-		"credits",
-		open_credits
-	)
-	
-	_connect_button_to_signal(
-		$VBoxContainer/VBoxContainer/QuitButton,
-		"quit",
-		quit
-	)
-	
-func _connect_button_to_signal(node: AtomGUIBlurredBgndMenuButton, button_name: String, signal_ref: Signal):
-	assert(node != null, "{0} button undefined.".format([button_name]))
-	node.pressed.connect(func():
-		signal_ref.emit()
-	)
+	ButtonSignalEntry.link_signals([
+		ButtonSignalEntry.new(play_single_button, play_single),
+		ButtonSignalEntry.new(play_multi_button, play_multi),
+		ButtonSignalEntry.new(credits_button, open_credits),
+		ButtonSignalEntry.new(quit_button, quit),
+	])

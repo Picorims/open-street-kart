@@ -16,6 +16,11 @@ signal pressed
 		text = v
 		_button.text = v
 
+@export var disabled := false:
+	set(v):
+		disabled = v
+		_button.disabled = v
+
 func _ready() -> void:
 	var width: int = 256
 	var height: int = 48

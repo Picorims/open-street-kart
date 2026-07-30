@@ -1,0 +1,52 @@
+[gd_scene format=3 uid="uid://bj4oklgaj513x"]
+
+[ext_resource type="Script" uid="uid://cbtaw8te0p5xm" path="res://gui/screens/pick_serv_mode_screen.gd" id="1_nenfe"]
+[ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="2_1y0ig"]
+
+[node name="PickServModeScreen" type="CenterContainer" unique_id=438509662]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_nenfe")
+
+[node name="UIBlockContainer" type="VBoxContainer" parent="." unique_id=1804892024]
+layout_mode = 2
+
+[node name="TitleMarginContainer" type="MarginContainer" parent="UIBlockContainer" unique_id=142141223]
+layout_mode = 2
+theme_override_constants/margin_bottom = 64
+
+[node name="Label" type="Label" parent="UIBlockContainer/TitleMarginContainer" unique_id=627547464]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Multiplayer"
+horizontal_alignment = 1
+
+[node name="ButtonsVBoxContainer" type="VBoxContainer" parent="UIBlockContainer" unique_id=147134950]
+layout_mode = 2
+theme_override_constants/separation = 32
+
+[node name="JoinServerButton" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=2012899651]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("2_1y0ig")
+text = "Join Server"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="CreateServerButton" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=846590502]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("2_1y0ig")
+text = "Create Server"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="BackButton" type="Control" parent="UIBlockContainer/ButtonsVBoxContainer" unique_id=1305057786]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("2_1y0ig")
+text = "Back"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"

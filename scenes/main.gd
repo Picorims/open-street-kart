@@ -15,6 +15,10 @@ const _SCREEN_PICK_SPEED: PackedScene = preload("res://gui/screens/pick_speed_sc
 const _SCREEN_PICK_TRACK: PackedScene = preload("res://gui/screens/pick_track_screen.tscn")
 const _SCREEN_CREDITS: PackedScene = preload("res://gui/screens/credits_screen.tscn")
 const _SCREEN_HOME: PackedScene = preload("res://gui/screens/home_screen.tscn")
+const _SCREEN_CREATE_OR_JOIN_SERV: PackedScene = preload("res://gui/screens/pick_serv_mode_screen.tscn")
+const _SCREEN_JOIN_SERV: PackedScene = preload("res://gui/screens/join_serv_screen.tscn")
+const _SCREEN_CREATE_SERV: PackedScene = preload("res://gui/screens/create_serv_screen.tscn")
+const _LOBBY_SERV: PackedScene = preload("res://gui/screens/lobby_screen.tscn")
 
 enum _BackgroundKind {
 	UNSET,
@@ -28,6 +32,10 @@ enum _Screen {
 	PICK_MODE,
 	PICK_SPEED,
 	PICK_TRACK,
+	JOIN_OR_CREATE_SERV,
+	JOIN_SERV,
+	CREATE_SERV,
+	LOBBY
 }
 
 enum Track {
@@ -64,7 +72,7 @@ func _ready():
 	print("Loading done.")
 
 ## If screen is different, apply it.
-func _apply_screen(screen_kind: _Screen):
+func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] = {}):
 	if (_current_screen != screen_kind):
 		if (screen_kind == _Screen.PICK_MODE):
 			print("opening pick mode screen")
@@ -105,8 +113,11 @@ func _apply_screen(screen_kind: _Screen):
 			_clear_gui()
 			var new_screen: HomeScreen = _SCREEN_HOME.instantiate()
 			$GUI.add_child(new_screen)
-			new_screen.play.connect(func():
+			new_screen.play_single.connect(func():
 				_apply_screen(_Screen.PICK_MODE)
+			)
+			new_screen.play_multi.connect(func():
+				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
 			)
 			new_screen.open_credits.connect(func():
 				_apply_screen(_Screen.CREDITS)
@@ -115,6 +126,59 @@ func _apply_screen(screen_kind: _Screen):
 				get_tree().root.propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
 				get_tree().quit()
 			)
+		if (screen_kind == _Screen.JOIN_OR_CREATE_SERV):
+			print("opening join or create server screen")
+			_clear_gui()
+			var new_screen: PickServModeScreen = _SCREEN_CREATE_OR_JOIN_SERV.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.join_server.connect(func():
+				_apply_screen(_Screen.JOIN_SERV)
+			)
+			new_screen.create_server.connect(func():
+				_apply_screen(_Screen.CREATE_SERV)
+			)
+			new_screen.back.connect(func():
+				_apply_screen(_Screen.HOME)
+			)
+		if (screen_kind == _Screen.JOIN_SERV):
+			print("opening join server screen")
+			_clear_gui()
+			var new_screen: JoinServScreen = _SCREEN_JOIN_SERV.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.join.connect(func(address, port, username, password):
+				print('TODO join')
+				_apply_screen(_Screen.LOBBY, {"is_host": false})
+			)
+			new_screen.back.connect(func():
+				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
+			)
+		if (screen_kind == _Screen.CREATE_SERV):
+			print("opening create server screen")
+			_clear_gui()
+			var new_screen: CreateServScreen = _SCREEN_CREATE_SERV.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.create.connect(func(port, username, password):
+				print('TODO create')
+				_apply_screen(_Screen.LOBBY, {"is_host": true})
+			)
+			new_screen.back.connect(func():
+				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
+			)
+		if (screen_kind == _Screen.LOBBY):
+			print("opening lobby screen")
+			_clear_gui()
+			var new_screen: LobbyScreen = _LOBBY_SERV.instantiate()
+			$GUI.add_child(new_screen)
+			new_screen.is_host = settings.get("is_host")
+			new_screen.launch.connect(func(port, username, password):
+				print('TODO launch')
+			)
+			new_screen.quit.connect(func():
+				print("TODO quit")
+				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
+			)
+
+
 
 ## If background is different, apply it.
 func _apply_background(background_kind: _BackgroundKind):

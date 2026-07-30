@@ -38,11 +38,18 @@ layout_mode = 2
 size_flags_horizontal = 4
 theme_override_constants/separation = 16
 
-[node name="PlayButton" type="Control" parent="VBoxContainer/VBoxContainer" unique_id=1821132837]
+[node name="PlaySingleButton" type="Control" parent="VBoxContainer/VBoxContainer" unique_id=1821132837]
 custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("1_pt1c6")
-text = "Play"
+text = "Play - Single Player"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="PlayMultiButton" type="Control" parent="VBoxContainer/VBoxContainer" unique_id=1585518548]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("1_pt1c6")
+text = "Play - Multiplayer"
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
 [node name="CreditsButton" type="Control" parent="VBoxContainer/VBoxContainer" unique_id=35245796]

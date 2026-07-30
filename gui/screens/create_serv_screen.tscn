@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://c5uw1bdjsvspi"]
+
+[ext_resource type="Script" uid="uid://c0r0y4ptog58x" path="res://gui/screens/create_serv_screen.gd" id="1_33tm0"]
+[ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="2_ugxey"]
+
+[node name="CreateServScreen" type="CenterContainer" unique_id=438509662]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_33tm0")
+
+[node name="UIBlockContainer" type="VBoxContainer" parent="." unique_id=1804892024]
+layout_mode = 2
+
+[node name="TitleMarginContainer" type="MarginContainer" parent="UIBlockContainer" unique_id=142141223]
+layout_mode = 2
+theme_override_constants/margin_bottom = 64
+
+[node name="Label" type="Label" parent="UIBlockContainer/TitleMarginContainer" unique_id=627547464]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Create Server"
+horizontal_alignment = 1
+
+[node name="Port" type="LineEdit" parent="UIBlockContainer" unique_id=1813841019]
+layout_mode = 2
+placeholder_text = "Port"
+
+[node name="Username" type="LineEdit" parent="UIBlockContainer" unique_id=1206254988]
+layout_mode = 2
+placeholder_text = "Username"
+
+[node name="Password" type="LineEdit" parent="UIBlockContainer" unique_id=1655406568]
+layout_mode = 2
+placeholder_text = "Password"
+
+[node name="CreateButton" type="Control" parent="UIBlockContainer" unique_id=1674503346]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("2_ugxey")
+text = "Create"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="BackButton" type="Control" parent="UIBlockContainer" unique_id=790218668]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("2_ugxey")
+text = "Back"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"

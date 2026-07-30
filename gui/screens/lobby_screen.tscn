@@ -1,0 +1,46 @@
+[gd_scene format=3 uid="uid://tt0wc08jadgc"]
+
+[ext_resource type="Script" uid="uid://dh4fljg1yn5gy" path="res://gui/screens/lobby_screen.gd" id="1_ib0x4"]
+[ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="2_ldeji"]
+
+[node name="LobbyScreen" type="CenterContainer" unique_id=438509662]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+script = ExtResource("1_ib0x4")
+
+[node name="UIBlockContainer" type="VBoxContainer" parent="." unique_id=1804892024]
+layout_mode = 2
+
+[node name="TitleMarginContainer" type="MarginContainer" parent="UIBlockContainer" unique_id=142141223]
+layout_mode = 2
+theme_override_constants/margin_bottom = 64
+
+[node name="Label" type="Label" parent="UIBlockContainer/TitleMarginContainer" unique_id=627547464]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Lobby"
+horizontal_alignment = 1
+
+[node name="Players" type="VBoxContainer" parent="UIBlockContainer" unique_id=374781526]
+layout_mode = 2
+
+[node name="LaunchButton" type="Control" parent="UIBlockContainer" unique_id=506286357]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("2_ldeji")
+text = "Launch"
+disabled = null
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="QuitButton" type="Control" parent="UIBlockContainer" unique_id=2051325876]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+script = ExtResource("2_ldeji")
+text = "Quit"
+disabled = null
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"
