@@ -11,16 +11,30 @@ class_name LobbyScreen extends CenterContainer
 signal launch
 signal quit
 
-@onready var launch_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/LaunchButton
-@onready var quit_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/QuitButton
+@onready var _launch_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/LaunchButton
+@onready var _quit_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/QuitButton
+@onready var _players: VBoxContainer = $UIBlockContainer/Players
 
 var is_host := false:
 	set(v):
 		is_host = v
-		launch_button.disabled = not is_host
+		_launch_button.disabled = not is_host
 
 func _ready() -> void:
 	ButtonSignalEntry.link_signals([
-		ButtonSignalEntry.new(launch_button, launch),
-		ButtonSignalEntry.new(quit_button, quit),
+		ButtonSignalEntry.new(_launch_button, launch),
+		ButtonSignalEntry.new(_quit_button, quit),
 	])
+	refresh_player_list()
+	s_client_data_manager.on_player_list_changed.connect(refresh_player_list)
+	
+func refresh_player_list():
+	var list: Dictionary[int, String] = s_client_data_manager.get_players()
+	print("lobby: applying list ", list)
+	for child in _players.get_children():
+		child.queue_free()
+	for peer_id in list:
+		var username := list[peer_id]
+		var label := Label.new()
+		label.text = username
+		_players.add_child(label)

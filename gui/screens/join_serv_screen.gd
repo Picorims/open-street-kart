@@ -11,18 +11,25 @@ class_name JoinServScreen extends CenterContainer
 @onready var join_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/JoinButton
 @onready var back_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/BackButton
 
-@onready var address: LineEdit = $UIBlockContainer/Address
-@onready var port: SpinBox = $UIBlockContainer/Port
-@onready var username: LineEdit = $UIBlockContainer/Username
-@onready var password: LineEdit = $UIBlockContainer/Password
+@onready var _address: LineEdit = $UIBlockContainer/Address
+@onready var _port: SpinBox = $UIBlockContainer/Port
+@onready var _username: LineEdit = $UIBlockContainer/Username
+@onready var _password: LineEdit = $UIBlockContainer/Password
+@onready var _error: Label = $UIBlockContainer/Error
 
 signal join(address: String, port: String, username: String, password: String)
 signal back
 
 func _ready() -> void:
 	join_button.pressed.connect(func():
-		join.emit(address.text, int(port.value), username.text, password.text)
+		join.emit(_address.text, int(_port.value), _password.text)
 	)
 	back_button.pressed.connect(func():
 		back.emit()
 	)
+
+func set_status_message(msg: String):
+	_error.text = msg
+
+func get_username():
+	return _username.text

@@ -10,6 +10,8 @@ class_name Main extends Node3D
 const _3D_MENU_BACKGROUND: PackedScene = preload("res://scenes/backgrounds/gui_background_menus.tscn")
 const _3D_MENU_BACKGROUND_V2: PackedScene = preload("res://scenes/backgrounds/gui_background_menus_v2.tscn")
 
+const _SERVER_MANAGER = preload("res://server/server_manager.tscn")
+
 const _SCREEN_PICK_MODE: PackedScene = preload("res://gui/screens/pick_mode_screen.tscn")
 const _SCREEN_PICK_SPEED: PackedScene = preload("res://gui/screens/pick_speed_screen.tscn")
 const _SCREEN_PICK_TRACK: PackedScene = preload("res://gui/screens/pick_track_screen.tscn")
@@ -47,8 +49,9 @@ const TRACK_SCENES: Dictionary[Main.Track, PackedScene] = {
 	Track.ORSAY_HILLS: preload("res://scenes/races/orsay.tscn")
 }
 
-@onready var _server_manager: ServerManager = $ServerInterface/ServerManager
+var _server_manager: ServerManager = null
 @onready var _client_manager: ClientManager = $ServerInterface/ClientManager
+@onready var _server_interface: Node = $ServerInterface
 
 var _current_background: _BackgroundKind = _BackgroundKind.UNSET
 var _current_screen: _Screen = _Screen.NONE
@@ -70,7 +73,7 @@ func _ready():
 	print("Loading...")
 	#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 	DebugDraw2D.config.text_block_offset.y = 150
-	_apply_background(_BackgroundKind.MENU_BACKGROUND_3D)
+	#_apply_background(_BackgroundKind.MENU_BACKGROUND_3D)
 	_apply_screen(_Screen.HOME)
 	print("Loading done.")
 
@@ -86,6 +89,8 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 				_selected_mode = mode
 				_apply_screen(_Screen.PICK_SPEED)
 			)
+			
+			
 		if (screen_kind == _Screen.PICK_SPEED):
 			print("opening pick speed screen")
 			_clear_gui()
@@ -95,6 +100,8 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 				_selected_speed = mode
 				_apply_screen(_Screen.PICK_TRACK)
 			)
+			
+			
 		if (screen_kind == _Screen.PICK_TRACK):
 			print("opening pick track screen")
 			_clear_gui()
@@ -103,6 +110,8 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			new_screen.track_selected.connect(func(track: Main.Track):
 				_launch_track(track)
 			)
+			
+			
 		if (screen_kind == _Screen.CREDITS):
 			print("opening credits screen")
 			_clear_gui()
@@ -111,6 +120,8 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			new_screen.back_requested.connect(func():
 				_apply_screen(_Screen.HOME)
 			)
+			
+			
 		if (screen_kind == _Screen.HOME):
 			print("opening home screen")
 			_clear_gui()
@@ -129,6 +140,8 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 				get_tree().root.propagate_notification(NOTIFICATION_WM_CLOSE_REQUEST)
 				get_tree().quit()
 			)
+			
+			
 		if (screen_kind == _Screen.JOIN_OR_CREATE_SERV):
 			print("opening join or create server screen")
 			_clear_gui()
@@ -143,30 +156,108 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			new_screen.back.connect(func():
 				_apply_screen(_Screen.HOME)
 			)
+			
+			
 		if (screen_kind == _Screen.JOIN_SERV):
 			print("opening join server screen")
 			_clear_gui()
 			var new_screen: JoinServScreen = _SCREEN_JOIN_SERV.instantiate()
 			$GUI.add_child(new_screen)
-			new_screen.join.connect(func(address, port, username, password):
-				_create_client(address, port, username, password)
+			
+			# If the screen was opened before, remove its signal connections.
+			_client_manager.clear_signals()
+			var client_rpc := _client_manager.get_rpc()
+			
+			_client_manager.client_ready.connect(func():
+				client_rpc.c2s_set_username(new_screen.get_username())
+				new_screen.set_status_message("Waiting for validation...")
+			)
+			_client_manager.connection_failed.connect(func():
+				new_screen.set_status_message("Connection failed.")
+			)
+			_client_manager.disconnected.connect(func():
+				new_screen.set_status_message("Unexpectedly disconnected from server.")
+			)
+			client_rpc.c_on_username_accepted.connect(func():
 				_apply_screen(_Screen.LOBBY, {"is_host": false})
+			)
+			client_rpc.c_on_username_refused.connect(func():
+				new_screen.set_status_message("Username refused, please try again.")
+			)
+			new_screen.join.connect(func(address, port, password):
+				var error = _create_client(address, port, password)
+				if error:
+					if error == Error.ERR_ALREADY_IN_USE:
+						new_screen.set_status_message("Could not spawn client, peer already in use.")
+					elif error == Error.ERR_CANT_CREATE:
+						new_screen.set_status_message("Could not spawn client, creation issue.")
+					else:
+						new_screen.set_status_message("Could not spawn client, unknown issue (%d)." % [error])
+					return
+				new_screen.set_status_message("Connecting...")
 			)
 			new_screen.back.connect(func():
 				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
 			)
+			
+			
 		if (screen_kind == _Screen.CREATE_SERV):
 			print("opening create server screen")
 			_clear_gui()
 			var new_screen: CreateServScreen = _SCREEN_CREATE_SERV.instantiate()
 			$GUI.add_child(new_screen)
-			new_screen.create.connect(func(port, username, password):
-				_create_server(port, username, password)
+			
+			# If the screen was opened before, remove its signal connections.
+			_client_manager.clear_signals()
+			var client_rpc := _client_manager.get_rpc()
+
+			_client_manager.client_ready.connect(func():
+				client_rpc.c2s_set_username(new_screen.get_username())
+				new_screen.set_status_message("Waiting for validation...")
+			)
+			_client_manager.connection_failed.connect(func():
+				new_screen.set_status_message("Connection failed.")
+			)
+			_client_manager.disconnected.connect(func():
+				new_screen.set_status_message("Unexpectedly disconnected from server.")
+			)
+			client_rpc.c_on_username_accepted.connect(func():
 				_apply_screen(_Screen.LOBBY, {"is_host": true})
+			)
+			client_rpc.c_on_username_refused.connect(func():
+				new_screen.set_status_message("Username refused, please try again.")
+			)
+
+			new_screen.create.connect(func(port, password):
+				new_screen.set_status_message("Spawning server...")
+				var error = _create_server(port, password)
+				if error:
+					if error == Error.ERR_ALREADY_IN_USE:
+						new_screen.set_status_message("Could not spawn server, peer already in use.")
+					elif error == Error.ERR_CANT_CREATE:
+						new_screen.set_status_message("Could not spawn server, creation issue.")
+					else:
+						new_screen.set_status_message("Could not spawn server, unknown issue (%d)." % [error])
+					return
+				
+				
+				error = _create_client("127.0.0.1", port, password)
+				if error:
+					if error == Error.ERR_ALREADY_IN_USE:
+						new_screen.set_status_message("Could not spawn client, peer already in use.")
+					elif error == Error.ERR_CANT_CREATE:
+						new_screen.set_status_message("Could not spawn client, creation issue.")
+					else:
+						new_screen.set_status_message("Could not spawn client, unknown issue (%d)." % [error])
+					return
+				
+				new_screen.set_status_message("Connecting locally...")
 			)
 			new_screen.back.connect(func():
 				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
 			)
+			
+			
 		if (screen_kind == _Screen.LOBBY):
 			print("opening lobby screen")
 			_clear_gui()
@@ -174,7 +265,7 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			$GUI.add_child(new_screen)
 			var is_host: bool = settings.get("is_host")
 			new_screen.is_host = is_host
-			new_screen.launch.connect(func(port, username, password):
+			new_screen.launch.connect(func(_port, _username, _password):
 				print('TODO launch')
 			)
 			new_screen.quit.connect(func():
@@ -183,14 +274,23 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 				_apply_screen(_Screen.JOIN_OR_CREATE_SERV)
 			)
 
-func _create_server(port: int, username: String, password: String):
-	_server_manager.start_server(port)
+func _create_server(port: int, _password: String) -> Error:
+	
+	if _server_manager != null:
+		_server_interface.remove_child(_server_manager)
+		_server_manager.queue_free()
+	_server_manager = _SERVER_MANAGER.instantiate()
+	_server_interface.add_child(_server_manager)
+	var error := _server_manager.start_server(port)
+	return error
 
-func _create_client(address: String, port: int, username: String, password: String):
-	_client_manager.connect_to_server(address, port)
+func _create_client(address: String, port: int, _password: String) -> Error:
+	var error = _client_manager.connect_to_server(address, port)
+	return error
 
 func _disconnect_or_close_server(is_host: bool):
 	if is_host:
+		_client_manager.disconnect_from_server()
 		_server_manager.close_server()
 	else:
 		_client_manager.disconnect_from_server()

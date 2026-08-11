@@ -49,7 +49,6 @@ custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_ugxey")
 text = "Create"
-disabled = null
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
 [node name="BackButton" type="Control" parent="UIBlockContainer" unique_id=790218668]
@@ -57,5 +56,7 @@ custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_ugxey")
 text = "Back"
-disabled = null
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="Error" type="Label" parent="UIBlockContainer" unique_id=1652079875]
+layout_mode = 2

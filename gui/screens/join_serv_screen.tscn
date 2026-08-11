@@ -28,6 +28,7 @@ horizontal_alignment = 1
 
 [node name="Address" type="LineEdit" parent="UIBlockContainer" unique_id=1527386588]
 layout_mode = 2
+text = "127.0.0.1"
 placeholder_text = "Address"
 
 [node name="Port" type="SpinBox" parent="UIBlockContainer" unique_id=126913409]
@@ -53,7 +54,6 @@ custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_82uek")
 text = "Join"
-disabled = null
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
 [node name="BackButton" type="Control" parent="UIBlockContainer" unique_id=790218668]
@@ -61,5 +61,7 @@ custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_82uek")
 text = "Back"
-disabled = null
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
+
+[node name="Error" type="Label" parent="UIBlockContainer" unique_id=250234994]
+layout_mode = 2

@@ -34,7 +34,6 @@ custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_ldeji")
 text = "Launch"
-disabled = null
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"
 
 [node name="QuitButton" type="Control" parent="UIBlockContainer" unique_id=2051325876]
@@ -42,5 +41,4 @@ custom_minimum_size = Vector2(256, 48)
 layout_mode = 2
 script = ExtResource("2_ldeji")
 text = "Quit"
-disabled = null
 metadata/_custom_type_script = "uid://xsdylp0uc3rg"

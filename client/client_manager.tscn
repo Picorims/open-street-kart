@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://rq5000vgdk1p"]
+
+[ext_resource type="Script" uid="uid://b3uqdgxeucqw4" path="res://client/client_manager.gd" id="1_6scbi"]
+[ext_resource type="Script" uid="uid://bi8rbmthb8ihd" path="res://common/rpc.gd" id="2_46y7a"]
+
+[node name="ClientManager" type="Node" unique_id=1485371907]
+script = ExtResource("1_6scbi")
+
+[node name="RPC" type="Node" parent="." unique_id=432869596]
+script = ExtResource("2_46y7a")

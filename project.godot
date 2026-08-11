@@ -18,6 +18,10 @@ config/features=PackedStringArray("4.6", "Mobile")
 run/max_fps=60
 config/icon="res://icon.svg"
 
+[autoload]
+
+s_client_data_manager="*uid://yn25lnmcd8xv"
+
 [debug]
 
 gdscript/warnings/directory_rules={

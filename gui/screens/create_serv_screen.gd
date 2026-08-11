@@ -8,20 +8,29 @@
 
 class_name CreateServScreen extends CenterContainer
 
-@onready var create_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/CreateButton
-@onready var back_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/BackButton
-
-@onready var port: SpinBox = $UIBlockContainer/Port
-@onready var username: LineEdit = $UIBlockContainer/Username
-@onready var password: LineEdit = $UIBlockContainer/Password
-
 signal create(port: String, username: String, password: String)
 signal back
 
+@onready var _create_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/CreateButton
+@onready var _back_button: AtomGUIBlurredBgndMenuButton = $UIBlockContainer/BackButton
+
+@onready var _port: SpinBox = $UIBlockContainer/Port
+@onready var _username: LineEdit = $UIBlockContainer/Username
+@onready var _password: LineEdit = $UIBlockContainer/Password
+@onready var _error: Label = $UIBlockContainer/Error
+
+
+
 func _ready() -> void:
-	create_button.pressed.connect(func():
-		create.emit(int(port.value), username.text, password.text)
+	_create_button.pressed.connect(func():
+		create.emit(int(_port.value), _password.text)
 	)
-	back_button.pressed.connect(func():
+	_back_button.pressed.connect(func():
 		back.emit()
 	)
+
+func set_status_message(msg: String):
+	_error.text = msg
+
+func get_username():
+	return _username.text

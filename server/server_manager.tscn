@@ -1,0 +1,10 @@
+[gd_scene format=3 uid="uid://xep6lcgrad3a"]
+
+[ext_resource type="Script" uid="uid://brm6vts4q5oyb" path="res://server/server_manager.gd" id="1_dfjg0"]
+[ext_resource type="Script" uid="uid://bi8rbmthb8ihd" path="res://common/rpc.gd" id="2_ahlq4"]
+
+[node name="ServerManager" type="Node" unique_id=1957006384]
+script = ExtResource("1_dfjg0")
+
+[node name="RPC" type="Node" parent="." unique_id=1418925156]
+script = ExtResource("2_ahlq4")
