@@ -1,0 +1,62 @@
+[gd_scene format=3 uid="uid://bsp08qd0udt6y"]
+
+[ext_resource type="Script" uid="uid://klsblmk8jy7a" path="res://gui/screens/configure_mp_game_screen.gd" id="1_rggn2"]
+[ext_resource type="PackedScene" uid="uid://dnc2soj17qvv2" path="res://gui/atoms/atom_gui_linear_option_picker.tscn" id="2_rggn2"]
+[ext_resource type="Script" uid="uid://xsdylp0uc3rg" path="res://gui/atoms/atom_gui_blurred_bgnd_menu_button.gd" id="3_v2b6o"]
+
+[node name="ConfigureMPGameScreen" type="VBoxContainer" unique_id=735920729]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 4
+size_flags_vertical = 4
+alignment = 1
+script = ExtResource("1_rggn2")
+
+[node name="MarginContainer" type="MarginContainer" parent="." unique_id=961317726]
+layout_mode = 2
+theme_override_constants/margin_left = 256
+theme_override_constants/margin_right = 256
+
+[node name="UIBlockContainer" type="VBoxContainer" parent="MarginContainer" unique_id=593623697]
+layout_mode = 2
+
+[node name="TitleMarginContainer" type="MarginContainer" parent="MarginContainer/UIBlockContainer" unique_id=1410875186]
+layout_mode = 2
+theme_override_constants/margin_bottom = 64
+
+[node name="Label" type="Label" parent="MarginContainer/UIBlockContainer/TitleMarginContainer" unique_id=1240526011]
+layout_mode = 2
+theme_type_variation = &"HeaderLarge"
+text = "Game configuration"
+horizontal_alignment = 1
+
+[node name="ButtonsVBoxContainer" type="VBoxContainer" parent="MarginContainer/UIBlockContainer" unique_id=1713152816]
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="SpeedPicker" parent="MarginContainer/UIBlockContainer/ButtonsVBoxContainer" unique_id=1488505249 instance=ExtResource("2_rggn2")]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Speed"
+options_values = Array[String](["Chill", "Casual", "Challenging", "Crazy"])
+
+[node name="CarsCountPicker" parent="MarginContainer/UIBlockContainer/ButtonsVBoxContainer" unique_id=935397472 instance=ExtResource("2_rggn2")]
+layout_mode = 2
+size_flags_vertical = 3
+text = "Total players"
+options_values = Array[String](["4", "8", "12", "16"])
+
+[node name="MarginContainer" type="MarginContainer" parent="MarginContainer/UIBlockContainer" unique_id=634677402]
+layout_mode = 2
+theme_override_constants/margin_top = 16
+
+[node name="OKButton" type="Control" parent="MarginContainer/UIBlockContainer/MarginContainer" unique_id=1459477546]
+custom_minimum_size = Vector2(256, 48)
+layout_mode = 2
+focus_mode = 2
+script = ExtResource("3_v2b6o")
+text = "OK"
+metadata/_custom_type_script = "uid://xsdylp0uc3rg"

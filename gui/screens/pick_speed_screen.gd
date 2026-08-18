@@ -34,6 +34,9 @@ func _ready() -> void:
 		"crazy",
 		TrackState.SpeedMode.CRAZY
 	)
+	
+	$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Chill.grab_focus()
+
 
 func _connect_button_to_mode(node: AtomGUIBlurredBgndMenuButton, button_name: String, mode: TrackState.SpeedMode):
 	assert(node != null, "{0} button undefined.".format([button_name]))

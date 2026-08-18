@@ -28,6 +28,7 @@ func _ready() -> void:
 	_back_button.pressed.connect(func():
 		back.emit()
 	)
+	_username.grab_focus()
 
 func set_status_message(msg: String):
 	_error.text = msg

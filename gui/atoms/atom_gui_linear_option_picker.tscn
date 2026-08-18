@@ -1,0 +1,91 @@
+[gd_scene format=3 uid="uid://dnc2soj17qvv2"]
+
+[ext_resource type="Script" uid="uid://xh8muiadqp8t" path="res://gui/atoms/atom_gui_linear_option_picker.gd" id="1_gg34n"]
+[ext_resource type="Texture2D" uid="uid://cmbhu2ahqnvt4" path="res://addons/at-icons/node/arrow_right.svg" id="2_34bk5"]
+[ext_resource type="Texture2D" uid="uid://bwir6q5lbk0gs" path="res://addons/at-icons/node/arrow_left.svg" id="3_6qlth"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_k6qsc"]
+bg_color = Color(0.14117648, 0.17254902, 0.16078432, 0.80784315)
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_gg34n"]
+bg_color = Color(1, 0.8745098, 0.20392157, 0.15294118)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(1, 0.86857486, 0.039644003, 1)
+corner_radius_top_left = 2
+corner_radius_top_right = 2
+corner_radius_bottom_right = 2
+corner_radius_bottom_left = 2
+
+[node name="AtomGUILinearOptionPicker" type="MarginContainer" unique_id=1122660102]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+size_flags_horizontal = 3
+size_flags_vertical = 0
+focus_mode = 2
+script = ExtResource("1_gg34n")
+
+[node name="GridContainer" type="GridContainer" parent="." unique_id=1556172934]
+layout_mode = 2
+columns = 2
+
+[node name="Label" type="Label" parent="GridContainer" unique_id=1790498493]
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 3
+text = "Label"
+vertical_alignment = 1
+
+[node name="PanelContainer" type="PanelContainer" parent="GridContainer" unique_id=1930425265]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+size_flags_horizontal = 3
+theme_override_styles/panel = SubResource("StyleBoxFlat_k6qsc")
+
+[node name="HBoxContainerOptions" type="HBoxContainer" parent="GridContainer/PanelContainer" unique_id=857339962]
+z_index = 2
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="CursorContainer" type="Control" parent="GridContainer/PanelContainer" unique_id=69362585]
+layout_mode = 2
+
+[node name="VisualCursorPanel" type="Panel" parent="GridContainer/PanelContainer/CursorContainer" unique_id=750786182]
+z_index = 1
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.5
+anchor_bottom = 1.0
+size_flags_horizontal = 0
+size_flags_vertical = 0
+theme_override_styles/panel = SubResource("StyleBoxFlat_gg34n")
+
+[node name="ArrowRight" type="TextureRect" parent="GridContainer/PanelContainer/CursorContainer" unique_id=1008933364]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 1.0
+anchor_top = 0.5
+anchor_right = 1.0
+anchor_bottom = 0.5
+offset_left = 10.0
+offset_right = 30.0
+grow_horizontal = 0
+grow_vertical = 2
+texture = ExtResource("2_34bk5")
+
+[node name="ArrowLeft" type="TextureRect" parent="GridContainer/PanelContainer/CursorContainer" unique_id=1211102722]
+visible = false
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_bottom = 0.5
+offset_left = -30.0
+offset_right = -10.0
+grow_vertical = 2
+texture = ExtResource("3_6qlth")

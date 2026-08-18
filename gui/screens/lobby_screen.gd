@@ -27,6 +27,7 @@ func _ready() -> void:
 	])
 	refresh_player_list()
 	s_client_data_manager.on_player_list_changed.connect(refresh_player_list)
+	_quit_button.grab_focus()
 	
 func refresh_player_list():
 	var list: Dictionary[int, String] = s_client_data_manager.get_players()

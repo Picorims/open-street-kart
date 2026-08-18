@@ -11,6 +11,9 @@ class_name ServerManager extends Node
 var max_players := 24
 var players: Dictionary[int, String] = {}
 var _mp: MultiplayerAPI
+var client_authority := -1
+var speed_mode: TrackState.SpeedMode
+var cars_count := -1
 @onready var _server_rpc: RPC = $RPC
 
 

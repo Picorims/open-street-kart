@@ -67,3 +67,6 @@ func clear_signals():
 	SignalUtils.clear_connections_from_signal(connection_failed)
 	SignalUtils.clear_connections_from_signal(disconnected)
 	_client_rpc.clear_signals()
+
+func get_peer_id() -> int:
+	return multiplayer.get_unique_id()

@@ -26,3 +26,4 @@ func _ready() -> void:
 		ButtonSignalEntry.new(credits_button, open_credits),
 		ButtonSignalEntry.new(quit_button, quit),
 	])
+	play_single_button.grab_focus()

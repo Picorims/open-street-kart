@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://dnr20fxu8inb5"]
+
+[node name="GodotControlNodes" type="Control" unique_id=1102349107]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="HBoxContainer" type="HBoxContainer" parent="." unique_id=1003969635]
+layout_mode = 0
+offset_right = 298.0
+offset_bottom = 571.0
+
+[node name="ColorPicker" type="ColorPicker" parent="HBoxContainer" unique_id=2024857235]
+layout_mode = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="HBoxContainer" unique_id=46468169]
+layout_mode = 2
+
+[node name="Button" type="Button" parent="HBoxContainer/VBoxContainer" unique_id=1228260544]
+layout_mode = 2
+text = "Button"
+
+[node name="FoldableContainer" type="FoldableContainer" parent="HBoxContainer/VBoxContainer" unique_id=1572047644]
+layout_mode = 2
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer/FoldableContainer" unique_id=1737123874]
+layout_mode = 2
+text = "Stuff"
+
+[node name="CheckButton" type="CheckButton" parent="HBoxContainer/VBoxContainer" unique_id=1910486701]
+layout_mode = 2
+text = "check"
+
+[node name="ColorPickerButton" type="ColorPickerButton" parent="HBoxContainer/VBoxContainer" unique_id=847069388]
+layout_mode = 2
+text = "color picker button"
+
+[node name="MenuButton" type="MenuButton" parent="HBoxContainer/VBoxContainer" unique_id=1569304679]
+layout_mode = 2
+text = "menu button"
+
+[node name="OptionButton" type="OptionButton" parent="HBoxContainer/VBoxContainer" unique_id=1613002361]
+layout_mode = 2
+selected = 0
+item_count = 2
+popup/item_0/text = "option 1"
+popup/item_0/id = 0
+popup/item_1/text = "option 2"
+popup/item_1/id = 1
+
+[node name="TextEdit" type="TextEdit" parent="HBoxContainer/VBoxContainer" unique_id=508073251]
+custom_minimum_size = Vector2(0, 60)
+layout_mode = 2
+placeholder_text = "Write some stuff in there"
+
+[node name="ProgressBar" type="ProgressBar" parent="HBoxContainer/VBoxContainer" unique_id=947484989]
+layout_mode = 2
+value = 26.1
+
+[node name="SpinBox" type="SpinBox" parent="HBoxContainer/VBoxContainer" unique_id=706651488]
+layout_mode = 2
+
+[node name="ItemList" type="ItemList" parent="HBoxContainer/VBoxContainer" unique_id=989668378]
+custom_minimum_size = Vector2(0, 40)
+layout_mode = 2
+item_count = 3
+max_columns = 2
+item_0/text = "item 1"
+item_1/text = "item 2"
+item_2/text = "item 3"
+
+[node name="Label" type="Label" parent="HBoxContainer/VBoxContainer" unique_id=1591267097]
+layout_mode = 2
+text = "Label"
+
+[node name="LineEdit" type="LineEdit" parent="HBoxContainer/VBoxContainer" unique_id=726694017]
+layout_mode = 2
+placeholder_text = "input"
+
+[node name="TabBar" type="TabBar" parent="HBoxContainer/VBoxContainer" unique_id=233251529]
+layout_mode = 2
+current_tab = 0
+tab_count = 2
+tab_0/title = "a tab"
+tab_1/title = "another tab"
+
+[node name="Tree" type="Tree" parent="HBoxContainer/VBoxContainer" unique_id=2120901425]
+layout_mode = 2
+column_titles_visible = true

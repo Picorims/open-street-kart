@@ -22,3 +22,5 @@ func _ready() -> void:
 	versus_button.pressed.connect(func():
 		mode_selected.emit(TrackState.GameMode.VERSUS)
 	)
+	
+	against_clock_button.grab_focus()

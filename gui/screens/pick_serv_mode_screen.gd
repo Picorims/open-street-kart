@@ -23,3 +23,4 @@ func _ready() -> void:
 		ButtonSignalEntry.new(create_server_button, create_server),
 		ButtonSignalEntry.new(back_button, back),
 	])
+	join_server_button.grab_focus()

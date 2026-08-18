@@ -47,4 +47,10 @@ func _ready() -> void:
 	_button.text = text
 	_button.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 	
+	focus_mode = Control.FOCUS_ALL
+	
 	_button.pressed.connect(func(): pressed.emit())
+
+	focus_entered.connect(func():
+		_button.grab_focus()
+	)

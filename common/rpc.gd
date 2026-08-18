@@ -9,10 +9,20 @@ class_name RPC extends Node
 
 signal c_on_username_accepted(id: int)
 signal c_on_username_refused(id: int)
+signal c_on_acknowledge_launch(id: int)
+signal c_on_speed_picker_changed(selected: int)
+signal c_on_cars_count_picker_changed(selected: int)
+signal c_on_mp_config_confirmed()
 
 
 var _valid_username := RegEx.create_from_string("[a-zA-Z0-9_]{3,32}")
 var server_manager: ServerManager = null
+
+func _is_client_authority(peer: int) -> bool:
+	return server_manager.client_authority == peer
+
+func _is_server(peer: int) -> bool:
+	return peer == 1
 
 ## client -> server: register username
 @rpc("any_peer", "call_remote", "reliable")
@@ -46,6 +56,70 @@ func _broadcast_player_list(list: Dictionary[int, String]):
 	print("client %d: receiving updated players list." % [id])
 	s_client_data_manager.set_players(list)
 
+## client[host] -> server: request launch, leading to configuring the game
+@rpc("any_peer", "call_remote", "reliable")
+func _request_launch():
+	if multiplayer.get_unique_id() != 1:
+		return
+	var sender := multiplayer.get_remote_sender_id()
+	if sender != server_manager.client_authority:
+		return
+	_acknowledge_launch.rpc()
+
+## server -> client[broadcast] confirm launch, leading to game config.
+@rpc("authority", "call_remote", "reliable")
+func _acknowledge_launch():
+	if multiplayer.get_unique_id() == 1:
+		return
+	c_on_acknowledge_launch.emit(multiplayer.get_unique_id())
+
+## client[host] -> server: speed picker UI sync to guest clients
+@rpc("any_peer", "call_remote", "reliable")
+func _speed_picker_changed(selected: int):
+	if multiplayer.get_unique_id() != 1:
+		return
+	if not _is_client_authority(multiplayer.get_remote_sender_id()):
+		return
+	print("server: broadcasting speed changed")
+	_broadcast_speed_picker_changed.rpc(selected)
+
+## server -> client[broadcast]: speed picker UI sync to guest clients
+@rpc("authority", "call_remote", "reliable")
+func _broadcast_speed_picker_changed(selected: int):
+	var id := multiplayer.get_unique_id()
+	c_on_speed_picker_changed.emit(selected)
+
+@rpc("any_peer", "call_remote", "reliable")
+func _cars_count_picker_changed(selected: int):
+	if multiplayer.get_unique_id() != 1:
+		return
+	if not _is_client_authority(multiplayer.get_remote_sender_id()):
+		return
+	print("server: broadcasting cars count changed")
+	_broadcast_cars_count_picker_changed.rpc(selected)
+
+## server -> client[broadcast]: speed picker UI sync to guest clients
+@rpc("authority", "call_remote", "reliable")
+func _broadcast_cars_count_picker_changed(selected: int):
+	var id := multiplayer.get_unique_id()
+	c_on_cars_count_picker_changed.emit(selected)
+
+## client[host]
+@rpc("any_peer", "call_remote", "reliable")
+func _confirm_mp_config(speed: TrackState.SpeedMode, cars_count: int):
+	if not _is_server(multiplayer.get_unique_id()):
+		return
+	if not _is_client_authority(multiplayer.get_remote_sender_id()):
+		return
+	server_manager.speed_mode = speed
+	server_manager.cars_count = cars_count
+	_acknowledge_confirm_mp_config.rpc()
+
+@rpc("authority", "call_remote", "reliable")
+func _acknowledge_confirm_mp_config():
+	c_on_mp_config_confirmed.emit()
+
+
 
 
 
@@ -56,7 +130,17 @@ func c2s_set_username(username: String):
 func s2c_broadcast_players_list(list: Dictionary[int, String]):
 	_broadcast_player_list.rpc(list)
 
+func c2s_request_launch():
+	_request_launch.rpc_id(1)
 
+func c2s_speed_picker_changed(selected: int):
+	_speed_picker_changed.rpc_id(1, selected)
+
+func c2s_cars_count_picker_changed(selected: int):
+	_cars_count_picker_changed.rpc_id(1, selected)
+
+func c2s_confirm_mp_config(speed: TrackState.SpeedMode, cars_count: int):
+	_confirm_mp_config.rpc_id(1, speed, cars_count)
 
 func clear_signals():
 	SignalUtils.clear_connections_from_signal(c_on_username_accepted)
