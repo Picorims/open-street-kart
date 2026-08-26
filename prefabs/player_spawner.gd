@@ -8,29 +8,14 @@
 
 class_name PlayerSpawner extends Node3D
 
+const CAR_SCENE: PackedScene = preload("res://prefabs/car_custom_physics_2.tscn")
+
 @export var race_path: RacePath
 @export var items_holder: Node3D
 
-enum CountdownState {
-	THREE = 3,
-	TWO = 2,
-	ONE = 1,
-	GO = 0,
-	IDLE = -1,
-}
-
-const CAR_SCENE: PackedScene = preload("res://prefabs/car_custom_physics_2.tscn")
-const COUNTDOWN_DURATION: CountdownState = CountdownState.THREE
-const CARS_COUNT = 16
-
-var _in_countdown: bool = false
-var _countdown_state = 0
-var _countdown_elapsed: float = 0
 var cars: Array[RigidBody3D] = []
 var car_root_nodes: Array[CarCustomPhysics2] = []
 var _car_root_node_map: Dictionary[String, CarCustomPhysics2] = {}
-
-signal go
 
 
 
@@ -38,13 +23,13 @@ func _ready() -> void:
 	assert(race_path != null, "ERROR: race_path not configured on player spawner.")
 	assert(items_holder != null, "ERROR: items_holder not configured on player spawner.")
 
-func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
+func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars_count: int):
 	print("Initializing player spawner...")
 	var count: int = 0
-	if (mode == TrackState.GameMode.AGAINST_CLOCK):
+	if (mode == TrackStateModel.GameMode.AGAINST_CLOCK):
 		count = 1
-	elif (mode == TrackState.GameMode.VERSUS):
-		count = CARS_COUNT
+	elif (mode == TrackStateModel.GameMode.VERSUS):
+		count = cars_count
 	
 	for i in range(count):
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
@@ -61,10 +46,10 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 			car.mode = CarCustomPhysics2.CarMode.BOT
 		car.path = race_path
 		car.speed_multiplier = 1.0
-		assert(TrackState.TrackSpeedDict.has(speed), "mising speed for mode %s" % speed)
-		assert(TrackState.OutOfBoundsSpeedDict.has(speed), "mising OOB speed for mode %s" % speed)
-		car.max_speed_meters_per_second = TrackState.TrackSpeedDict.get(speed)
-		car.max_speed_out_of_bounds_meters_per_second = TrackState.OutOfBoundsSpeedDict.get(speed)
+		assert(TrackStateModel.TrackSpeedDict.has(speed), "mising speed for mode %s" % speed)
+		assert(TrackStateModel.OutOfBoundsSpeedDict.has(speed), "mising OOB speed for mode %s" % speed)
+		car.max_speed_meters_per_second = TrackStateModel.TrackSpeedDict.get(speed)
+		car.max_speed_out_of_bounds_meters_per_second = TrackStateModel.OutOfBoundsSpeedDict.get(speed)
 		car.basis = self.basis
 		car.global_transform = self.global_transform
 		car.global_position += self.basis.x * -i + self.basis.z * (i % 4) + self.basis.y * 5
@@ -84,34 +69,9 @@ func init(mode: TrackState.GameMode, speed: TrackState.SpeedMode):
 		_car_root_node_map.set(car.name, car)
 	print("Initializing player spawner done.")
 
-func _process(delta: float) -> void:
-	if (_in_countdown):
-		_countdown_elapsed += delta
-		
-		if (_countdown_state == CountdownState.IDLE): # initialize
-			print("3...")
-			_countdown_state = CountdownState.THREE
-		elif (_countdown_state == CountdownState.THREE and _countdown_elapsed > 1):
-			print("2...")
-			_countdown_state = CountdownState.TWO
-		elif (_countdown_state == CountdownState.TWO and _countdown_elapsed > 2):
-			print("1...")
-			_countdown_state = CountdownState.ONE
-		elif (_countdown_state == CountdownState.ONE and _countdown_elapsed > 3):
-			print("GO!")
-			_countdown_state = CountdownState.GO
-			go.emit()
-		
-		if (_countdown_elapsed > COUNTDOWN_DURATION):
-			for c in cars:
-				c.freeze = false
-			_in_countdown = false
-			_countdown_state = CountdownState.IDLE
-
-func countdown():
-	_countdown_elapsed = 0
-	_countdown_state = CountdownState.IDLE
-	_in_countdown = true
-
 func get_car_by_id(id: String) -> CarCustomPhysics2:
 	return _car_root_node_map.get(id)
+
+func unfreeze_cars():
+	for c in cars:
+		c.freeze = false

@@ -8,37 +8,37 @@
 
 class_name PickSpeedScreen extends CenterContainer
 
-signal mode_selected(mode: TrackState.SpeedMode)
+signal mode_selected(mode: TrackStateModel.SpeedMode)
 
 func _ready() -> void:
 	_connect_button_to_mode(
 		$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Chill,
 		"chill",
-		TrackState.SpeedMode.CHILL
+		TrackStateModel.SpeedMode.CHILL
 	)
 	
 	_connect_button_to_mode(
 		$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Casual,
 		"casual",
-		TrackState.SpeedMode.CASUAL
+		TrackStateModel.SpeedMode.CASUAL
 	)
 	
 	_connect_button_to_mode(
 		$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Challenging,
 		"challenging",
-		TrackState.SpeedMode.CHALLENGING
+		TrackStateModel.SpeedMode.CHALLENGING
 	)
 	
 	_connect_button_to_mode(
 		$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Crazy,
 		"crazy",
-		TrackState.SpeedMode.CRAZY
+		TrackStateModel.SpeedMode.CRAZY
 	)
 	
 	$UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Chill.grab_focus()
 
 
-func _connect_button_to_mode(node: AtomGUIBlurredBgndMenuButton, button_name: String, mode: TrackState.SpeedMode):
+func _connect_button_to_mode(node: AtomGUIBlurredBgndMenuButton, button_name: String, mode: TrackStateModel.SpeedMode):
 	assert(node != null, "{0} button undefined.".format([button_name]))
 	node.pressed.connect(func():
 		mode_selected.emit(mode)

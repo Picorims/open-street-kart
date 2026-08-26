@@ -8,10 +8,10 @@
 
 class_name PickTrackScreen extends Control
 
-signal track_selected(mode: Main.Track)
+signal track_selected(mode: Main.TrackId)
 
-const TRACKS_DICTIONARY: Dictionary[String, Main.Track] = {
-	"Orsay Hills": Main.Track.ORSAY_HILLS,
+const TRACKS_DICTIONARY: Dictionary[String, Main.TrackId] = {
+	"Orsay Hills": Main.TrackId.ORSAY_HILLS,
 }
 
 func _ready() -> void:

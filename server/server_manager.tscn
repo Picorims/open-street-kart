@@ -8,3 +8,5 @@ script = ExtResource("1_dfjg0")
 
 [node name="RPC" type="Node" parent="." unique_id=1418925156]
 script = ExtResource("2_ahlq4")
+
+[node name="ServerWorld" type="Node3D" parent="." unique_id=1627658442]

@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://dlc7hvnvqbkps"]
+
+[ext_resource type="Script" uid="uid://bm4rl8kmyhmty" path="res://server/track/track_state_server.gd" id="1_ajjtx"]
+
+[node name="TrackStateServer" type="Node" unique_id=1861784009]
+script = ExtResource("1_ajjtx")

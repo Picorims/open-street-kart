@@ -21,6 +21,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 s_client_data_manager="*uid://yn25lnmcd8xv"
+s_global="*uid://drh2f8mwbgkr5"
 
 [debug]
 

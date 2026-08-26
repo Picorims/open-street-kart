@@ -23,11 +23,6 @@ const _SCREEN_CREATE_SERV: PackedScene = preload("res://gui/screens/create_serv_
 const _SCREEN_LOBBY: PackedScene = preload("res://gui/screens/lobby_screen.tscn")
 const _SCREEN_MP_GAME_CONFIG: PackedScene = preload("res://gui/screens/configure_mp_game_screen.tscn")
 
-enum _BackgroundKind {
-	UNSET,
-	MENU_BACKGROUND_3D,
-}
-
 enum _Screen {
 	NONE,
 	CREDITS,
@@ -42,36 +37,44 @@ enum _Screen {
 	CONFIGURE_MP_GAME
 }
 
-enum Track {
+enum TrackId {
 	NONE,
 	ORSAY_HILLS,
 }
 
-const TRACK_SCENES: Dictionary[Main.Track, PackedScene] = {
-	Track.ORSAY_HILLS: preload("res://scenes/races/orsay.tscn")
+enum Role {
+	UNSET,
+	CLIENT,
+	CLIENT_AND_SERVER,
+}
+
+const TRACK_SCENES: Dictionary[Main.TrackId, PackedScene] = {
+	TrackId.ORSAY_HILLS: preload("res://scenes/races/orsay.tscn")
 }
 
 var _server_manager: ServerManager = null
 @onready var _client_manager: ClientManager = $ServerInterface/ClientManager
 @onready var _server_interface: Node = $ServerInterface
 
-var _current_background: _BackgroundKind = _BackgroundKind.UNSET
 var _current_screen: _Screen = _Screen.NONE
 
-var _selected_mode: TrackState.GameMode
-var _selected_speed: TrackState.SpeedMode
-var _track_to_load: Main.Track = Main.Track.NONE
+var _selected_mode: TrackStateModel.GameMode
+var _selected_speed: TrackStateModel.SpeedMode
+var _selected_cars_count: int
+var _track_to_load: Main.TrackId = Main.TrackId.NONE
+var _role: Role = Role.UNSET
 var _awaiting_track_to_load: bool = false
 var _awaiting_track_to_load_since: float = 0
 const TRACK_LOAD_DELAY_MS = 100
 
-func get_selected_mode() -> TrackState.GameMode:
+func get_selected_mode() -> TrackStateModel.GameMode:
 	return _selected_mode
 
-func get_selected_speed() -> TrackState.SpeedMode:
+func get_selected_speed() -> TrackStateModel.SpeedMode:
 	return _selected_speed
 
 func _ready():
+	s_global.is_game_running = true
 	print("Loading...")
 	#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
 	DebugDraw2D.config.text_block_offset.y = 150
@@ -87,7 +90,7 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			_clear_gui()
 			var new_screen: PickModeScreen = _SCREEN_PICK_MODE.instantiate()
 			$GUI.add_child(new_screen)
-			new_screen.mode_selected.connect(func(mode: TrackState.GameMode):
+			new_screen.mode_selected.connect(func(mode: TrackStateModel.GameMode):
 				_selected_mode = mode
 				_apply_screen(_Screen.PICK_SPEED)
 			)
@@ -98,7 +101,7 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			_clear_gui()
 			var new_screen: PickSpeedScreen = _SCREEN_PICK_SPEED.instantiate()
 			$GUI.add_child(new_screen)
-			new_screen.mode_selected.connect(func(mode: TrackState.SpeedMode):
+			new_screen.mode_selected.connect(func(mode: TrackStateModel.SpeedMode):
 				_selected_speed = mode
 				_apply_screen(_Screen.PICK_TRACK, {"multi": false, "is_host": true})
 			)
@@ -114,16 +117,19 @@ func _apply_screen(screen_kind: _Screen, settings: Dictionary[String, Variant] =
 			var new_screen: PickTrackScreen = _SCREEN_PICK_TRACK.instantiate()
 			$GUI.add_child(new_screen)
 			
-			# TODO handling of read-only multi clients.
-			if not multi or is_host:
-				new_screen.track_selected.connect(func(track: Main.Track):
-					if not multi:
-						push_error("TODO restore singleplayer")
+			if not multi:
+				push_error("TODO restore singleplayer")
+			else:
+				_client_manager.get_rpc().c_on_track_launch.connect(func(track, speed_mode, cars_count, game_mode):
+					if is_host:
+						_launch_track(track, Role.CLIENT_AND_SERVER, speed_mode, cars_count, game_mode)
 					else:
-						print("TODO launch track multi")
-						#_launch_track(track)
+						_launch_track(track, Role.CLIENT, speed_mode, cars_count, game_mode)
 				)
-			
+				if is_host:
+					new_screen.track_selected.connect(func(track: Main.TrackId):
+						_client_manager.get_rpc().c2s_launch_track(track)
+					)			
 			
 		if (screen_kind == _Screen.CREDITS):
 			print("opening credits screen")
@@ -352,26 +358,12 @@ func _disconnect_or_close_server(is_host: bool):
 	else:
 		_client_manager.disconnect_from_server()
 
-## If background is different, apply it.
-func _apply_background(background_kind: _BackgroundKind):
-	if (_current_background != background_kind):
-		if (background_kind == _BackgroundKind.MENU_BACKGROUND_3D):
-			_clear_world()
-			var env: Node3D = _3D_MENU_BACKGROUND_V2.instantiate()
-			$World.add_child(env)
-
-## Remove all children of $World
-func _clear_world():
-	for c in $World.get_children():
-		$World.remove_child(c)
-		c.queue_free()
-		
 func _clear_gui():
 	for c in $GUI.get_children():
 		$GUI.remove_child(c)
 		c.queue_free()
 
-func _launch_track(track: Main.Track):
+func _launch_track(track: Main.TrackId, role: Role, speed_mode: TrackStateModel.SpeedMode, cars_count: int, game_mode: TrackStateModel.GameMode):
 	if (not TRACK_SCENES.has(track)):
 		push_error("Track {0} does not exist.".format([track]))
 		return
@@ -379,6 +371,10 @@ func _launch_track(track: Main.Track):
 	_clear_gui()
 	_show_loading_screen()
 	_track_to_load = track
+	_role = role
+	_selected_speed = speed_mode
+	_selected_mode = game_mode
+	_selected_cars_count = cars_count
 	_awaiting_track_to_load_since = Time.get_ticks_msec()
 	_awaiting_track_to_load = true
 	
@@ -393,10 +389,27 @@ func _hide_loading_screen():
 func _process(_delta: float) -> void:
 	var awaiting_track_time_diff: float = Time.get_ticks_msec() - _awaiting_track_to_load_since
 	if _awaiting_track_to_load and awaiting_track_time_diff > TRACK_LOAD_DELAY_MS:
-		assert(_track_to_load != Track.NONE, "no track to load.")
-		_clear_world()
-		var track_scene: Track = TRACK_SCENES.get(_track_to_load).instantiate()
-		$World.add_child(track_scene)
-		track_scene.launch(_selected_mode, _selected_speed)
+		assert(_track_to_load != TrackId.NONE, "no track to load.")
+
+		var track_packed_scene: PackedScene = TRACK_SCENES.get(_track_to_load)
+		
+		var client_track: Track = null
+		var server_track: Track = null
+		if _role == Role.CLIENT or _role == Role.CLIENT_AND_SERVER:
+			client_track = track_packed_scene.instantiate()
+		if _role == Role.CLIENT_AND_SERVER:
+			server_track = track_packed_scene.instantiate()
+		if client_track != null:
+			client_track.instance = Track.TrackInstance.CLIENT
+			client_track.ready.connect(func():
+				client_track.launch(_selected_mode, _selected_speed, _selected_cars_count)
+			)
+			_client_manager.get_world().add_child(client_track)
+		if server_track != null:
+			server_track.instance = Track.TrackInstance.SERVER
+			server_track.ready.connect(func():
+				server_track.launch(_selected_mode, _selected_speed, _selected_cars_count)
+			)
+			_server_manager.get_world().add_child(server_track)
 		_hide_loading_screen()
 		_awaiting_track_to_load = false

@@ -13,6 +13,7 @@ signal c_on_acknowledge_launch(id: int)
 signal c_on_speed_picker_changed(selected: int)
 signal c_on_cars_count_picker_changed(selected: int)
 signal c_on_mp_config_confirmed()
+signal c_on_track_launch(track: Main.TrackId, speed_mode: TrackStateModel.SpeedMode, cars_count: int, game_mode: TrackStateModel.GameMode)
 
 
 var _valid_username := RegEx.create_from_string("[a-zA-Z0-9_]{3,32}")
@@ -23,6 +24,13 @@ func _is_client_authority(peer: int) -> bool:
 
 func _is_server(peer: int) -> bool:
 	return peer == 1
+
+func _from_host_to_serv() -> bool:
+	if not _is_server(multiplayer.get_unique_id()):
+		return false
+	if not _is_client_authority(multiplayer.get_remote_sender_id()):
+		return false
+	return true
 
 ## client -> server: register username
 @rpc("any_peer", "call_remote", "reliable")
@@ -104,9 +112,9 @@ func _broadcast_cars_count_picker_changed(selected: int):
 	var id := multiplayer.get_unique_id()
 	c_on_cars_count_picker_changed.emit(selected)
 
-## client[host]
+## client[host] -> server: submit mp game config
 @rpc("any_peer", "call_remote", "reliable")
-func _confirm_mp_config(speed: TrackState.SpeedMode, cars_count: int):
+func _confirm_mp_config(speed: TrackStateModel.SpeedMode, cars_count: int):
 	if not _is_server(multiplayer.get_unique_id()):
 		return
 	if not _is_client_authority(multiplayer.get_remote_sender_id()):
@@ -115,11 +123,24 @@ func _confirm_mp_config(speed: TrackState.SpeedMode, cars_count: int):
 	server_manager.cars_count = cars_count
 	_acknowledge_confirm_mp_config.rpc()
 
+## server -> client[broadcast]: acknowledge mp config
+## is received and applied server-side.
 @rpc("authority", "call_remote", "reliable")
 func _acknowledge_confirm_mp_config():
 	c_on_mp_config_confirmed.emit()
 
-
+## client[host] -> server
+@rpc("any_peer", "call_remote", "reliable")
+func _launch_track(track: Main.TrackId):
+	if not _from_host_to_serv():
+		return
+	_broadcast_launch_track.rpc(track, server_manager.speed_mode, server_manager.cars_count, TrackStateModel.GameMode.VERSUS)
+	
+@rpc("authority", "call_remote", "reliable")
+func _broadcast_launch_track(track: Main.TrackId, speed_mode: TrackStateModel.SpeedMode, cars_count: int, game_mode: TrackStateModel.GameMode):
+	c_on_track_launch.emit(track, speed_mode, cars_count, game_mode)
+	
+	
 
 
 
@@ -139,8 +160,11 @@ func c2s_speed_picker_changed(selected: int):
 func c2s_cars_count_picker_changed(selected: int):
 	_cars_count_picker_changed.rpc_id(1, selected)
 
-func c2s_confirm_mp_config(speed: TrackState.SpeedMode, cars_count: int):
+func c2s_confirm_mp_config(speed: TrackStateModel.SpeedMode, cars_count: int):
 	_confirm_mp_config.rpc_id(1, speed, cars_count)
+
+func c2s_launch_track(track: Main.TrackId):
+	_launch_track.rpc_id(1, track)
 
 func clear_signals():
 	SignalUtils.clear_connections_from_signal(c_on_username_accepted)

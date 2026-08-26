@@ -8,8 +8,6 @@
 [node name="Main" type="Node3D" unique_id=460982653]
 script = ExtResource("1_o5qli")
 
-[node name="World" type="Node3D" parent="." unique_id=1721218021]
-
 [node name="GUI" type="Control" parent="." unique_id=1709229474]
 layout_mode = 3
 anchors_preset = 15

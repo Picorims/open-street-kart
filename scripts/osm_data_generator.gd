@@ -221,6 +221,13 @@ func _ready() -> void:
 		"tower",
 		"triumphal_arch",
 		"windmill",
+		
+		"porch",
+		"balcony",
+		"column",
+		"corridor",
+		"steps",
+		"staircase",
 	]
 	
 	_amenity_kinds = [
@@ -373,12 +380,16 @@ func _is_bus_stop(properties: Dictionary) -> bool:
 	return properties.get("highway") == "bus_stop"
 
 func _is_building(properties: Dictionary) -> bool:
-	if (not properties.has("building")): return false
+	if (not properties.has("building") and not properties.has("building:part")): return false
 	
 	var id: String = properties.get("@id")
 	if (not id.begins_with("way")): return false
 	
-	var kind: String = properties.get("building")
+	var kind: String = ""
+	if properties.has("building"):
+		kind = properties.get("building")
+	if properties.has("building:part"):
+		kind = properties.get("building:part")
 	if _building_kinds.has(kind): return true
 	return false
 
@@ -691,7 +702,10 @@ func _array_xz(a: Array[Vector3]) -> Array[Vector2]:
 	return arr
 
 func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: bool = false) -> bool:
-	const INIT_HEIGHT: float = 1000 # initial height to be able to snap
+	# TODO switch to new building and apply to map, see how to editor preview
+	
+	
+	#const INIT_HEIGHT: float = 1000 # initial height to be able to snap
 	if (verbose): print("_build_building: inspecting building data...")
 	
 	if (not feature.has("geometry")):
@@ -716,145 +730,202 @@ func _build_building(feature: Dictionary, buildings_container: Node3D, verbose: 
 	
 	if (verbose): print("building accepted.")
 	
-	var _prev_meters: Vector3
-	var _prev_exists: bool = false
+	var building: Building = Building.new()
+	var props: Dictionary = feature.get("properties")
+	var has_building := props.has("building")
+	var has_part := props.has("building:part")
+	building.is_part = has_part
+	var kind: String = ""
+	if has_building:
+		kind = props.get("building")
+	if has_part:
+		kind = props.get("building:part")
+	building.kind = kind
+	
+	var handle = func(osm_key: String, node_key: String):
+		if props.has(osm_key):
+			building.set_indexed(node_key, props.get(osm_key))
+	handle.call("amenity", "amenity")
+	handle.call("shop", "shop_kind")
+	handle.call("condition", "condition")
+	handle.call("ruins", "ruins")
+	
+	if props.has("abandoned:shop"):
+		building.abandoned = true
+	handle.call("disused", "disused")
+	handle.call("disused:shop", "disused")
+	handle.call("disused:amenity", "disused")
+	
+	handle.call("height", "height_m")
+	handle.call("min_height", "min_height_m")
+	handle.call("levels", "levels")
+	handle.call("min_level", "min_level")
+	handle.call("layer", "layer")
+	
+	handle.call("roof:height", "roof_height_m")
+	handle.call("roof:angle", "roof_angle")
+	handle.call("roof:levels", "roof_levels")
+	handle.call("roof:shape", "roof_shape")
+	handle.call("roof:orientation", "roof_orientation")
+	
+	if props.has("colour"):
+		building.wall_colour = Color.from_string(props.get("colour"), Color.WHITE)
+	if props.has("roof:colour"):
+		building.wall_colour = Color.from_string(props.get("roof:colour"), Color.BROWN)
+	handle.call("roof:colour", "roof_orientation")
+	handle.call("material", "wall_material")
+	handle.call("roof:material", "roof_material")
+	
+	# TODO handle entrances -> separate nodes placed on outline (how to bind?)
+	# see: https://wiki.openstreetmap.org/wiki/Key:entrance
+	
 	var meters_coords: Array[Vector3] = []
+	building.is_collidable = false
 	for c in coordinates:
 		# we need to flip the X axis because X and longitude have opposite directions
 		var c_meters: Vector3 = Vector3(-c[0] + loader.width_meters, c[1], c[2])
+		meters_coords.append(c_meters)
 		if boundaries_generator.is_point_within_race_area(Vector2(c_meters.x, c_meters.z)):
-			meters_coords.append(c_meters)
-			_prev_meters = c_meters
-			_prev_exists = true
+			building.is_collidable = true
+		
 	
 	if (meters_coords.size() < 3):
 		if (verbose): print("building has too few points (", meters_coords.size(), ").")
 		return false
-
-	var in_ground_height: float = 5
-	var above_ground_height: float = 10
-	var height: float = in_ground_height + above_ground_height
+#
+	#var in_ground_height: float = 5
+	#var above_ground_height: float = 10
+	#var height: float = in_ground_height + above_ground_height
 	const MAX_VALUE: float = 1000000
-	var origin: Vector3 = Vector3(MAX_VALUE, 0, MAX_VALUE)
+	
+	var origin: Vector3 = Vector3(MAX_VALUE, MAX_VALUE, MAX_VALUE)
 	# find smallest x and z to define the origin (the corner of the building bounding box)
 	for c in meters_coords:
 		origin.x = min(origin.x, c.x)
+		origin.y = min(origin.y, c.y)
 		origin.z = min(origin.z, c.z)
 
+	building.position = origin
 	# translate all points to origin
 	for i in range(meters_coords.size()):
 		meters_coords[i] -= origin
-		meters_coords[i].y = 0 # disable offset
 
-	# build mesh
-	var surface_tool = SurfaceTool.new()
-	surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
-
-	# we create an extruded polygon, with only the wall and ceiling
-
-	# walls (also corresponds to occluder)
-	var occluder_vertices: PackedVector3Array = []
-	var occluder_indices: PackedInt32Array = []
-		
-	for i in range(meters_coords.size()):
-		var next_index = (i + 1) % meters_coords.size()
-		var bottom_l = meters_coords[i]
-		var bottom_r = meters_coords[next_index]
-		var top_l = bottom_l + Vector3(0, height, 0)
-		var top_r = bottom_r + Vector3(0, height, 0)
-		var width = bottom_l.distance_to(bottom_r)
-
-		# first triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
-		surface_tool.set_uv(Vector2(0, height))
-		surface_tool.add_vertex(top_l)
-		surface_tool.set_uv(Vector2(width, 0))
-		surface_tool.add_vertex(bottom_r)
-		surface_tool.set_uv(Vector2(0, 0))
-		surface_tool.add_vertex(bottom_l)
-
-		# second triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
-		surface_tool.set_uv(Vector2(width, height))
-		surface_tool.add_vertex(top_r)
-		surface_tool.set_uv(Vector2(width, 0))
-		surface_tool.add_vertex(bottom_r)
-		surface_tool.set_uv(Vector2(0, height))
-		surface_tool.add_vertex(top_l)
-		
-		# occluder
-		if (i == 0):
-			occluder_vertices.append_array([bottom_l, top_l])
-		if (i != meters_coords.size() - 1):
-			occluder_vertices.append_array([bottom_r, top_r])
-			
-		# indices are even at the bottom, odd at the top, growing towards R
-		var top_l_index: int
-		var bottom_l_index: int
-		var top_r_index: int
-		var bottom_r_index: int
-			
-		top_l_index = (2 * i) + 1
-		bottom_l_index = 2 * i
-		if (i != meters_coords.size() - 1):
-			top_r_index = top_l_index + 2
-			bottom_r_index = bottom_l_index + 2
-		else:
-			top_r_index = 1
-			bottom_r_index = 0
-		occluder_indices.append_array([top_l_index, bottom_r_index, bottom_l_index, top_r_index, bottom_r_index, top_l_index])
+	building.outline_points_m.assign(meters_coords.map(func(v3: Vector3): return Vector2(v3.x, v3.z)))
 	
-	surface_tool.generate_normals()
-	var mesh: Mesh = surface_tool.commit()
-	if (mesh == null):
-		if (verbose): print("Failed to create mesh for building, cancel.")
-		return false
+	add_to_group("building", true)
 	
-	var mesh_node: MeshInstance3D = MeshInstance3D.new()
-	mesh_node.mesh = mesh
-	var surfaces_count = mesh_node.mesh.get_surface_count()
-	for i in surfaces_count:
-		mesh_node.set_surface_override_material(i, building_material)
-	
-	var parent: Node3D = null
-	# Only load collisions if necessary.
-	# We need to go back from local to global coordinates
-	# by adding the origin again.
-	var xz_meters_coords: Array[Vector2] = []
-	var xz_origin: Vector2 = Vector2(origin.x, origin.z)
-	# assign should cast type accordingly.
-	xz_meters_coords.assign(meters_coords.map(func(v: Vector3) -> Vector2: return Vector2(v.x, v.z) + xz_origin))
-	var mesh_collision_node: CollisionShape3D = null
-	if not boundaries_generator.is_building_polygon_within_out_of_bounds_area(xz_meters_coords):
-		var static_body: StaticBody3D = StaticBody3D.new()
-	
-		mesh_collision_node = CollisionShape3D.new()
-		mesh_collision_node.shape = mesh.create_trimesh_shape()
-		
-		parent = static_body
-	else:
-		parent = Node3D.new()
+	buildings_container.add_child(building)
+	loader.persist_in_current_scene(building)
 
-	buildings_container.add_child(parent)
-	loader.persist_in_current_scene(parent)
-	parent.add_child(mesh_node)
-	loader.persist_in_current_scene(mesh_node)
-	if mesh_collision_node != null:
-		parent.add_child(mesh_collision_node)
-		loader.persist_in_current_scene(mesh_collision_node)
-
-	
-	parent.position = origin + Vector3(0, INIT_HEIGHT, 0)
-	parent.name = "Building__%s" % [feature.get("properties").get("@id")]
-	
-	_setup_snapping(parent, false, in_ground_height)
-	
-	var occluder_instance: OccluderInstance3D = OccluderInstance3D.new()
-	parent.add_child(occluder_instance)
-	loader.persist_in_current_scene(occluder_instance)
-	var occluder_3d_polygon: ArrayOccluder3D = ArrayOccluder3D.new()
-	occluder_3d_polygon.set_arrays(occluder_vertices, occluder_indices)
-	occluder_instance.occluder = occluder_3d_polygon
-
-	parent.add_to_group("buildings", true)
+	## build mesh
+	#var surface_tool = SurfaceTool.new()
+	#surface_tool.begin(Mesh.PRIMITIVE_TRIANGLES)
+#
+	## we create an extruded polygon, with only the wall and ceiling
+#
+	## walls (also corresponds to occluder)
+	#var occluder_vertices: PackedVector3Array = []
+	#var occluder_indices: PackedInt32Array = []
+		#
+	#for i in range(meters_coords.size()):
+		#var next_index = (i + 1) % meters_coords.size()
+		#var bottom_l = meters_coords[i]
+		#var bottom_r = meters_coords[next_index]
+		#var top_l = bottom_l + Vector3(0, height, 0)
+		#var top_r = bottom_r + Vector3(0, height, 0)
+		#var width = bottom_l.distance_to(bottom_r)
+#
+		## first triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
+		#surface_tool.set_uv(Vector2(0, height))
+		#surface_tool.add_vertex(top_l)
+		#surface_tool.set_uv(Vector2(width, 0))
+		#surface_tool.add_vertex(bottom_r)
+		#surface_tool.set_uv(Vector2(0, 0))
+		#surface_tool.add_vertex(bottom_l)
+#
+		## second triangle (ORDER MUST MATCH WITH OCCLUDER !!!)
+		#surface_tool.set_uv(Vector2(width, height))
+		#surface_tool.add_vertex(top_r)
+		#surface_tool.set_uv(Vector2(width, 0))
+		#surface_tool.add_vertex(bottom_r)
+		#surface_tool.set_uv(Vector2(0, height))
+		#surface_tool.add_vertex(top_l)
+		#
+		## occluder
+		#if (i == 0):
+			#occluder_vertices.append_array([bottom_l, top_l])
+		#if (i != meters_coords.size() - 1):
+			#occluder_vertices.append_array([bottom_r, top_r])
+			#
+		## indices are even at the bottom, odd at the top, growing towards R
+		#var top_l_index: int
+		#var bottom_l_index: int
+		#var top_r_index: int
+		#var bottom_r_index: int
+			#
+		#top_l_index = (2 * i) + 1
+		#bottom_l_index = 2 * i
+		#if (i != meters_coords.size() - 1):
+			#top_r_index = top_l_index + 2
+			#bottom_r_index = bottom_l_index + 2
+		#else:
+			#top_r_index = 1
+			#bottom_r_index = 0
+		#occluder_indices.append_array([top_l_index, bottom_r_index, bottom_l_index, top_r_index, bottom_r_index, top_l_index])
+	#
+	#surface_tool.generate_normals()
+	#var mesh: Mesh = surface_tool.commit()
+	#if (mesh == null):
+		#if (verbose): print("Failed to create mesh for building, cancel.")
+		#return false
+	#
+	#var mesh_node: MeshInstance3D = MeshInstance3D.new()
+	#mesh_node.mesh = mesh
+	#var surfaces_count = mesh_node.mesh.get_surface_count()
+	#for i in surfaces_count:
+		#mesh_node.set_surface_override_material(i, building_material)
+	#
+	#var parent: Node3D = null
+	## Only load collisions if necessary.
+	## We need to go back from local to global coordinates
+	## by adding the origin again.
+	#var xz_meters_coords: Array[Vector2] = []
+	#var xz_origin: Vector2 = Vector2(origin.x, origin.z)
+	## assign should cast type accordingly.
+	#xz_meters_coords.assign(meters_coords.map(func(v: Vector3) -> Vector2: return Vector2(v.x, v.z) + xz_origin))
+	#var mesh_collision_node: CollisionShape3D = null
+	#if not boundaries_generator.is_building_polygon_within_out_of_bounds_area(xz_meters_coords):
+		#var static_body: StaticBody3D = StaticBody3D.new()
+	#
+		#mesh_collision_node = CollisionShape3D.new()
+		#mesh_collision_node.shape = mesh.create_trimesh_shape()
+		#
+		#parent = static_body
+	#else:
+		#parent = Node3D.new()
+#
+	#buildings_container.add_child(parent)
+	#loader.persist_in_current_scene(parent)
+	#parent.add_child(mesh_node)
+	#loader.persist_in_current_scene(mesh_node)
+	#if mesh_collision_node != null:
+		#parent.add_child(mesh_collision_node)
+		#loader.persist_in_current_scene(mesh_collision_node)
+#
+	#
+	#parent.position = origin + Vector3(0, INIT_HEIGHT, 0)
+	#parent.name = "Building__%s" % [feature.get("properties").get("@id")]
+	#
+	#_setup_snapping(parent, false, in_ground_height)
+	#
+	#var occluder_instance: OccluderInstance3D = OccluderInstance3D.new()
+	#parent.add_child(occluder_instance)
+	#loader.persist_in_current_scene(occluder_instance)
+	#var occluder_3d_polygon: ArrayOccluder3D = ArrayOccluder3D.new()
+	#occluder_3d_polygon.set_arrays(occluder_vertices, occluder_indices)
+	#occluder_instance.occluder = occluder_3d_polygon
+#
+	#parent.add_to_group("buildings", true)
 
 	return true
 

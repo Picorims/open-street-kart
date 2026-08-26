@@ -7,7 +7,7 @@
 
 class_name ConfigureMPGameScreen extends VBoxContainer
 
-signal confirm(speed: TrackState.SpeedMode, total_cars: int)
+signal confirm(speed: TrackStateModel.SpeedMode, total_cars: int)
 signal speed_picker_changed(selected: int)
 signal cars_count_picker_changed(selected: int)
 
@@ -23,15 +23,15 @@ func _ready() -> void:
 		print("focused mp config")
 		_speed_picker.grab_focus()
 		_ok_button.pressed.connect(func():
-			var speed: TrackState.SpeedMode = TrackState.SpeedMode.CHILL
+			var speed: TrackStateModel.SpeedMode = TrackStateModel.SpeedMode.CHILL
 			if _speed_picker.selected == 0:
-				speed = TrackState.SpeedMode.CHILL
+				speed = TrackStateModel.SpeedMode.CHILL
 			elif _speed_picker.selected == 1:
-				speed = TrackState.SpeedMode.CASUAL
+				speed = TrackStateModel.SpeedMode.CASUAL
 			elif _speed_picker.selected == 2:
-				speed = TrackState.SpeedMode.CHALLENGING
+				speed = TrackStateModel.SpeedMode.CHALLENGING
 			elif _speed_picker.selected == 3:
-				speed = TrackState.SpeedMode.CRAZY
+				speed = TrackStateModel.SpeedMode.CRAZY
 			else:
 				push_error("Configure multiplayer screen: unknown speed mode for confirmation. i: %d" % [_speed_picker.selected])
 				return

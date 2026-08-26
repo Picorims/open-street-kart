@@ -8,19 +8,19 @@
 
 class_name PickModeScreen extends CenterContainer
 
-signal mode_selected(mode: TrackState.GameMode)
+signal mode_selected(mode: TrackStateModel.GameMode)
 
 func _ready() -> void:
 	var against_clock_button = $UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_AgainstClock
 	assert(against_clock_button != null, "against clock button undefined.")
 	against_clock_button.pressed.connect(func():
-		mode_selected.emit(TrackState.GameMode.AGAINST_CLOCK)
+		mode_selected.emit(TrackStateModel.GameMode.AGAINST_CLOCK)
 	)
 	
 	var versus_button = $UIBlockContainer/ButtonsVBoxContainer/AtomGUIBlurredBgndMenuButton_Versus
 	assert(versus_button != null, "versus button undefined.")
 	versus_button.pressed.connect(func():
-		mode_selected.emit(TrackState.GameMode.VERSUS)
+		mode_selected.emit(TrackStateModel.GameMode.VERSUS)
 	)
 	
 	against_clock_button.grab_focus()

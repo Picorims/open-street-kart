@@ -1,0 +1,53 @@
+[gd_scene format=3 uid="uid://de2eqxaybe1qf"]
+
+[ext_resource type="Script" uid="uid://c8me2u7ki5sxc" path="res://common/track/track_state_model.gd" id="1_ghuvo"]
+
+[sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_kap4q"]
+properties/0/path = NodePath(".:mode")
+properties/0/spawn = true
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:speed")
+properties/1/spawn = true
+properties/1/replication_mode = 2
+properties/2/path = NodePath("TrackStateModel:started")
+properties/2/spawn = true
+properties/2/replication_mode = 1
+properties/3/path = NodePath("TrackStateModel:start_us")
+properties/3/spawn = true
+properties/3/replication_mode = 1
+properties/4/path = NodePath("TrackStateModel:ids")
+properties/4/spawn = true
+properties/4/replication_mode = 1
+properties/5/path = NodePath("TrackStateModel:start_lap_us")
+properties/5/spawn = true
+properties/5/replication_mode = 1
+properties/6/path = NodePath("TrackStateModel:duration_us")
+properties/6/spawn = true
+properties/6/replication_mode = 1
+properties/7/path = NodePath("TrackStateModel:total_us")
+properties/7/spawn = true
+properties/7/replication_mode = 1
+properties/8/path = NodePath("TrackStateModel:display_names")
+properties/8/spawn = true
+properties/8/replication_mode = 1
+properties/9/path = NodePath("TrackStateModel:car_item_slots")
+properties/9/spawn = true
+properties/9/replication_mode = 1
+properties/10/path = NodePath("TrackStateModel:last_estimated_rankings")
+properties/10/spawn = true
+properties/10/replication_mode = 1
+properties/11/path = NodePath("TrackStateModel:race_finished")
+properties/11/spawn = true
+properties/11/replication_mode = 2
+properties/12/path = NodePath("TrackStateModel:in_countdown")
+properties/12/spawn = true
+properties/12/replication_mode = 2
+properties/13/path = NodePath("TrackStateModel:countdown_state")
+properties/13/spawn = true
+properties/13/replication_mode = 2
+
+[node name="TrackStateModel" type="Node" unique_id=1077443438]
+script = ExtResource("1_ghuvo")
+
+[node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=344095398]
+replication_config = SubResource("SceneReplicationConfig_kap4q")

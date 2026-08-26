@@ -20,6 +20,7 @@ signal timeout
 		return freeze
 	set(v):
 		managed_freeze = v
+		return #FIXME
 		# caching and restoring global transform to avoid
 		# a reset of the position/rotation when changing freeze state.
 		var temp_pos: Vector3 = global_position
@@ -52,6 +53,7 @@ var _freeze_not_moving_threshold_squared: float = freeze_not_moving_threshold * 
 var _timeout_emitted: bool = false
 
 func _ready() -> void:
+	return #FIXME
 	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 	managed_freeze = true
 	
@@ -61,6 +63,7 @@ func _ready() -> void:
 
 var _elapsed: float = 0
 func _physics_process(delta: float) -> void:
+	return #FIXME
 	if (not can_process()):
 		return
 	if (not get_collision_layer_value(6)):

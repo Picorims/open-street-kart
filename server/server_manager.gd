@@ -12,9 +12,10 @@ var max_players := 24
 var players: Dictionary[int, String] = {}
 var _mp: MultiplayerAPI
 var client_authority := -1
-var speed_mode: TrackState.SpeedMode
+var speed_mode: TrackStateModel.SpeedMode
 var cars_count := -1
 @onready var _server_rpc: RPC = $RPC
+@onready var _world: Node3D = $ServerWorld
 
 
 func start_server(port: int) -> Error:
@@ -54,3 +55,12 @@ func _ready() -> void:
 	multiplayer.peer_connected.connect(_on_player_connected)
 	multiplayer.peer_disconnected.connect(_on_player_disconnected)
 	_server_rpc.server_manager = self
+
+func get_world():
+	return _world
+
+## Remove all children of $World
+func clear_world():
+	for c in _world.get_children():
+		_world.remove_child(c)
+		c.queue_free()

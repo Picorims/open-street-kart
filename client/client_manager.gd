@@ -13,6 +13,8 @@ signal disconnected
 
 var _mp: MultiplayerAPI
 @onready var _client_rpc: RPC = $RPC
+@onready var _world: Node3D = $ClientWorld
+
 
 func get_rpc() -> RPC:
 	return _client_rpc
@@ -70,3 +72,12 @@ func clear_signals():
 
 func get_peer_id() -> int:
 	return multiplayer.get_unique_id()
+
+func get_world():
+	return _world
+
+## Remove all children of $World
+func clear_world():
+	for c in _world.get_children():
+		_world.remove_child(c)
+		c.queue_free()

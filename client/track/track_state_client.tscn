@@ -1,0 +1,6 @@
+[gd_scene format=3 uid="uid://crntef1xlgfuk"]
+
+[ext_resource type="Script" uid="uid://dv7fty8esqo7b" path="res://client/track/track_state_client.gd" id="1_louir"]
+
+[node name="TrackStateClient" type="Node" unique_id=807303231]
+script = ExtResource("1_louir")
