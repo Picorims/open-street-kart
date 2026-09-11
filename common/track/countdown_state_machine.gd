@@ -37,7 +37,6 @@ func tick(delta: float) -> void:
 	#print(model)
 	#print(model.in_countdown)
 	if model != null and model.in_countdown:
-		print("gggggg")
 		_countdown_elapsed += delta
 		
 		if (model.countdown_state == CountdownState.IDLE and _countdown_elapsed <= 1): # initialize

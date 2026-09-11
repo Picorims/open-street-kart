@@ -62,6 +62,7 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 		building_mode = Building.Mode.SERVER
 	elif instance == TrackInstance.CLIENT:
 		building_mode = Building.Mode.CLIENT
+	print("Setting up buildings: ", _buildings.size())
 	for n: Building in _buildings:
 		n.mode = building_mode
 		n._build_building()

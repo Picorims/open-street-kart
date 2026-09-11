@@ -74,6 +74,9 @@ func _ready() -> void:
 		mode = Mode.EDITOR
 		_build_building()
 
+func _enter_tree() -> void:
+	add_to_group("buildings")
+
 func _build_building(verbose: bool = false) -> bool:
 	if outline_points_m.size() < 3:
 		if (verbose):
