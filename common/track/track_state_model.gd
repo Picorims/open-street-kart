@@ -7,9 +7,15 @@
 
 class_name TrackStateModel extends Node
 
-@export var mode: GameMode
-@export var speed: SpeedMode
-@export var started = false
+const CountdownState = CountdownStateMachine.CountdownState
+
+signal in_countdown_changed(in_countdown: bool)
+signal countdown_state_changed(state: CountdownState)
+signal race_has_finished
+
+@export var mode: GameMode = GameMode.UNSET
+@export var speed: SpeedMode = SpeedMode.UNSET
+@export var started: bool = false
 @export var start_us: float = 0
 ## IDs and car names are equivalent
 @export var ids: Array[String] = []
@@ -21,20 +27,40 @@ class_name TrackStateModel extends Node
 var car_item_slots: Dictionary[String, PlayerItemSlotsState]
 @export var car_item_slots_state: Dictionary[String, PlayerItemSlotsState] = {}
 
-@export var last_estimated_rankings: TrackOffsetEntries = TrackOffsetEntries.new()
-@export var final_rankings: TrackFinalRankingEntries = TrackFinalRankingEntries.new()
-@export var race_finished: bool = false
+# estimated rankings
+## position on the track from the start based on the track path
+@export var car_offsets: Dictionary[String, float] = {}
+@export var colors: Dictionary[String, Color] = {}
+@export var rankings: Dictionary[String, int] = {}
 
-@export var in_countdown: bool = false
-@export var countdown_state: CountdownStateMachine.CountdownState = CountdownStateMachine.CountdownState.IDLE
+# final rankings
+@export var final_times_or_distance: Dictionary[String, String] = {}
+@export var final_rankings: Dictionary[String, int] = {}
+
+@export var race_finished: bool = false:
+	set(v):
+		race_finished = v
+		if v:
+			race_has_finished.emit()
+
+@export var in_countdown: bool = false:
+	set(v):
+		in_countdown = v
+		in_countdown_changed.emit(v)
+@export var countdown_state: CountdownState = CountdownState.IDLE:
+	set(v):
+		countdown_state = v
+		countdown_state_changed.emit(v)
 
 
 enum GameMode {
+	UNSET,
 	AGAINST_CLOCK,
-	VERSUS
+	VERSUS,
 }
 
 enum SpeedMode {
+	UNSET,
 	CHILL,
 	CASUAL,
 	CHALLENGING,

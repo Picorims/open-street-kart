@@ -191602,6 +191602,7 @@ shadow_reverse_cull_face = true
 environment = ExtResource("27_v4fro")
 
 [node name="TrackStateSpawner" type="MultiplayerSpawner" parent="." unique_id=1244563421]
+_spawnable_scenes = PackedStringArray("uid://de2eqxaybe1qf")
 spawn_path = NodePath("../TrackStateMPSpawnerContainer")
 spawn_limit = 1
 

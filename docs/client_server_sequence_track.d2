@@ -1,0 +1,37 @@
+# Open Street Kart is an arcade kart game where you race in real life areas reconstructed from Open Street Map
+# Copyright (c) 2025-2026 Charly Schmidt aka Picorims<picorims.contact@gmail.com> and Open Street Kart contributors
+
+# This Source Code Form is subject to the terms of the Mozilla Public
+# License, v. 2.0. If a copy of the MPL was not distributed with this
+# file, You can obtain one at https://mozilla.org/MPL/2.0/.
+
+...@client_server_sequence_definitions
+
+title: |md
+  # Client Server Sequence / Track
+  
+  ${description}
+| {near: top-center}
+
+host main
+guests main: {
+    style: {
+        multiple: true
+    }
+}
+
+Track initialization: {
+    host main -> server: instanciate server track
+    host main -> host client: instanciate client track
+    guests main -> guest clients: instanciate client track
+    server -> server: spawn track state model
+    server -> host client: syncs track state model
+    server -> guest clients: syncs track state model
+    server."Note: sync happens permanently\n(during the whole lifetime of the track)"
+    guest clients -> server: ready
+    host client -> server: ready
+    server -> server: countdown
+    # host -> server: instantiate
+    # host -> host client: instantiate
+    # host client -> server: connect to
+}

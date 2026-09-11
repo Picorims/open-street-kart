@@ -62,7 +62,7 @@ const MAX_LIN_VEL_FOR_CENTRIFUGAL_FORCE_COMPUTE = 100
 
 const SPEED_BOOST = 1.5
 
-var _track_state: TrackState
+var _track_state: TrackStateModel
 
 var _debug_centrifugal_force: Vector3
 var _debug_sliding_force: Vector3

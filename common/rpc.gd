@@ -14,7 +14,7 @@ signal c_on_speed_picker_changed(selected: int)
 signal c_on_cars_count_picker_changed(selected: int)
 signal c_on_mp_config_confirmed()
 signal c_on_track_launch(track: Main.TrackId, speed_mode: TrackStateModel.SpeedMode, cars_count: int, game_mode: TrackStateModel.GameMode)
-
+signal s_all_clients_are_ready
 
 var _valid_username := RegEx.create_from_string("[a-zA-Z0-9_]{3,32}")
 var server_manager: ServerManager = null
@@ -94,7 +94,6 @@ func _speed_picker_changed(selected: int):
 ## server -> client[broadcast]: speed picker UI sync to guest clients
 @rpc("authority", "call_remote", "reliable")
 func _broadcast_speed_picker_changed(selected: int):
-	var id := multiplayer.get_unique_id()
 	c_on_speed_picker_changed.emit(selected)
 
 @rpc("any_peer", "call_remote", "reliable")
@@ -109,7 +108,6 @@ func _cars_count_picker_changed(selected: int):
 ## server -> client[broadcast]: speed picker UI sync to guest clients
 @rpc("authority", "call_remote", "reliable")
 func _broadcast_cars_count_picker_changed(selected: int):
-	var id := multiplayer.get_unique_id()
 	c_on_cars_count_picker_changed.emit(selected)
 
 ## client[host] -> server: submit mp game config
@@ -139,8 +137,17 @@ func _launch_track(track: Main.TrackId):
 @rpc("authority", "call_remote", "reliable")
 func _broadcast_launch_track(track: Main.TrackId, speed_mode: TrackStateModel.SpeedMode, cars_count: int, game_mode: TrackStateModel.GameMode):
 	c_on_track_launch.emit(track, speed_mode, cars_count, game_mode)
-	
-	
+
+@rpc("any_peer", "call_remote", "reliable")
+func _set_ready():
+	if not _is_server(multiplayer.get_unique_id()):
+		return
+	server_manager.clients_ready.set(multiplayer.get_remote_sender_id(), true)
+	print("received ready for ", multiplayer.get_remote_sender_id())
+	if server_manager.all_clients_are_ready():
+		s_all_clients_are_ready.emit()
+
+
 
 
 
@@ -165,6 +172,9 @@ func c2s_confirm_mp_config(speed: TrackStateModel.SpeedMode, cars_count: int):
 
 func c2s_launch_track(track: Main.TrackId):
 	_launch_track.rpc_id(1, track)
+	
+func c2s_set_ready():
+	_set_ready.rpc_id(1)
 
 func clear_signals():
 	SignalUtils.clear_connections_from_signal(c_on_username_accepted)

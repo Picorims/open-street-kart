@@ -25,6 +25,9 @@ enum TrackInstance {
 @onready var _track_state_client: TrackStateClient = $TrackStateClient
 @onready var _track_state_server: TrackStateServer = $TrackStateServer
 
+var client_manager: ClientManager = null
+var server_manager: ServerManager = null
+
 
 var is_in_game_running: bool = false
 
@@ -45,8 +48,14 @@ func _ready() -> void:
 	assert($Arrows != null, "No arrows root.")
 	assert($ItemsHolder != null, "No items holder root.")
 	assert($TrackStateSpawner != null, "No track state spawner to sync state.")
+
+
 ## Entry point of a track, initiates and play the track.
 func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars_count: int):
+	if instance == TrackInstance.CLIENT:
+		assert(client_manager != null, "Missing client manager.")
+	if instance == TrackInstance.SERVER:
+		assert(server_manager != null, "Missing server manager.")
 	var _buildings = get_tree().get_nodes_in_group("buildings")
 	var building_mode: Building.Mode = Building.Mode.EDITOR
 	if instance == TrackInstance.SERVER:
@@ -62,21 +71,27 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 	if instance == TrackInstance.CLIENT:
 		$Checkpoints.queue_free()
 		_track_state_server.queue_free()
+		_track_state_client.track = self
+
+		_track_state_spawner.spawned.connect(func(model: Node):
+			_track_state_client.model = model
+			_track_state_client.init()
+		)
 	if instance == TrackInstance.SERVER:
 		$Arrows.queue_free()
 		_track_state_client.queue_free()
-		_track_state_spawner.spawn_function = _spawn_track_state
-		_track_state_spawner.spawn()
+		
+		var model := _spawn_track_state(_track_state_spawner)
 		
 		_track_state_server.track = self
-		_track_state_server.model = _track_state_mp_spawner_container.get_node("TrackStateModel")
-		_track_state_server.loop_checkpoints.assign(_loop_checkpoints)
+		_track_state_server.model = model
+		_track_state_server.loop_checkpoints.assign(_loop_checkpoints.get_children())
 		_track_state_server.player_spawner = _player_spawner
 		_track_state_server.procedural_data_holder = _procedural_data_holder
 		_track_state_server.init(mode, speed, cars_count)
 
 
-func _spawn_track_state(_data):
+func _spawn_track_state(spawner: MultiplayerSpawner) -> TrackStateModel:
 	var state: TrackStateModel = preload("res://common/track/track_state_model.tscn").instantiate()
 	var loop_checkpoints := _loop_checkpoints.get_children()
 	for c in loop_checkpoints:
@@ -85,6 +100,8 @@ func _spawn_track_state(_data):
 		else:
 			push_error(c, " is not a LoopCheckpoint.")
 	# server has authority on spawned node by default.
+	
+	_track_state_mp_spawner_container.add_child(state)
 	return state
 
 ## Contains GDScript logic to apply manual mutations (such as transforms)

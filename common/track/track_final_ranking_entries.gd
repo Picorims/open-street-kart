@@ -7,7 +7,3 @@
 
 ## Used by TrackStateModel to represent ranking data.
 class_name TrackFinalRankingEntries extends Resource
-
-@export var car_display_names: Dictionary[String, String] = {}
-@export var times: Dictionary[String, String] = {}
-@export var rankings: Dictionary[String, int] = {}

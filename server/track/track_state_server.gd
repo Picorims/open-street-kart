@@ -17,7 +17,7 @@ var _countdown_sm: CountdownStateMachine = CountdownStateMachine.new()
 var _track_region_manager: TrackRegionManager = TrackRegionManager.new()
 func get_track_region_manager() -> TrackRegionManager:
 	return _track_region_manager
-	
+
 func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars_count: int):
 	assert(loop_checkpoints.size() > 0, "ERROR: No loop checkpoint list specified.")
 	assert(player_spawner != null, "ERROR: No player spawner specified.")
@@ -69,7 +69,16 @@ func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars
 		model.in_countdown = false
 		_start()
 	)
-	_countdown_sm.countdown()
+	
+	if track.server_manager.all_clients_are_ready():
+		print("Clients ready, counting down.")
+		_countdown_sm.countdown()
+	else:
+		print("Waiting for clients being ready.")
+		track.server_manager.get_rpc().s_all_clients_are_ready.connect(func():
+			print("Clients now ready, counting down.")
+			_countdown_sm.countdown()
+		)
 	print("Track state initialization done.")
 
 ## Called AFTER the countdown when the races start ("go").
@@ -88,36 +97,29 @@ func _stop():
 	# done
 	for k in model.total_us.keys():
 		registered.append(k)
-		var name_str: String = model.display_names.get(k)
 		var time_str: String = _pretty_duration_from_us(model.total_us.get(k))
-		model.final_rankings.car_display_names.set(k, name_str)
-		model.final_rankings.times.set(k, time_str)
-		model.final_rankings.rankings.set(k, current_rank)
+		model.final_times_or_distance.set(k, time_str)
+		model.final_rankings.set(k, current_rank)
 		
 		current_rank += 1
-	
-	#TODO refactor checkpoint
-	
+		
 	# was still running
 	# From last to first, because the array is sorted in ascending order
 	# by offset from the start of the track. So the lowest offset, in other
 	# words the start of the array, is last, and thus shall be inserted as
 	# last as well. Hence the need to iterate in reverse order.
 	for i in range(model.last_estimated_rankings.ids.size() - 1, -1, -1):
-		var ids := model.last_estimated_rankings.ids
-		var offsets := model.last_estimated_rankings.car_offsets
+		var ids := model.ids
+		var offsets := model.car_offsets
 		var id = ids[i]
 		var offset: float = offsets.get(id)
 		if registered.has(ids[i]):
 			# done, skip
 			continue
 		
-		var name_str: String = model.display_names.get(id)
-		var position_str: String = "{0}".format([current_rank])
 		var time_str: String = "{0}m".format(["%.2f" % offset])
-		model.final_rankings.car_display_names.set(id, name_str)
-		model.final_rankings.times.set(id, time_str)
-		model.final_rankings.rankings.set(id, current_rank)
+		model.final_times_or_distance.set(id, time_str)
+		model.final_rankings.set(id, current_rank)
 		
 		current_rank += 1
 
@@ -135,7 +137,7 @@ func _pretty_duration_from_us(us: float) -> String:
 
 func _process(delta: float) -> void:
 	# TODO multi refactor
-	pass
+	_countdown_sm.tick(delta)
 	#if (not model.race_finished and model.started):
 		#var stats_from_first: Dictionary[String, _CarStatsFromFirst] = _process_live_ranking()
 		#_process_item_slots(delta, stats_from_first)

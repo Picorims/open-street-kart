@@ -57,7 +57,7 @@ func _ready() -> void:
 	freeze_mode = RigidBody3D.FREEZE_MODE_KINEMATIC
 	managed_freeze = true
 	
-	var track_state: TrackState = get_tree().get_first_node_in_group("track_state")
+	var track_state: TrackStateModel = get_tree().get_first_node_in_group("track_state")
 	assert(track_state != null, "track state not found.")
 	track_state.get_track_region_manager().register_node(self)
 

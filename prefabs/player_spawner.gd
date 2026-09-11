@@ -30,7 +30,7 @@ func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars
 		count = 1
 	elif (mode == TrackStateModel.GameMode.VERSUS):
 		count = cars_count
-	
+	return #FIXME
 	for i in range(count):
 		var car: CarCustomPhysics2 = CAR_SCENE.instantiate()
 		self.add_child(car)

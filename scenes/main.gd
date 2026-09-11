@@ -401,12 +401,15 @@ func _process(_delta: float) -> void:
 			server_track = track_packed_scene.instantiate()
 		if client_track != null:
 			client_track.instance = Track.TrackInstance.CLIENT
+			client_track.client_manager = _client_manager
 			client_track.ready.connect(func():
 				client_track.launch(_selected_mode, _selected_speed, _selected_cars_count)
 			)
 			_client_manager.get_world().add_child(client_track)
 		if server_track != null:
+			_server_manager.clients_ready = {}
 			server_track.instance = Track.TrackInstance.SERVER
+			server_track.server_manager = _server_manager
 			server_track.ready.connect(func():
 				server_track.launch(_selected_mode, _selected_speed, _selected_cars_count)
 			)

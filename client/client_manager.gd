@@ -13,7 +13,7 @@ signal disconnected
 
 var _mp: MultiplayerAPI
 @onready var _client_rpc: RPC = $RPC
-@onready var _world: Node3D = $ClientWorld
+@onready var _world: Node3D = $World
 
 
 func get_rpc() -> RPC:

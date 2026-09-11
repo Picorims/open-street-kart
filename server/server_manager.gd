@@ -14,9 +14,12 @@ var _mp: MultiplayerAPI
 var client_authority := -1
 var speed_mode: TrackStateModel.SpeedMode
 var cars_count := -1
+var clients_ready: Dictionary[int, bool] = {}
 @onready var _server_rpc: RPC = $RPC
-@onready var _world: Node3D = $ServerWorld
+@onready var _world: Node3D = $World
 
+func get_rpc() -> RPC:
+	return _server_rpc
 
 func start_server(port: int) -> Error:
 	var network: ENetMultiplayerPeer = ENetMultiplayerPeer.new()
@@ -56,7 +59,7 @@ func _ready() -> void:
 	multiplayer.peer_disconnected.connect(_on_player_disconnected)
 	_server_rpc.server_manager = self
 
-func get_world():
+func get_world() -> Node3D:
 	return _world
 
 ## Remove all children of $World
@@ -64,3 +67,23 @@ func clear_world():
 	for c in _world.get_children():
 		_world.remove_child(c)
 		c.queue_free()
+
+func all_clients_are_ready() -> bool:
+	var clients_ready_count := clients_ready.keys().size()
+	var players_count := players.size()
+	if clients_ready_count > players_count:
+		push_error("Server: got more clients ready than connected players, cannot proceed.")
+		return false
+	elif clients_ready_count < players_count:
+		print("Server: clients ready: %d, total players: %d" % [clients_ready_count, players_count])
+		return false
+	else:
+		print(clients_ready.values())
+		var all_clients_ready := clients_ready.values().find(false) == -1
+		if all_clients_ready:
+			print("Server: all clients ready.")
+		else:
+			print("Server: One client still not ready.")
+			
+		return all_clients_ready
+			

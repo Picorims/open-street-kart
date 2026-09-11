@@ -25,13 +25,19 @@ var model: TrackStateModel
 
 ## Starts the countdown before the race start.
 func countdown():
+	print("Starting countdown...")
 	assert(model != null, "Cannot countdown if model is not defined.")
 	_countdown_elapsed = 0
 	model.countdown_state = CountdownState.IDLE
 	model.in_countdown = true
+	print("Countdown started.")
 
-func _process(delta: float) -> void:
+func tick(delta: float) -> void:
+	#print("eifjsief")
+	#print(model)
+	#print(model.in_countdown)
 	if model != null and model.in_countdown:
+		print("gggggg")
 		_countdown_elapsed += delta
 		
 		if (model.countdown_state == CountdownState.IDLE and _countdown_elapsed <= 1): # initialize
