@@ -8,6 +8,8 @@
 ## System loading and unloading nodes based on their position,
 ## and position polling from other nodes (defining which regions are loaded)
 ##
+## Itended for physics simulation only.
+##
 ## **Note:** May not behave correctly for objects with a bbox larger
 ## than the chunk size.
 class_name TrackRegionManager extends Node

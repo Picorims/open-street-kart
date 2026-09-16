@@ -12,6 +12,6 @@ func _ready() -> void:
 	self.monitoring = true
 	self.body_entered.connect(func(body: Node3D):
 		var car: Node3D = body.get_parent_node_3d()
-		if (car != null && is_instance_of(car, CarCustomPhysics2)):
+		if (car != null && is_instance_of(car, CarCustomPhysics2Server)):
 			car.respawn()
 	)

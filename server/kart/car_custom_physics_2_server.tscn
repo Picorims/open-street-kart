@@ -1,0 +1,89 @@
+[gd_scene format=3 uid="uid://b60e7khbdel14"]
+
+[ext_resource type="Script" uid="uid://wpd0eiqy1bcy" path="res://server/kart/car_custom_physics_interface_2_server.gd" id="1_6bnrg"]
+[ext_resource type="Script" uid="uid://cqfsveghpuj5h" path="res://server/kart/car_custom_physics_2_server.gd" id="2_rnf7h"]
+
+[sub_resource type="PhysicsMaterial" id="PhysicsMaterial_nblgo"]
+friction = 0.0
+absorbent = true
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2wjoa"]
+radius = 0.1
+height = 0.4
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_n7qhw"]
+size = Vector3(1, 0.2, 0.6)
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_2glma"]
+radius = 1.0
+
+[node name="CarCustomPhysics2" type="Node3D" unique_id=1795504577]
+script = ExtResource("1_6bnrg")
+
+[node name="CarRigidBody" type="RigidBody3D" parent="." unique_id=1293076100 node_paths=PackedStringArray("interface")]
+collision_layer = 458817
+mass = 400.0
+physics_material_override = SubResource("PhysicsMaterial_nblgo")
+gravity_scale = 2.0
+center_of_mass_mode = 1
+center_of_mass = Vector3(0, -1, 0)
+continuous_cd = true
+contact_monitor = true
+max_contacts_reported = 1
+linear_damp = 0.3
+angular_damp = 2.0
+script = ExtResource("2_rnf7h")
+interface = NodePath("..")
+
+[node name="WheelFR" type="CollisionShape3D" parent="CarRigidBody" unique_id=2116056201]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, 0.25)
+shape = SubResource("CapsuleShape3D_2wjoa")
+
+[node name="WheelFL" type="CollisionShape3D" parent="CarRigidBody" unique_id=1903811721]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, -0.25)
+shape = SubResource("CapsuleShape3D_2wjoa")
+
+[node name="WheelBR" type="CollisionShape3D" parent="CarRigidBody" unique_id=813314860]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, 0.25)
+shape = SubResource("CapsuleShape3D_2wjoa")
+
+[node name="WheelBL" type="CollisionShape3D" parent="CarRigidBody" unique_id=1473259601]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.45, 0, -0.25)
+shape = SubResource("CapsuleShape3D_2wjoa")
+
+[node name="Frame" type="CollisionShape3D" parent="CarRigidBody" unique_id=1749624512]
+shape = SubResource("BoxShape3D_n7qhw")
+
+[node name="FrontRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=2079048968]
+target_position = Vector3(1, 0, 0)
+
+[node name="GroundRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=229964878]
+target_position = Vector3(0, -0.8, 0)
+collision_mask = 28
+
+[node name="WheelFRRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=1202402940]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.1, 0.3)
+target_position = Vector3(0, -0.7, 0)
+collision_mask = 256
+
+[node name="WheelFLRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=744539374]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, -0.1, -0.3)
+target_position = Vector3(0, -0.7, 0)
+collision_mask = 256
+
+[node name="WheelBLRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=315501325]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.1, -0.3)
+target_position = Vector3(0, -0.7, 0)
+collision_mask = 256
+
+[node name="WheelBRRayCast3D" type="RayCast3D" parent="CarRigidBody" unique_id=185163262]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, -0.1, 0.3)
+target_position = Vector3(0, -0.7, 0)
+collision_mask = 256
+
+[node name="ManagedFreezeWakeUpArea3D" type="Area3D" parent="CarRigidBody" unique_id=621671018]
+collision_layer = 0
+collision_mask = 32
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="CarRigidBody/ManagedFreezeWakeUpArea3D" unique_id=375245892]
+shape = SubResource("SphereShape3D_2glma")

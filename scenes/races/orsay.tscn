@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://snxec2n3dvd1"]
 
 [ext_resource type="Script" uid="uid://bkbo70h8inkqw" path="res://scenes/races/orsay.gd" id="1_bhu62"]
-[ext_resource type="PackedScene" uid="uid://n8fkrinxntr" path="res://prefabs/player_spawner.tscn" id="2_4kx0e"]
+[ext_resource type="PackedScene" uid="uid://n8fkrinxntr" path="res://common/track/player_spawner.tscn" id="2_4kx0e"]
 [ext_resource type="PackedScene" uid="uid://b4tvjt47re5eq" path="res://prefabs/map_data_loader.tscn" id="3_iklud"]
 [ext_resource type="Script" uid="uid://cwq7n7ucoe7ph" path="res://scripts/race_global_boundary.gd" id="5_b80ht"]
 [ext_resource type="Script" uid="uid://cm3qd07csn541" path="res://addons/road-generator/nodes/road_manager.gd" id="5_fwup8"]

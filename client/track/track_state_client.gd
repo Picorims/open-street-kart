@@ -17,10 +17,12 @@ var _race_hud: RaceHUD
 var _race_finished_gui: RaceFinishedGUI
 
 var _camera := Camera3D.new()
-var _player_car: CarCustomPhysics2
+var _player_car: CarCustomPhysics2Client
 var _cam_target_pos := Vector3.ZERO
 var _cam_current_pos := Vector3.ZERO
 var _camera_initialized := false
+
+var player_spawner: PlayerSpawner = null
 
 const CAM_DISTANCE_FROM_PLAYER := 4.0
 const CAM_HEIGHT_FROM_PLAYER := 1.5
@@ -39,6 +41,7 @@ func _ready() -> void:
 	#DebugDraw2D.end_text_group()
 
 func init():
+	assert(player_spawner != null, "missing player spawner.")
 	assert(model != null, "missing track model.")
 	assert(track != null, "missing track.")
 	print("Client: initializing track...")
@@ -59,6 +62,9 @@ func init():
 			#_player_car = c
 
 	add_child(_camera)
+	
+	player_spawner.track = track
+	player_spawner.init(TrackStateModel.GameMode.UNSET, TrackStateModel.SpeedMode.UNSET, 0)
 	
 	model.in_countdown_changed.connect(func(in_countdown):
 		print("in countdown: ", in_countdown)

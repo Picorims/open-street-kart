@@ -73,6 +73,7 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 		$Checkpoints.queue_free()
 		_track_state_server.queue_free()
 		_track_state_client.track = self
+		_track_state_client.player_spawner = _player_spawner
 
 		_track_state_spawner.spawned.connect(func(model: Node):
 			_track_state_client.model = model
@@ -82,7 +83,7 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 		$Arrows.queue_free()
 		_track_state_client.queue_free()
 		
-		var model := _spawn_track_state(_track_state_spawner)
+		var model := _spawn_track_state()
 		
 		_track_state_server.track = self
 		_track_state_server.model = model
@@ -92,7 +93,7 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 		_track_state_server.init(mode, speed, cars_count)
 
 
-func _spawn_track_state(spawner: MultiplayerSpawner) -> TrackStateModel:
+func _spawn_track_state() -> TrackStateModel:
 	var state: TrackStateModel = preload("res://common/track/track_state_model.tscn").instantiate()
 	var loop_checkpoints := _loop_checkpoints.get_children()
 	for c in loop_checkpoints:

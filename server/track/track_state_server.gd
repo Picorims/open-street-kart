@@ -17,6 +17,9 @@ var _countdown_sm: CountdownStateMachine = CountdownStateMachine.new()
 var _track_region_manager: TrackRegionManager = TrackRegionManager.new()
 func get_track_region_manager() -> TrackRegionManager:
 	return _track_region_manager
+	
+func _enter_tree() -> void:
+	add_to_group("track_state")
 
 func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars_count: int):
 	assert(loop_checkpoints.size() > 0, "ERROR: No loop checkpoint list specified.")
@@ -32,7 +35,7 @@ func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars
 	print("Initializing track state...")
 	for i in range(loop_checkpoints.size()):
 		var c: LoopCheckpoint = loop_checkpoints[i]
-		c.car_entered.connect(func(car: CarCustomPhysics2):
+		c.car_entered.connect(func(car: CarCustomPhysics2Server):
 			var id: String = car.name
 
 			if (not model.durations_us.has(id)):
@@ -56,9 +59,9 @@ func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars
 				model.total_us.set(id, now - model.start_us)
 				if (car.display_name == "you"):
 					_stop()
-
 		)
 	
+	player_spawner.track = track
 	player_spawner.init(mode, speed, cars_count)
 	for c in player_spawner.car_root_nodes:
 		model.display_names.set(c.name, c.display_name)

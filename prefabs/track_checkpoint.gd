@@ -27,7 +27,7 @@ class_name TrackCheckpoint extends Node3D
 		assert(_shape != null, "ERROR: shape not initialized.")
 		_collider.debug_color = v
 
-signal car_entered(car: CarCustomPhysics2)
+signal car_entered(car: CarCustomPhysics2Server)
 
 var _area: Area3D = Area3D.new()
 var _collider: CollisionShape3D = CollisionShape3D.new()
@@ -48,7 +48,7 @@ func _ready() -> void:
 	
 	_area.body_entered.connect(func(body: Node3D):
 		var car: Node3D = body.get_parent_node_3d()
-		if (car != null and is_instance_of(car, CarCustomPhysics2)):
+		if (car != null and is_instance_of(car, CarCustomPhysics2Server)):
 			car.last_checkpoint = self
 			car_entered.emit(car)
 	)

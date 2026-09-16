@@ -116,6 +116,7 @@ use={
 common/physics_ticks_per_second=240
 common/physics_jitter_fix=0.0
 3d/physics_engine="Jolt Physics"
+jolt_physics_3d/limits/max_bodies=20480
 common/physics_interpolation=true
 
 [rendering]
