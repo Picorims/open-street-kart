@@ -8,6 +8,8 @@
 
 class_name PlayerSpawner extends Node3D
 
+signal spawned_kart(kart: CarCustomPhysics2Client)
+
 const CAR_SCENE_SERVER: PackedScene = preload("res://server/kart/car_custom_physics_2_server.tscn")
 const CAR_SCENE_CLIENT: PackedScene = preload("res://client/kart/car_custom_physics_2_client.tscn")
 const KART_SYNC: PackedScene = preload("res://common/kart/kart_sync.tscn")
@@ -104,6 +106,8 @@ func _init_client():
 		_karts_container.add_child(kart)
 		#kart_sync.remote_path = "../KartsContainer/%s" % kart.name
 		kart_sync.remote_path = kart.get_path()
+		kart.kart_sync = kart_sync
+		spawned_kart.emit(kart)
 		print("Client: spawned %s for %s" % [kart.name, kart_sync.name])
 		print("kart is in ", kart.get_path())
 		print("kart sync is in ", kart_sync.get_path())

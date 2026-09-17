@@ -10,6 +10,7 @@ class_name KartSync extends RemoteTransform3D
 
 @export var display_name: String = ""
 @export var kart_color: Color = Color.BLACK
+@export var current_velocity: Vector3 = Vector3.ZERO
 
 #func _process(delta: float) -> void:
 	#DebugDraw2D.set_text("%s %d" % [self.name, multiplayer.get_unique_id()], global_position)

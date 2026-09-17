@@ -17,6 +17,8 @@ var _race_hud: RaceHUD
 var _race_finished_gui: RaceFinishedGUI
 
 var _camera := Camera3D.new()
+# TODO separate controllable cars per client
+## The car that this client is controlling.
 var _player_car: CarCustomPhysics2Client
 var _cam_target_pos := Vector3.ZERO
 var _cam_current_pos := Vector3.ZERO
@@ -53,16 +55,13 @@ func init():
 	add_child(_race_finished_gui)
 	
 	# TODO update GUI and visuals once received updated model
-	
-	#player_spawner.init(mode, speed)
-	#for c in player_spawner.car_root_nodes:
-		#_display_names.set(c.name, c.display_name)
-		#_ids.append(c.name)
-		#if c.display_name == "you":
-			#_player_car = c
 
 	add_child(_camera)
 	
+	player_spawner.spawned_kart.connect(func(kart: CarCustomPhysics2Client):
+		if kart.display_name == "you": #FIXME multiplayer approach
+			_player_car = kart
+	)
 	player_spawner.track = track
 	player_spawner.init(TrackStateModel.GameMode.UNSET, TrackStateModel.SpeedMode.UNSET, 0)
 	
@@ -121,14 +120,12 @@ func _process(delta: float) -> void:
 		#_process_item_slots(delta, stats_from_first)
 
 func _physics_process(delta: float) -> void:
-	#TODO
 	pass
-	#get_track_region_manager().tick(delta)
-	#if not _camera_initialized and _player_car.current_position:
-		#_init_camera()
-		#_camera_initialized = true
-	#if _camera_initialized:
-		#_update_camera()
+	if not _camera_initialized and _player_car != null and _player_car.current_position:
+		_init_camera()
+		_camera_initialized = true
+	if _camera_initialized:
+		_update_camera()
 
 func _process_item_slots(delta: float, stats_from_first: Dictionary[String, _CarStatsFromFirst]):
 	#TODO
@@ -221,58 +218,54 @@ func _process_live_ranking() -> Dictionary[String, _CarStatsFromFirst]:
 	#return stats_from_first
 
 func _init_camera():
-	#TODO
-	pass
-	#var car_pos := _player_car.current_position
-	#var basis := _player_car.car_basis
-	#
-	#var local_pos = Vector3.ZERO
-	#local_pos -= basis.x.slide(Vector3.UP).normalized() * CAM_DISTANCE_FROM_PLAYER
-	#var pos_ground = car_pos + local_pos
-	#local_pos += basis.y * CAM_HEIGHT_FROM_PLAYER
-	#var pos = car_pos + local_pos
-	#print("Cam init at: ", pos)
-	#print("Cam will look at: ", car_pos, "from: ", pos_ground)
-	##_camera.look_at_from_position(pos_ground, car_pos)
-	##_camera.global_position = pos
-	#_cam_target_pos = local_pos
-	#_cam_current_pos = _cam_target_pos
-	##DebugDraw3D.draw_arrow(pos_ground, car_pos, Color.RED, 0.05, true, 10)
-	#_camera.current = true
-	#DebugDraw2D.set_text("_cam_target_pos_cam", _cam_target_pos, 0, Color.WHITE, 5)
-	#DebugDraw2D.set_text("current_pos_cam", _cam_current_pos, 0, Color.WHITE, 5)
-	#_update_camera(true)
+	var car_pos := _player_car.current_position
+	var basis := _player_car.car_basis
+	
+	var local_pos = Vector3.ZERO
+	local_pos -= basis.x.slide(Vector3.UP).normalized() * CAM_DISTANCE_FROM_PLAYER
+	var pos_ground = car_pos + local_pos
+	local_pos += basis.y * CAM_HEIGHT_FROM_PLAYER
+	var pos = car_pos + local_pos
+	print("Cam init at: ", pos)
+	print("Cam will look at: ", car_pos, "from: ", pos_ground)
+	#_camera.look_at_from_position(pos_ground, car_pos)
+	#_camera.global_position = pos
+	_cam_target_pos = local_pos
+	_cam_current_pos = _cam_target_pos
+	#DebugDraw3D.draw_arrow(pos_ground, car_pos, Color.RED, 0.05, true, 10)
+	_camera.current = true
+	DebugDraw2D.set_text("_cam_target_pos_cam", _cam_target_pos, 0, Color.WHITE, 5)
+	DebugDraw2D.set_text("current_pos_cam", _cam_current_pos, 0, Color.WHITE, 5)
+	_update_camera(true)
 
 
 func _update_camera(force := false):
-	#TODO
-	pass
-	#if not _started and not force:
-		#return
-	#var car_velocity := _player_car.current_velocity
-	#var car_position := _player_car.current_position
-	#var car_basis := _player_car.car_basis
-	#var meaningless_vel: bool = car_velocity.is_zero_approx() or (abs(car_velocity.x) < 0.1 and abs(car_velocity.x) < 0.1)
-	#if car_velocity.length() > CAM_UPDATE_MIN_SPEED and not meaningless_vel:
-		#var dir := car_velocity.normalized()
-		#if _player_car.car_basis.x.dot(car_velocity) < 0:
-			#dir *= -1
-		#_cam_target_pos = -dir.slide(Vector3.UP).normalized() * CAM_DISTANCE_FROM_PLAYER
-		## I'll be honest, Idk why PI, but it looks nice with it.
-		## When I coded this, I was so desperate that I just went with trying things
-		## that might work. Sorry! (Probably only amplifies vertical cam movement.)
-		#_cam_target_pos.y -= dir.y * PI
-	#var ratio_h := CAM_EASING_RATIO_HOR
-	#var ratio_v := CAM_EASING_RATIO_VERT
-	#_cam_current_pos = Vector3(
-		#ratio_h * _cam_target_pos.x + (1.0 - ratio_h) * _cam_current_pos.x,
-		#ratio_v * _cam_target_pos.y + (1.0 - ratio_v) * _cam_current_pos.y,
-		#ratio_h * _cam_target_pos.z + (1.0 - ratio_h) * _cam_current_pos.z,
-	#)
-	#DebugDraw2D.set_text("_cam_target_pos_cam", _cam_target_pos)
-	#DebugDraw2D.set_text("current_pos_cam", _cam_current_pos)
-#
-	#var pos = car_position + _cam_current_pos
-	#_camera.look_at_from_position(pos, car_position)
-	#pos.y += CAM_HEIGHT_FROM_PLAYER
-	#_camera.global_position = pos
+	if not model.started and not force:
+		return
+	var car_velocity := _player_car.current_velocity
+	var car_position := _player_car.current_position
+	var car_basis := _player_car.car_basis
+	var meaningless_vel: bool = car_velocity.is_zero_approx() or (abs(car_velocity.x) < 0.1 and abs(car_velocity.x) < 0.1)
+	if car_velocity.length() > CAM_UPDATE_MIN_SPEED and not meaningless_vel:
+		var dir := car_velocity.normalized()
+		if _player_car.car_basis.x.dot(car_velocity) < 0:
+			dir *= -1
+		_cam_target_pos = -dir.slide(Vector3.UP).normalized() * CAM_DISTANCE_FROM_PLAYER
+		# I'll be honest, Idk why PI, but it looks nice with it.
+		# When I coded this, I was so desperate that I just went with trying things
+		# that might work. Sorry! (Probably only amplifies vertical cam movement.)
+		_cam_target_pos.y -= dir.y * PI
+	var ratio_h := CAM_EASING_RATIO_HOR
+	var ratio_v := CAM_EASING_RATIO_VERT
+	_cam_current_pos = Vector3(
+		ratio_h * _cam_target_pos.x + (1.0 - ratio_h) * _cam_current_pos.x,
+		ratio_v * _cam_target_pos.y + (1.0 - ratio_v) * _cam_current_pos.y,
+		ratio_h * _cam_target_pos.z + (1.0 - ratio_h) * _cam_current_pos.z,
+	)
+	DebugDraw2D.set_text("_cam_target_pos_cam", _cam_target_pos)
+	DebugDraw2D.set_text("current_pos_cam", _cam_current_pos)
+
+	var pos = car_position + _cam_current_pos
+	_camera.look_at_from_position(pos, car_position)
+	pos.y += CAM_HEIGHT_FROM_PLAYER
+	_camera.global_position = pos

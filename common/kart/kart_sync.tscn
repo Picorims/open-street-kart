@@ -15,6 +15,9 @@ properties/2/replication_mode = 2
 properties/3/path = NodePath(".:kart_color")
 properties/3/spawn = true
 properties/3/replication_mode = 2
+properties/4/path = NodePath(".:current_velocity")
+properties/4/spawn = true
+properties/4/replication_mode = 1
 
 [node name="KartSync" type="RemoteTransform3D" unique_id=754436355]
 script = ExtResource("1_ietni")

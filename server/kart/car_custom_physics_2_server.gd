@@ -367,6 +367,7 @@ func _physics_process(delta: float) -> void:
 		_brain.tick(global_position, debug_pos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
 	interface.kart_sync.global_position = global_position
 	interface.kart_sync.global_transform = global_transform
+	interface.kart_sync.current_velocity = current_velocity
 
 
 func force_basis_on_next_physics_frame(new_basis: Basis):

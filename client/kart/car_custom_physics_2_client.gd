@@ -34,8 +34,6 @@ var current_direction: Vector3 = Vector3(1, 0, 0)
 		if (_brain != null):
 			_brain.path = v
 var items_holder: Node3D = null
-var current_velocity := Vector3.ZERO
-var current_position := Vector3.ZERO
 
 const AIR_BOMB_SCENE: PackedScene = preload("res://prefabs/items/air_bomb.tscn")
 
@@ -64,13 +62,7 @@ const SPEED_BOOST = 1.5
 
 var _track_state: TrackStateServer
 
-var _debug_centrifugal_force: Vector3
-var _debug_sliding_force: Vector3
-var _debug_sliding_force_compensated: Vector3
-var _debug_soft_clamp_speed_force: Vector3
-var wheel_ray_casts: Array[RayCast3D]
 var _going_backwards: bool = false
-var _ground_raycast: RayCast3D
 var _drifting = false:
 	set(v):
 		_drifting = v
@@ -94,8 +86,6 @@ func _ready() -> void:
 	_track_state = get_tree().get_first_node_in_group("track_state")
 	assert(_track_state != null, "Track state not found.")
 	
-	current_position = global_position
-
 func _disable_drift() -> void:
 	_drifting = false
 	_drifting_direction = 0
