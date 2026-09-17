@@ -38,6 +38,10 @@ settings/addon_root_folder="res://addons/debug_draw_3d"
 
 enabled=PackedStringArray("res://addons/at-icons/plugin.cfg", "res://addons/osk_plugin/plugin.cfg", "res://addons/road-generator/plugin.cfg", "res://addons/sky_3d/plugin.cfg", "res://addons/terrain_3d/plugin.cfg")
 
+[global_group]
+
+track_state_server=""
+
 [gui]
 
 theme/custom="uid://mcxm36operox"

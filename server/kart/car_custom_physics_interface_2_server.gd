@@ -14,6 +14,7 @@ enum CarMode {
 	BOT,
 }
 
+@export var track_state_server: TrackStateServer
 @export var kart_sync: KartSync
 @export var speed_multiplier: float = 1.0:
 	set(v):

@@ -81,10 +81,7 @@ func is_in_speed_boost() -> bool:
 	return _now_seconds < _speed_boost_until_seconds
 
 func _ready() -> void:
-	assert(interface != null, "ERROR: interface not assigned.")
-	
-	_track_state = get_tree().get_first_node_in_group("track_state")
-	assert(_track_state != null, "Track state not found.")
+	assert(interface != null, "ERROR: interface not assigned.")	
 	
 func _disable_drift() -> void:
 	_drifting = false

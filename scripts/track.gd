@@ -69,8 +69,6 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 	for n: Building in _buildings:
 		n.mode = building_mode
 		n._build_building()
-		#TODO restore if needed
-		#get_track_region_manager().register_node(n)
 
 	if instance == TrackInstance.CLIENT:
 		_terrain_3d.collision_mode = Terrain3DCollision.DISABLED
@@ -97,6 +95,9 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 		_track_state_server.player_spawner = _player_spawner
 		_track_state_server.procedural_data_holder = _procedural_data_holder
 		_track_state_server.init(mode, speed, cars_count)
+		for n in _buildings:
+			_track_state_server.get_track_region_manager().register_node(n)
+
 
 
 func _spawn_track_state() -> TrackStateModel:

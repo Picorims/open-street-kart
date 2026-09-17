@@ -87,7 +87,8 @@ func get_now() -> float:
 	return _now
 
 func _init() -> void:
-	Performance.add_custom_monitor("game/enabled_regions", func(): return active_regions.size())
+	if not Performance.has_custom_monitor("game/enabled_regions"):
+		Performance.add_custom_monitor("game/enabled_regions", func(): return active_regions.size())
 
 func pos_to_chunk(p: Vector3) -> Vector2:
 	return floor(Vector2(p.x, p.z) / CHUNK_SIZE)

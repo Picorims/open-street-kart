@@ -23,7 +23,7 @@ var cars: Array[RigidBody3D] = []
 var car_root_nodes: Array[CarCustomPhysics2Server] = []
 var _car_root_node_map: Dictionary[String, CarCustomPhysics2Server] = {}
 var track: Track
-
+var track_state_server: TrackStateServer
 
 func _ready() -> void:
 	assert(race_path != null, "ERROR: race_path not configured on player spawner.")
@@ -41,6 +41,7 @@ func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars
 	
 
 func _init_server(mode, speed, cars_count):
+	assert(track_state_server != null, "track state server missing")
 	var count: int = 0
 	if (mode == TrackStateModel.GameMode.AGAINST_CLOCK):
 		count = 1
@@ -53,6 +54,7 @@ func _init_server(mode, speed, cars_count):
 		var car: CarCustomPhysics2Server = CAR_SCENE_SERVER.instantiate()
 		var kart_sync: KartSync = KART_SYNC.instantiate()
 		car.kart_sync = kart_sync
+		car.track_state_server = track_state_server
 		
 		_karts_container.add_child(car)
 		

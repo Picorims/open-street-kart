@@ -103,7 +103,7 @@ func _ready() -> void:
 	var damping_ratio: float = spring_damping / (2 * sqrt(mass * spring_strength))
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is under-damped, >1 is over-damped): ", damping_ratio)
 	
-	_track_state = get_tree().get_first_node_in_group("track_state")
+	_track_state = get_tree().get_first_node_in_group("track_state_server")
 	assert(_track_state != null, "Track state not found.")
 	
 	$ManagedFreezeWakeUpArea3D.body_entered.connect(func(body: Node3D):
@@ -342,7 +342,7 @@ func _process(delta: float) -> void:
 		_time_since_not_moving_seconds = 0
 		interface.respawn()
 	
-	#_track_state.get_track_region_manager().poll_coord(global_position)
+	interface.track_state_server.get_track_region_manager().poll_coord(global_position)
 	
 	# debug =============================
 	var debug_pos = global_position + Vector3(0, 3, 0)
