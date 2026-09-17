@@ -13,6 +13,7 @@ const CountdownState = CountdownStateMachine.CountdownState
 
 var track: Track
 var model: TrackStateModel = null
+var terrain_3d: Terrain3D
 var _race_hud: RaceHUD
 var _race_finished_gui: RaceFinishedGUI
 
@@ -46,6 +47,7 @@ func init():
 	assert(player_spawner != null, "missing player spawner.")
 	assert(model != null, "missing track model.")
 	assert(track != null, "missing track.")
+	assert(terrain_3d != null, "missing terrain_3d.")
 	print("Client: initializing track...")
 	
 	_race_hud = RACE_HUD_SCENE.instantiate()
@@ -57,6 +59,7 @@ func init():
 	# TODO update GUI and visuals once received updated model
 
 	add_child(_camera)
+	terrain_3d.set_camera(_camera)
 	
 	player_spawner.spawned_kart.connect(func(kart: CarCustomPhysics2Client):
 		if kart.display_name == "you": #FIXME multiplayer approach

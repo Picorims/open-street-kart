@@ -24,6 +24,8 @@ enum TrackInstance {
 @onready var _procedural_data_holder: Node3D = %ProceduralDataHolder
 @onready var _track_state_client: TrackStateClient = $TrackStateClient
 @onready var _track_state_server: TrackStateServer = $TrackStateServer
+@onready var _terrain_3d: Terrain3D = $Terrain3D
+
 
 var client_manager: ClientManager = null
 var server_manager: ServerManager = null
@@ -48,6 +50,7 @@ func _ready() -> void:
 	assert($Arrows != null, "No arrows root.")
 	assert($ItemsHolder != null, "No items holder root.")
 	assert($TrackStateSpawner != null, "No track state spawner to sync state.")
+	assert($Terrain3D != null, "No Terrain3D instance defining the terrain shape.")
 
 
 ## Entry point of a track, initiates and play the track.
@@ -70,9 +73,11 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 		#get_track_region_manager().register_node(n)
 
 	if instance == TrackInstance.CLIENT:
+		_terrain_3d.collision_mode = Terrain3DCollision.DISABLED
 		$Checkpoints.queue_free()
 		_track_state_server.queue_free()
 		_track_state_client.track = self
+		_track_state_client.terrain_3d = _terrain_3d
 		_track_state_client.player_spawner = _player_spawner
 
 		_track_state_spawner.spawned.connect(func(model: Node):
@@ -80,6 +85,7 @@ func launch(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, ca
 			_track_state_client.init()
 		)
 	if instance == TrackInstance.SERVER:
+		_terrain_3d.render_layers = 0
 		$Arrows.queue_free()
 		_track_state_client.queue_free()
 		
