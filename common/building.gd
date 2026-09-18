@@ -26,6 +26,9 @@ enum Mode {
 	UNSET
 }
 
+const CARD_DISTANCE := 600.0
+const LOD_SWITCH_RANGE := 10.0
+
 @export var is_part: bool = false
 @export var kind: String = ""
 @export var amenity: String = ""
@@ -67,6 +70,7 @@ enum Mode {
 var mode: Mode = Mode.UNSET
 var _collider: StaticBody3D = null
 var _mesh: MeshInstance3D = null
+var _card_mesh: MeshInstance3D = null
 var _occluder: OccluderInstance3D = null
 
 func _ready() -> void:
@@ -159,6 +163,8 @@ func _build_building(verbose: bool = false) -> bool:
 			_discard(_mesh)
 		if _occluder != null:
 			_discard(_occluder)
+		if _card_mesh != null:
+			_discard(_card_mesh)
 		
 		_mesh = MeshInstance3D.new()
 		_mesh.mesh = mesh
@@ -166,7 +172,48 @@ func _build_building(verbose: bool = false) -> bool:
 		#var surfaces_count := _mesh.mesh.get_surface_count()
 		#for i in surfaces_count:
 			#_mesh.set_surface_override_material(i, building_material)
+		_mesh.visibility_range_end = CARD_DISTANCE
+		_mesh.visibility_range_end_margin = LOD_SWITCH_RANGE
 		add_child(_mesh)
+		
+		# also make a card mesh for long distances
+		_card_mesh = MeshInstance3D.new()
+		var card_st := SurfaceTool.new()
+		card_st.begin(Mesh.PRIMITIVE_TRIANGLES)
+		
+		var mesh_aabb = _mesh.get_aabb()
+		var width = max(mesh_aabb.size.x, mesh_aabb.size.z)
+		var bottom_l = Vector3(0,0,0)
+		var bottom_r = Vector3(width,0,0)
+		var top_l = bottom_l + Vector3(0, height, 0)
+		var top_r = bottom_r + Vector3(0, height, 0)
+		
+		# first triangle
+		card_st.set_uv(Vector2(0, height))
+		card_st.add_vertex(top_l)
+		card_st.set_uv(Vector2(0, 0))
+		card_st.add_vertex(bottom_l)
+		card_st.set_uv(Vector2(width, 0))
+		card_st.add_vertex(bottom_r)
+
+		# second triangle
+		card_st.set_uv(Vector2(width, height))
+		card_st.add_vertex(top_r)
+		card_st.set_uv(Vector2(0, height))
+		card_st.add_vertex(top_l)
+		card_st.set_uv(Vector2(width, 0))
+		card_st.add_vertex(bottom_r)
+
+		card_st.generate_normals()
+		var card_mesh: Mesh = card_st.commit()
+		if (card_mesh == null):
+			if (verbose): print("Failed to create card mesh for building.")
+		else:
+			_card_mesh.mesh = card_mesh
+			#_card_mesh.visibility_range_begin = CARD_DISTANCE - LOD_SWITCH_RANGE
+			_card_mesh.visibility_range_begin = CARD_DISTANCE
+			_card_mesh.visibility_range_begin_margin = LOD_SWITCH_RANGE
+			add_child(_card_mesh)
 		
 		_occluder = OccluderInstance3D.new()
 		var occluder_3d_polygon: ArrayOccluder3D = ArrayOccluder3D.new()
@@ -193,3 +240,7 @@ func _discard(node: Node3D):
 	if has_node(node.get_path()):
 		remove_child(node)
 	node.queue_free()
+
+func _process(delta: float) -> void:
+	if _card_mesh != null:
+		_card_mesh.look_at(get_viewport().get_camera_3d().global_position)
