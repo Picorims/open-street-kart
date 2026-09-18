@@ -346,8 +346,8 @@ func _process(delta: float) -> void:
 	
 	# debug =============================
 	var debug_pos = global_position + Vector3(0, 3, 0)
-	DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
-	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
+	#DebugDraw2D.set_text("Velocity", "%0.2f" % linear_velocity.length())
+	
 	if (show_debug_arrows):
 		DebugDraw3D.draw_arrow(debug_pos, debug_pos + linear_velocity, Color(0, 0, 1), 0.1)
 		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_centrifugal_force, Color(0, 1, 0), 0.1)
@@ -355,7 +355,7 @@ func _process(delta: float) -> void:
 		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_sliding_force_compensated, Color(1, 0, 0.5), 0.1)
 		DebugDraw3D.draw_arrow(debug_pos, debug_pos + _debug_soft_clamp_speed_force, Color(1, 0, 1), 0.1)
 	
-	DebugDraw2D.set_text(interface.name + " position (server)", global_position)
+	#DebugDraw2D.set_text(interface.name + " position (server)", global_position)
 
 var _elapsed: float = 0
 func _physics_process(delta: float) -> void:

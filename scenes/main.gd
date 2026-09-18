@@ -77,7 +77,8 @@ func _ready():
 	s_global.is_game_running = true
 	print("Loading...")
 	#DisplayServer.window_set_mode(DisplayServer.WINDOW_MODE_EXCLUSIVE_FULLSCREEN)
-	DebugDraw2D.config.text_block_offset.y = 150
+	DebugDraw2D.config.text_block_position = DebugDraw2DConfig.POSITION_RIGHT_TOP
+	#DebugDraw2D.config.text_block_offset.y = 150
 	#_apply_background(_BackgroundKind.MENU_BACKGROUND_3D)
 	_apply_screen(_Screen.HOME)
 	print("Loading done.")
@@ -387,6 +388,7 @@ func _hide_loading_screen():
 	$LoadingScreen.visible = false
 
 func _process(_delta: float) -> void:
+	DebugDraw2D.set_text("FPS", Engine.get_frames_per_second())
 	var awaiting_track_time_diff: float = Time.get_ticks_msec() - _awaiting_track_to_load_since
 	if _awaiting_track_to_load and awaiting_track_time_diff > TRACK_LOAD_DELAY_MS:
 		assert(_track_to_load != TrackId.NONE, "no track to load.")

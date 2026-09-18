@@ -79,3 +79,6 @@ const OutOfBoundsSpeedDict: Dictionary[SpeedMode, float] = {
 	SpeedMode.CHALLENGING: 9,
 	SpeedMode.CRAZY: 11,
 }
+
+#func _process(_delta):
+	#DebugDraw2D.set_text("%d" % multiplayer.get_unique_id(), start_lap_us)
