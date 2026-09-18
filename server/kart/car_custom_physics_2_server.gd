@@ -24,7 +24,8 @@ var current_direction: Vector3 = Vector3(1, 0, 0)
 	set(v):
 		mode = v
 		if (v == CarCustomPhysics2Server.CarMode.USER):
-			_brain = UserBrain.new()
+			var server := interface.track_state_server.track.server_manager
+			_brain = UserBrain.new(server)
 		if (v == CarCustomPhysics2Server.CarMode.BOT):
 			_brain = BotBrain.new()
 		_brain.show_debug_arrows = show_debug_arrows
@@ -61,8 +62,6 @@ const MIN_YAW_THRESHOLD_FOR_CENTRIFUGAL_FORCE_COMPUTE = 0.03
 const MAX_LIN_VEL_FOR_CENTRIFUGAL_FORCE_COMPUTE = 100
 
 const SPEED_BOOST = 1.5
-
-var _track_state: TrackStateServer
 
 var _debug_centrifugal_force: Vector3
 var _debug_sliding_force: Vector3
@@ -102,9 +101,6 @@ func _ready() -> void:
 	assert(spring_strength > 0, "ERROR: springSrength should be greater than zero.")
 	var damping_ratio: float = spring_damping / (2 * sqrt(mass * spring_strength))
 	print("current vehicle damping ratio (1 is best/critical damping, <1 is under-damped, >1 is over-damped): ", damping_ratio)
-	
-	_track_state = get_tree().get_first_node_in_group("track_state_server")
-	assert(_track_state != null, "Track state not found.")
 	
 	$ManagedFreezeWakeUpArea3D.body_entered.connect(func(body: Node3D):
 		if (is_instance_of(body, FreezeManagedRigidBody3D)):

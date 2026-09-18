@@ -8,8 +8,21 @@
 ## Car brain for hooking user input to the car.
 class_name UserBrain extends ACarBrain
 
+@export var server: ServerManager
+
+func _init(server_manager: ServerManager) -> void:
+	assert(server_manager != null, "user brain: server manager is null.")
+	server = server_manager
+	server.get_rpc().s_on_receive_input_float.connect(func(k: RPC.InputEventFloatType, v: float):
+		if k == RPC.InputEventFloatType.LEFT_RIGHT:
+			_left_right = v
+		elif k == RPC.InputEventFloatType.BACKWARD_FORWARD:
+			_forward_backward = v
+	)
+	server.get_rpc().s_on_receive_input_bool.connect(func(k: RPC.InputEventBoolType, v: bool):
+		if k == RPC.InputEventBoolType.DRIFT:
+			_drift_active = v
+	)
+
 func tick(global_pos: Vector3, debug_pos: Vector3, global_basis: Basis, local_basis: Basis, front_colliding: bool, on_ground: bool):
 	super (global_pos, debug_pos, global_basis, local_basis, front_colliding, on_ground)
-	_drift_active = Input.is_action_pressed("drift")
-	_forward_backward = Input.get_axis("backward", "forward")
-	_left_right = Input.get_axis("left", "right")

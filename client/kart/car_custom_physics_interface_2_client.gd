@@ -14,6 +14,8 @@ enum CarMode {
 	BOT,
 }
 
+const KART_REMOTE_NODE_NAME = "KartRemote"
+
 @export var kart_sync: KartSync
 
 @export var drifting_effects: bool = false:
@@ -87,6 +89,8 @@ enum CarMode {
 		return $CarVisualBody.global_basis
 	set(v):
 		pass
+@export var track_state: TrackStateClient
+
 
 func _ready() -> void:
 	# /!\ Necessary for checkpoints to work!
@@ -99,3 +103,10 @@ func use_item(item: PlayerItemSlotsState.SlotItem) -> void:
 		#$CarVisualBody.launch_air_bomb()
 	#TODO refactor multiplayer item visuals client
 	pass
+
+func spawn_kart_remote():
+	assert(track_state != null, "car client interface: missing track state.")
+	var remote := KartRemote.new()
+	remote.client = track_state.track.client_manager
+	remote.name = KART_REMOTE_NODE_NAME
+	add_child(remote)

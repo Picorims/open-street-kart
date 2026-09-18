@@ -24,6 +24,7 @@ var car_root_nodes: Array[CarCustomPhysics2Server] = []
 var _car_root_node_map: Dictionary[String, CarCustomPhysics2Server] = {}
 var track: Track
 var track_state_server: TrackStateServer
+var track_state_client: TrackStateClient
 
 func _ready() -> void:
 	assert(race_path != null, "ERROR: race_path not configured on player spawner.")
@@ -41,7 +42,7 @@ func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars
 	
 
 func _init_server(mode, speed, cars_count):
-	assert(track_state_server != null, "track state server missing")
+	assert(track_state_server != null, "player spawner: track state server missing")
 	var count: int = 0
 	if (mode == TrackStateModel.GameMode.AGAINST_CLOCK):
 		count = 1
@@ -98,12 +99,18 @@ func _init_server(mode, speed, cars_count):
 	print("Initializing player spawner done.")
 	
 func _init_client():
+	assert(track_state_client != null, "player spawner: track state client missing")
+
 	_multiplayer_spawner.spawned.connect(func(kart_sync: KartSync):
 		var kart: CarCustomPhysics2Client = CAR_SCENE_CLIENT.instantiate()
+		kart.track_state = track_state_client
 		kart.display_name = kart_sync.display_name
 		kart.name = kart_sync.display_name
 		kart.material = StandardMaterial3D.new()
 		kart.material.albedo_color = Color(randf(), randf(), randf())
+		# HACK replace with mp friendly detection
+		if kart.name == "you":
+			kart.spawn_kart_remote()
 
 		_karts_container.add_child(kart)
 		#kart_sync.remote_path = "../KartsContainer/%s" % kart.name

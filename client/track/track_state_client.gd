@@ -61,6 +61,7 @@ func init():
 	add_child(_camera)
 	terrain_3d.set_camera(_camera)
 	
+	player_spawner.track_state_client = self
 	player_spawner.spawned_kart.connect(func(kart: CarCustomPhysics2Client):
 		if kart.display_name == "you": #FIXME multiplayer approach
 			_player_car = kart

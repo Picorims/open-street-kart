@@ -15,6 +15,16 @@ signal c_on_cars_count_picker_changed(selected: int)
 signal c_on_mp_config_confirmed()
 signal c_on_track_launch(track: Main.TrackId, speed_mode: TrackStateModel.SpeedMode, cars_count: int, game_mode: TrackStateModel.GameMode)
 signal s_all_clients_are_ready
+signal s_on_receive_input_bool(key: InputEventBoolType, value: bool)
+signal s_on_receive_input_float(key: InputEventFloatType, value: float)
+
+enum InputEventFloatType {
+	BACKWARD_FORWARD,
+	LEFT_RIGHT,
+}
+enum InputEventBoolType {
+	DRIFT,
+}
 
 var _valid_username := RegEx.create_from_string("[a-zA-Z0-9_]{3,32}")
 var server_manager: ServerManager = null
@@ -24,6 +34,9 @@ func _is_client_authority(peer: int) -> bool:
 
 func _is_server(peer: int) -> bool:
 	return peer == 1
+
+func _self_is_server():
+	return _is_server(multiplayer.get_unique_id())
 
 func _from_host_to_serv() -> bool:
 	if not _is_server(multiplayer.get_unique_id()):
@@ -147,6 +160,19 @@ func _set_ready():
 	if server_manager.all_clients_are_ready():
 		s_all_clients_are_ready.emit()
 
+@rpc("any_peer", "call_remote", "reliable")
+func _send_input_float(key: InputEventFloatType, value: float):
+	if not _self_is_server():
+		return
+	s_on_receive_input_float.emit(key, value)
+
+@rpc("any_peer", "call_remote", "reliable")
+func _send_input_bool(key: InputEventBoolType, value: bool):
+	if not _self_is_server():
+		return
+	s_on_receive_input_bool.emit(key, value)
+
+
 
 
 
@@ -175,6 +201,11 @@ func c2s_launch_track(track: Main.TrackId):
 	
 func c2s_set_ready():
 	_set_ready.rpc_id(1)
+	
+func c2s_send_input_float(key: InputEventFloatType, value: float):
+	_send_input_float.rpc_id(1, key, value)
+func c2s_send_input_bool(key: InputEventBoolType, value: bool):
+	_send_input_bool.rpc_id(1, key, value)
 
 func clear_signals():
 	SignalUtils.clear_connections_from_signal(c_on_username_accepted)
