@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://bdrvech1c3yhq" path="res://client/kart/car_custom_physics_2_client.gd" id="2_ex5r5"]
 [ext_resource type="Material" uid="uid://b8etgnlf3hgoo" path="res://materials/car_ground.tres" id="3_j4yx4"]
 [ext_resource type="Material" uid="uid://x1nuxgawnulq" path="res://materials/wheel.tres" id="4_2xw10"]
+[ext_resource type="Script" uid="uid://btj7wlcsx3n56" path="res://client/moving_item_receiver.gd" id="5_ex5r5"]
 
 [sub_resource type="BoxMesh" id="BoxMesh_wgmx5"]
 material = ExtResource("3_j4yx4")
@@ -205,3 +206,7 @@ draw_pass_1 = SubResource("SphereMesh_pkjqb")
 transform = Transform3D(-4.37114e-08, 0, -1, 0, 1, 0, 1, 0, -4.37114e-08, 0, 0.5, 0)
 text = "-"
 font_size = 64
+
+[node name="MovingItemReceiver" type="Node" parent="CarVisualBody" unique_id=898512811]
+script = ExtResource("5_ex5r5")
+metadata/_custom_type_script = "uid://btj7wlcsx3n56"

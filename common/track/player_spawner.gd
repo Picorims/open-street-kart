@@ -62,11 +62,11 @@ func _init_server(mode, speed, cars_count):
 		car.items_holder = items_holder
 		car.display_name = "p{0}".format([i + 1])
 		if (i == count - 1):
-			car.mode = CarCustomPhysics2Server.CarMode.USER
+			car.mode = Global.KartMode.USER
 			car.display_name = "you"
 			#car.show_debug_arrows = true
 		else:
-			car.mode = CarCustomPhysics2Server.CarMode.BOT
+			car.mode = Global.KartMode.BOT
 		car.path = race_path
 		car.speed_multiplier = 1.0
 		assert(TrackStateModel.TrackSpeedDict.has(speed), "mising speed for mode %s" % speed)
@@ -94,6 +94,7 @@ func _init_server(mode, speed, cars_count):
 		kart_sync.display_name = car.display_name
 		kart_sync.name = "%s_pos_sync" % car.display_name
 		kart_sync.kart_color = Color(randf(), randf(), randf())
+		kart_sync.mode = car.mode
 		
 		_multiplayer_spawner.add_child(kart_sync)
 	print("Initializing player spawner done.")
@@ -113,14 +114,15 @@ func _init_client():
 			kart.spawn_kart_remote()
 
 		_karts_container.add_child(kart)
-		#kart_sync.remote_path = "../KartsContainer/%s" % kart.name
-		kart_sync.remote_path = kart.get_path()
 		kart.kart_sync = kart_sync
+		kart_sync.network_id_updated.connect(func():
+			kart.network_id = kart_sync.network_id
+		)
+		kart_sync.mode_updated.connect(func():
+			kart.mode = kart_sync.mode
+		)
 		spawned_kart.emit(kart)
 		print("Client: spawned %s for %s" % [kart.name, kart_sync.name])
-		print("kart is in ", kart.get_path())
-		print("kart sync is in ", kart_sync.get_path())
-		print("kart sync controls ", kart_sync.remote_path)
 	)
 	_multiplayer_spawner.despawned.connect(func(kart_sync: KartSync):
 		var kart: Node3D = _karts_container.find_child(kart_sync.display_name)

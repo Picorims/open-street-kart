@@ -87,8 +87,10 @@ func get_now() -> float:
 	return _now
 
 func _init() -> void:
-	if not Performance.has_custom_monitor("game/enabled_regions"):
-		Performance.add_custom_monitor("game/enabled_regions", func(): return active_regions.size())
+	print("I HAVE BEEN SUMMONED !!!!")
+	print_stack()
+	if not Performance.has_custom_monitor("osk/enabled_regions"):
+		Performance.add_custom_monitor("osk/enabled_regions", get_active_regions_count)
 
 func pos_to_chunk(p: Vector3) -> Vector2:
 	return floor(Vector2(p.x, p.z) / CHUNK_SIZE)
@@ -110,9 +112,13 @@ func poll_coord(global_pos: Vector3) -> void:
 
 
 func tick(delta: float) -> void:
+	DebugDraw2D.set_text("enabled regions", active_regions.size())
 	_now += delta
 	for i in range(active_regions.size()-1, -1, -1):
 		var r: Region = active_regions[i]
 		if _now > r.last_enabled_timestamp() + SLEEP_AFTER_SECONDS:
 			r.disable()
 			active_regions.erase(r)
+
+func get_active_regions_count():
+	return active_regions.size()

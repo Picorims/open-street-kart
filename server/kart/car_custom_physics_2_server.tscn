@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" uid="uid://wpd0eiqy1bcy" path="res://server/kart/car_custom_physics_interface_2_server.gd" id="1_6bnrg"]
 [ext_resource type="Script" uid="uid://cqfsveghpuj5h" path="res://server/kart/car_custom_physics_2_server.gd" id="2_rnf7h"]
+[ext_resource type="Script" uid="uid://xoj50uku3ycv" path="res://server/moving_item_emitter.gd" id="3_ojgju"]
 
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_nblgo"]
 friction = 0.0
@@ -87,3 +88,7 @@ collision_mask = 32
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="CarRigidBody/ManagedFreezeWakeUpArea3D" unique_id=375245892]
 shape = SubResource("SphereShape3D_2glma")
+
+[node name="MovingItemEmitter" type="Node" parent="CarRigidBody" unique_id=1387008220]
+script = ExtResource("3_ojgju")
+metadata/_custom_type_script = "uid://xoj50uku3ycv"

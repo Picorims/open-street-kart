@@ -14,7 +14,7 @@ var track: Track = null
 var model: TrackStateModel = null
 var _countdown_sm: CountdownStateMachine = CountdownStateMachine.new()
 
-var _track_region_manager: TrackRegionManager = TrackRegionManager.new()
+var _track_region_manager: TrackRegionManager = null
 func get_track_region_manager() -> TrackRegionManager:
 	return _track_region_manager
 
@@ -26,6 +26,10 @@ func init(mode: TrackStateModel.GameMode, speed: TrackStateModel.SpeedMode, cars
 	assert(model != null, "missing track model.")
 	
 	_countdown_sm.model = model
+	# created here because client do trigger all top variables initialization before
+	# deleting the node. This is a problem for registering the monitor, as it tracks
+	# the discarded client region manager instead of the server one.
+	_track_region_manager = TrackRegionManager.new()
 
 	model.mode = mode
 	model.speed = speed

@@ -18,6 +18,12 @@ var clients_ready: Dictionary[int, bool] = {}
 @onready var _server_rpc: RPC = $RPC
 @onready var _world: Node3D = $World
 
+var _id := 1
+func claim_network_id():
+	var returned_id = _id
+	_id += 1
+	return returned_id
+
 func get_rpc() -> RPC:
 	return _server_rpc
 

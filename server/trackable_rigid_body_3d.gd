@@ -5,13 +5,10 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
-@tool
-class_name Global extends Node
+@icon("res://addons/at-icons/node/orbit.svg")
+class_name TrackableRigidBody3D extends RigidBody3D
 
-enum KartMode {
-	UNSET,
-	USER,
-	BOT,
-}
-
-var is_game_running := false
+## must be manually populated.
+@export var current_velocity: Vector3
+## must be manually populated.
+@export var current_torque: Vector3

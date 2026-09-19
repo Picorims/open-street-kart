@@ -8,12 +8,6 @@
 
 class_name CarCustomPhysics2Server extends Node3D
 
-enum CarMode {
-	UNSET,
-	USER,
-	BOT,
-}
-
 @export var track_state_server: TrackStateServer
 @export var kart_sync: KartSync
 @export var speed_multiplier: float = 1.0:
@@ -45,7 +39,7 @@ enum CarMode {
 	set(v):
 		speed_boost_effects = v
 
-@export var mode: CarMode:
+@export var mode: Global.KartMode:
 	set(v):
 		mode = v
 		$CarRigidBody.mode = v

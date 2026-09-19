@@ -6,8 +6,9 @@
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
 
-extends RigidBody3D
+extends TrackableRigidBody3D
 
+@onready var _moving_item_emitter: MovingItemEmitter = $MovingItemEmitter
 
 var current_direction: Vector3 = Vector3(1, 0, 0)
 @export var show_debug_arrows: bool = false
@@ -20,13 +21,14 @@ var current_direction: Vector3 = Vector3(1, 0, 0)
 @export var max_speed_meters_per_second: float = 25
 @export var max_speed_out_of_bounds_meters_per_second: float = 8
 @export var interface: CarCustomPhysics2Server
-@export var mode: CarCustomPhysics2Server.CarMode:
+@export var mode: Global.KartMode:
 	set(v):
 		mode = v
-		if (v == CarCustomPhysics2Server.CarMode.USER):
+		if (v == Global.KartMode.USER):
 			var server := interface.track_state_server.track.server_manager
 			_brain = UserBrain.new(server)
-		if (v == CarCustomPhysics2Server.CarMode.BOT):
+			_moving_item_emitter.monitor = true
+		if (v == Global.KartMode.BOT):
 			_brain = BotBrain.new()
 		_brain.show_debug_arrows = show_debug_arrows
 @export var path: RacePath:
@@ -35,7 +37,6 @@ var current_direction: Vector3 = Vector3(1, 0, 0)
 		if (_brain != null):
 			_brain.path = v
 var items_holder: Node3D = null
-var current_velocity := Vector3.ZERO
 var current_position := Vector3.ZERO
 
 const AIR_BOMB_SCENE: PackedScene = preload("res://prefabs/items/air_bomb.tscn")
@@ -109,7 +110,9 @@ func _ready() -> void:
 	)
 	
 	current_position = global_position
-
+	
+	_moving_item_emitter.server = interface.track_state_server.track.server_manager
+	interface.kart_sync.network_id = _moving_item_emitter.get_network_id()
 
 func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	if (_brain == null):
@@ -361,9 +364,6 @@ func _physics_process(delta: float) -> void:
 		_elapsed = 0
 		var debug_pos = global_position + Vector3(0, 3, 0)
 		_brain.tick(global_position, debug_pos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())
-	interface.kart_sync.global_position = global_position
-	interface.kart_sync.global_transform = global_transform
-	interface.kart_sync.current_velocity = current_velocity
 
 
 func force_basis_on_next_physics_frame(new_basis: Basis):

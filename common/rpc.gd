@@ -14,6 +14,7 @@ signal c_on_speed_picker_changed(selected: int)
 signal c_on_cars_count_picker_changed(selected: int)
 signal c_on_mp_config_confirmed()
 signal c_on_track_launch(track: Main.TrackId, speed_mode: TrackStateModel.SpeedMode, cars_count: int, game_mode: TrackStateModel.GameMode)
+signal c_on_moving_item_update(nid: int, pos: Vector3, rot: Vector3, vel: Vector3, torque: Vector3, timestamp: int)
 signal s_all_clients_are_ready
 signal s_on_receive_input_bool(key: InputEventBoolType, value: bool)
 signal s_on_receive_input_float(key: InputEventFloatType, value: float)
@@ -172,6 +173,14 @@ func _send_input_bool(key: InputEventBoolType, value: bool):
 		return
 	s_on_receive_input_bool.emit(key, value)
 
+@rpc("authority", "call_remote", "unreliable")
+func _send_moving_item_data(nid: int, pos: Vector3, rot: Vector3, vel: Vector3, torque: Vector3, timestamp: int):
+	if _self_is_server():
+		return
+	c_on_moving_item_update.emit(nid, pos, rot, vel, torque, timestamp)
+
+
+
 
 
 
@@ -206,6 +215,10 @@ func c2s_send_input_float(key: InputEventFloatType, value: float):
 	_send_input_float.rpc_id(1, key, value)
 func c2s_send_input_bool(key: InputEventBoolType, value: bool):
 	_send_input_bool.rpc_id(1, key, value)
+
+func s2c_send_moving_item_data(nid: int, pos: Vector3, rot: Vector3, vel: Vector3, torque: Vector3, time: int):
+	DebugDraw2D.set_text("sending network id %d" % nid, pos)
+	_send_moving_item_data.rpc(nid, pos, rot, vel, torque, time)
 
 func clear_signals():
 	SignalUtils.clear_connections_from_signal(c_on_username_accepted)

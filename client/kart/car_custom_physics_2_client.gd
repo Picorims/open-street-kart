@@ -8,11 +8,16 @@
 
 extends Node3D
 
+@onready var _moving_item_receiver: MovingItemReceiver = $MovingItemReceiver
 
 var current_direction: Vector3 = Vector3(1, 0, 0)
 @export var show_debug_arrows: bool = false
 @export var interface: CarCustomPhysics2Client
-@export var mode: CarCustomPhysics2Client.CarMode #FIXME shared enum?
+@export var mode: Global.KartMode:
+	set(v):
+		mode = v
+		if mode == Global.KartMode.USER:
+			_moving_item_receiver.monitor = true
 @export var path: RacePath
 var items_holder: Node3D = null
 
@@ -22,6 +27,7 @@ func is_in_speed_boost() -> bool:
 
 func _ready() -> void:
 	assert(interface != null, "ERROR: interface not assigned.")	
+	_moving_item_receiver.link(interface.track_state.track.client_manager)
 	
 func _process(_delta: float) -> void:
 	interface.speed_boost_effects = is_in_speed_boost()

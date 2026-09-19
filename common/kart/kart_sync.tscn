@@ -3,23 +3,20 @@
 [ext_resource type="Script" uid="uid://beqraydyq6580" path="res://common/kart/kart_sync.gd" id="1_ietni"]
 
 [sub_resource type="SceneReplicationConfig" id="SceneReplicationConfig_ny8gr"]
-properties/0/path = NodePath(".:position")
+properties/0/path = NodePath(".:display_name")
 properties/0/spawn = true
-properties/0/replication_mode = 1
-properties/1/path = NodePath(".:rotation")
+properties/0/replication_mode = 2
+properties/1/path = NodePath(".:kart_color")
 properties/1/spawn = true
-properties/1/replication_mode = 1
-properties/2/path = NodePath(".:display_name")
+properties/1/replication_mode = 2
+properties/2/path = NodePath(".:network_id")
 properties/2/spawn = true
 properties/2/replication_mode = 2
-properties/3/path = NodePath(".:kart_color")
+properties/3/path = NodePath(".:mode")
 properties/3/spawn = true
 properties/3/replication_mode = 2
-properties/4/path = NodePath(".:current_velocity")
-properties/4/spawn = true
-properties/4/replication_mode = 1
 
-[node name="KartSync" type="RemoteTransform3D" unique_id=754436355]
+[node name="KartSync" type="Node" unique_id=625936587]
 script = ExtResource("1_ietni")
 
 [node name="MultiplayerSynchronizer" type="MultiplayerSynchronizer" parent="." unique_id=504558940]

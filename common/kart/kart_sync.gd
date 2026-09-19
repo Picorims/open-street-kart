@@ -5,12 +5,24 @@
 # License, v. 2.0. If a copy of the MPL was not distributed with this
 # file, You can obtain one at https://mozilla.org/MPL/2.0/.
 
+class_name KartSync extends Node
 
-class_name KartSync extends RemoteTransform3D
+signal network_id_updated
+signal mode_updated
 
+@onready var multiplayer_synchronizer: MultiplayerSynchronizer = $MultiplayerSynchronizer
+
+@export var mode: Global.KartMode = Global.KartMode.UNSET
+@export var network_id := -1
 @export var display_name: String = ""
 @export var kart_color: Color = Color.BLACK
-@export var current_velocity: Vector3 = Vector3.ZERO
 
-#func _process(delta: float) -> void:
-	#DebugDraw2D.set_text("%s %d" % [self.name, multiplayer.get_unique_id()], global_position)
+func _ready() -> void:
+	multiplayer_synchronizer.synchronized.connect(func():
+		network_id_updated.emit()
+		mode_updated.emit()
+	)
+	multiplayer_synchronizer.delta_synchronized.connect(func():
+		network_id_updated.emit()
+		mode_updated.emit()
+	)

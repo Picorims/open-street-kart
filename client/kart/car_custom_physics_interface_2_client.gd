@@ -8,13 +8,9 @@
 
 class_name CarCustomPhysics2Client extends Node3D
 
-enum CarMode {
-	UNSET,
-	USER,
-	BOT,
-}
-
 const KART_REMOTE_NODE_NAME = "KartRemote"
+
+@onready var _moving_item_receiver: MovingItemReceiver = $CarVisualBody/MovingItemReceiver
 
 @export var kart_sync: KartSync
 
@@ -29,7 +25,7 @@ const KART_REMOTE_NODE_NAME = "KartRemote"
 		speed_boost_effects = v
 		$CarVisualBody/SpeedGPUParticles3D.emitting = v
 
-@export var mode: CarMode:
+@export var mode: Global.KartMode:
 	set(v):
 		mode = v
 		$CarVisualBody.mode = v
@@ -65,18 +61,12 @@ const KART_REMOTE_NODE_NAME = "KartRemote"
 
 @export var current_velocity: Vector3:
 	get():
-		if kart_sync != null:
-			return kart_sync.current_velocity
-		else:
-			return Vector3.ZERO
+		return _moving_item_receiver.current_velocity
 	set(v):
 		pass
 @export var current_position: Vector3:
 	get():
-		if kart_sync != null:
-			return kart_sync.global_position
-		else:
-			return $CarVisualBody.current_position
+		return $CarVisualBody.global_position
 	set(v):
 		pass
 @export var going_backwards: bool:
@@ -90,7 +80,10 @@ const KART_REMOTE_NODE_NAME = "KartRemote"
 	set(v):
 		pass
 @export var track_state: TrackStateClient
-
+@export var network_id := -1:
+	set(v):
+		network_id = v
+		_moving_item_receiver.network_id = v
 
 func _ready() -> void:
 	# /!\ Necessary for checkpoints to work!
