@@ -22,6 +22,12 @@ class_name MovingItemEmitter extends Node
 		elif Performance.has_custom_monitor(monitor_name):
 			Performance.remove_custom_monitor(monitor_name)
 
+@export var tick_rate := 60:
+	set(v):
+		tick_rate = v
+		_rate_s = 1.0 / v
+var _rate_s := 1.0 / tick_rate
+
 var _network_id: int = -1
 var _active = false
 var _parent: TrackableRigidBody3D = null
@@ -38,10 +44,14 @@ func _exit_tree() -> void:
 	_parent = null
 	_active = false
 
-func _physics_process(_delta: float) -> void:
-	if _network_id == -1:
+var _ellapsed := 0.0
+func _physics_process(delta: float) -> void:
+	if _network_id == -1 or not _active:
 		return
-	if _active:
+	_ellapsed += delta
+	if _ellapsed > _rate_s:
+		_ellapsed = 0
+
 		var pos := _parent.global_position
 		var rot := _parent.global_rotation
 		var vel := _parent.current_velocity
