@@ -79,6 +79,7 @@ class Region:
 	
 const CHUNK_SIZE = 64
 const SLEEP_AFTER_SECONDS = 5
+const TICK_RATE = 60
 
 var active_regions: Array[Region] = []
 var _regions: Dictionary[Vector2, Region] = {}
@@ -110,15 +111,20 @@ func poll_coord(global_pos: Vector3) -> void:
 				var region: Region = _regions.get(area_chunk)
 				region.poll_or_enable()
 
-
+var _ellapsed := 0.0
+var _rate_s = 1.0 / TICK_RATE
 func tick(delta: float) -> void:
-	DebugDraw2D.set_text("enabled regions", active_regions.size())
-	_now += delta
-	for i in range(active_regions.size()-1, -1, -1):
-		var r: Region = active_regions[i]
-		if _now > r.last_enabled_timestamp() + SLEEP_AFTER_SECONDS:
-			r.disable()
-			active_regions.erase(r)
+	_ellapsed += delta
+	if _ellapsed > _rate_s:
+		_ellapsed = 0
+	
+		DebugDraw2D.set_text("enabled regions", active_regions.size())
+		_now += delta
+		for i in range(active_regions.size()-1, -1, -1):
+			var r: Region = active_regions[i]
+			if _now > r.last_enabled_timestamp() + SLEEP_AFTER_SECONDS:
+				r.disable()
+				active_regions.erase(r)
 
 func get_active_regions_count():
 	return active_regions.size()
