@@ -407,6 +407,9 @@ func _process(_delta: float) -> void:
 			client_track.ready.connect(func():
 				client_track.launch(_selected_mode, _selected_speed, _selected_cars_count)
 			)
+			#HACK while not splitting rendering and collision
+			#in road generator plugin
+			client_track.get_node("ProceduralDataHolder/OSMData/Roads").queue_free()
 			_client_manager.get_world().add_child(client_track)
 		if server_track != null:
 			_server_manager.clients_ready = {}

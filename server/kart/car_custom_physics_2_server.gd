@@ -64,6 +64,9 @@ const MAX_LIN_VEL_FOR_CENTRIFUGAL_FORCE_COMPUTE = 100
 
 const SPEED_BOOST = 1.5
 
+const BOT_BRAIN_TICKS_PER_S := 30
+var _bot_brain_ticks_freq := 1.0 / BOT_BRAIN_TICKS_PER_S
+
 var _debug_centrifugal_force: Vector3
 var _debug_sliding_force: Vector3
 var _debug_sliding_force_compensated: Vector3
@@ -360,7 +363,7 @@ var _elapsed: float = 0
 func _physics_process(delta: float) -> void:
 	_elapsed += delta
 	_now_seconds += delta
-	if (_elapsed > 0.02):
+	if (_elapsed > _bot_brain_ticks_freq):
 		_elapsed = 0
 		var debug_pos = global_position + Vector3(0, 3, 0)
 		_brain.tick(global_position, debug_pos, global_basis, basis, $FrontRayCast3D.is_colliding(), $GroundRayCast3D.is_colliding())

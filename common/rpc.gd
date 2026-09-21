@@ -217,7 +217,7 @@ func c2s_send_input_bool(key: InputEventBoolType, value: bool):
 	_send_input_bool.rpc_id(1, key, value)
 
 func s2c_send_moving_item_data(nid: int, pos: Vector3, rot: Vector3, vel: Vector3, torque: Vector3, time: int):
-	DebugDraw2D.set_text("sending network id %d" % nid, pos)
+	#DebugDraw2D.set_text("sending network id %d" % nid, pos)
 	_send_moving_item_data.rpc(nid, pos, rot, vel, torque, time)
 
 func clear_signals():

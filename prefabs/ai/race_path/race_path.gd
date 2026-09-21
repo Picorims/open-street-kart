@@ -16,7 +16,7 @@ class_name RacePath extends Path3D
 
 const MAX_POINTS: int = 10_000
 ## controls the intensity of bezier smoothing.
-const DISTANCE_DIVIDER: float = 3
+const DISTANCE_DIVIDER: float = 6
 const FORWARD_VECTOR_TOO_SMALL_THRESHOLD = 0.01
 
 var _found_race_path_nodes: Array[RacePathNode] = []
@@ -35,7 +35,7 @@ func _bake_path():
 		return
 	print("Baking race path...")
 	var new_curve: Curve3D = Curve3D.new()
-	new_curve.bake_interval = 2
+	new_curve.bake_interval = DISTANCE_DIVIDER
 	var new_nodes: Array[RacePathNode] = []
 	var new_nodes_offset: Array[float] = []
 	new_curve.add_point(starting_node.position)

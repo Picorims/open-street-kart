@@ -26,7 +26,8 @@ enum Mode {
 	UNSET
 }
 
-const CARD_DISTANCE := 600.0
+const CARD_DISTANCE := 250.0
+const CARD_MAX_DISTANCE := 600.0
 const LOD_SWITCH_RANGE := 10.0
 
 @export var is_part: bool = false
@@ -213,6 +214,8 @@ func _build_building(verbose: bool = false) -> bool:
 			#_card_mesh.visibility_range_begin = CARD_DISTANCE - LOD_SWITCH_RANGE
 			_card_mesh.visibility_range_begin = CARD_DISTANCE
 			_card_mesh.visibility_range_begin_margin = LOD_SWITCH_RANGE
+			_card_mesh.visibility_range_end = CARD_MAX_DISTANCE
+			_card_mesh.cast_shadow = GeometryInstance3D.SHADOW_CASTING_SETTING_OFF
 			add_child(_card_mesh)
 		
 		_occluder = OccluderInstance3D.new()
