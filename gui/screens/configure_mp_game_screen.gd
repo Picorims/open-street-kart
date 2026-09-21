@@ -39,11 +39,11 @@ func _ready() -> void:
 			var cars_count: int = 0
 			if _cars_count_picker.selected == 0:
 				cars_count = 4
-			elif _cars_count_picker.selected == 0:
+			elif _cars_count_picker.selected == 1:
 				cars_count = 8
-			if _cars_count_picker.selected == 0:
+			elif _cars_count_picker.selected == 2:
 				cars_count = 12
-			if _cars_count_picker.selected == 0:
+			elif _cars_count_picker.selected == 3:
 				cars_count = 16
 			else:
 				push_error("Configure multiplayer screen: unknown cars count for confirmation. i: %d" % [_cars_count_picker.selected])
