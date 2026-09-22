@@ -48,6 +48,7 @@ layout_mode = 2
 size_flags_vertical = 3
 text = "Total players"
 options_values = Array[String](["4", "8", "12", "16"])
+selected = 3
 
 [node name="MarginContainer" type="MarginContainer" parent="MarginContainer/UIBlockContainer" unique_id=634677402]
 layout_mode = 2

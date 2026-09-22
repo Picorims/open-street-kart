@@ -409,7 +409,14 @@ func _process(_delta: float) -> void:
 			)
 			#HACK while not splitting rendering and collision
 			#in road generator plugin
-			client_track.get_node("ProceduralDataHolder/OSMData/Roads").queue_free()
+			var roads := client_track.get_node("%ProceduralDataHolder/OSMData/Roads")
+			if roads == null:
+				push_warning("Failed to retrieve roads in client track instance.")
+			else:
+				var manager: RoadManager = roads.get_child(0)
+				print("disabling geo for %d roads client-side" % manager.get_child_count())
+				for road: RoadContainer in manager.get_children():
+					road.create_geo = false
 			_client_manager.get_world().add_child(client_track)
 		if server_track != null:
 			_server_manager.clients_ready = {}
