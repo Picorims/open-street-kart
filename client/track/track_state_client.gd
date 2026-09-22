@@ -30,7 +30,7 @@ var player_spawner: PlayerSpawner = null
 const CAM_DISTANCE_FROM_PLAYER := 4.0
 const CAM_HEIGHT_FROM_PLAYER := 1.5
 const CAM_UPDATE_MIN_SPEED := 1.0
-const CAM_EASING_RATIO_HOR := 0.95
+const CAM_EASING_RATIO_HOR := 0.5
 const CAM_EASING_RATIO_VERT := 0.005
 const CAM_MAX_SPEED := 0.5
 
@@ -116,14 +116,14 @@ func _pretty_duration_from_us(us: float) -> String:
 	
 	return "{0}:{1}.{2} ({3} us)".format([minutes, seconds, milliseconds, microseconds])
 
-func _process(delta: float) -> void:
+func _process(_delta: float) -> void:
 	#TODO
 	pass
 	#if (not _race_finished and _started):
 		#var stats_from_first: Dictionary[String, _CarStatsFromFirst] = _process_live_ranking()
 		#_process_item_slots(delta, stats_from_first)
 
-func _physics_process(delta: float) -> void:
+func _physics_process(_delta: float) -> void:
 	pass
 	if not _camera_initialized and _player_car != null and _player_car.current_position:
 		_init_camera()
@@ -131,7 +131,7 @@ func _physics_process(delta: float) -> void:
 	if _camera_initialized:
 		_update_camera()
 
-func _process_item_slots(delta: float, stats_from_first: Dictionary[String, _CarStatsFromFirst]):
+func _process_item_slots(_delta: float, _stats_from_first: Dictionary[String, _CarStatsFromFirst]):
 	#TODO
 	pass
 	#if stats_from_first.is_empty():
@@ -246,12 +246,14 @@ func _init_camera():
 func _update_camera(force := false):
 	if not model.started and not force:
 		return
-	var car_velocity := _player_car.current_velocity
+	var car_velocity := _player_car.estimated_local_velocity
 	var car_position := _player_car.current_position
 	var car_basis := _player_car.car_basis
-	var meaningless_vel: bool = car_velocity.is_zero_approx() or (abs(car_velocity.x) < 0.1 and abs(car_velocity.x) < 0.1)
+	var meaningless_vel: bool = car_velocity.is_zero_approx() or (abs(car_velocity.x) < 0.1)
 	if car_velocity.length() > CAM_UPDATE_MIN_SPEED and not meaningless_vel:
 		var dir := car_velocity.normalized()
+		if car_velocity.length() < 0.01:
+			dir = _player_car.car_basis.x
 		if _player_car.car_basis.x.dot(car_velocity) < 0:
 			dir *= -1
 		_cam_target_pos = -dir.slide(Vector3.UP).normalized() * CAM_DISTANCE_FROM_PLAYER
@@ -259,6 +261,8 @@ func _update_camera(force := false):
 		# When I coded this, I was so desperate that I just went with trying things
 		# that might work. Sorry! (Probably only amplifies vertical cam movement.)
 		_cam_target_pos.y -= dir.y * PI
+		DebugDraw2D.set_text("cam dir", dir, 0, Color.WHITE, 5)
+
 	var ratio_h := CAM_EASING_RATIO_HOR
 	var ratio_v := CAM_EASING_RATIO_VERT
 	_cam_current_pos = Vector3(
@@ -268,7 +272,14 @@ func _update_camera(force := false):
 	)
 	DebugDraw2D.set_text("_cam_target_pos_cam", _cam_target_pos)
 	DebugDraw2D.set_text("current_pos_cam", _cam_current_pos)
-
+	DebugDraw3D.draw_arrow(
+		car_position + Vector3(0,0.5,0),
+		car_position + car_velocity * 0.1 + Vector3(0,0.5,0),
+		Color.BLACK,
+		0.1,
+		true
+	)
+	DebugDraw3D.draw_text(car_position + Vector3(0,1.2,0), "%d" % car_velocity.length(), 32, Color.WHITE)
 	var pos = car_position + _cam_current_pos
 	_camera.look_at_from_position(pos, car_position)
 	pos.y += CAM_HEIGHT_FROM_PLAYER

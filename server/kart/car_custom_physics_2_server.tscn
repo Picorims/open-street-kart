@@ -4,6 +4,14 @@
 [ext_resource type="Script" uid="uid://cqfsveghpuj5h" path="res://server/kart/car_custom_physics_2_server.gd" id="2_rnf7h"]
 [ext_resource type="Script" uid="uid://xoj50uku3ycv" path="res://server/moving_item_emitter.gd" id="3_ojgju"]
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ojgju"]
+transparency = 4
+albedo_color = Color(1, 1, 1, 0.3647059)
+
+[sub_resource type="BoxMesh" id="BoxMesh_go0y4"]
+material = SubResource("StandardMaterial3D_ojgju")
+size = Vector3(1, 0.2, 0.6)
+
 [sub_resource type="PhysicsMaterial" id="PhysicsMaterial_nblgo"]
 friction = 0.0
 absorbent = true
@@ -19,7 +27,11 @@ size = Vector3(1, 0.2, 0.6)
 radius = 1.0
 
 [node name="CarCustomPhysics2" type="Node3D" unique_id=1795504577]
+physics_interpolation_mode = 1
 script = ExtResource("1_6bnrg")
+
+[node name="DebugServerPosMesh" type="MeshInstance3D" parent="." unique_id=1307354771]
+mesh = SubResource("BoxMesh_go0y4")
 
 [node name="CarRigidBody" type="RigidBody3D" parent="." unique_id=1293076100 node_paths=PackedStringArray("interface")]
 collision_layer = 458817

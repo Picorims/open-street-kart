@@ -15,3 +15,8 @@ enum KartMode {
 }
 
 var is_game_running := false
+
+class Math:
+	## given a factor between 0 and 1, apply proportional easing.
+	static func ease(old: Vector3, new: Vector3, factor: float):
+		return old * factor + new * (1.0 - factor)

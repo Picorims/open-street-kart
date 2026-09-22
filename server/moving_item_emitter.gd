@@ -22,7 +22,7 @@ class_name MovingItemEmitter extends Node
 		elif Performance.has_custom_monitor(monitor_name):
 			Performance.remove_custom_monitor(monitor_name)
 
-@export var tick_rate := 60:
+@export var tick_rate := 20:
 	set(v):
 		tick_rate = v
 		_rate_s = 1.0 / v
@@ -55,9 +55,9 @@ func _physics_process(delta: float) -> void:
 		var pos := _parent.global_position
 		var rot := _parent.global_rotation
 		var vel := _parent.current_velocity
-		var torque := _parent.current_torque
+		var ang_vel := _parent.current_angular_vel
 		var time := Time.get_ticks_msec()
-		server.get_rpc().s2c_send_moving_item_data(_network_id, pos, rot, vel, torque, time)
+		server.get_rpc().s2c_send_moving_item_data(_network_id, pos, rot, vel, ang_vel, time)
 		_packets_sent_per_seconds += 1
 		call_deferred("schedule_decrease_packets_sent_per_seconds")
 

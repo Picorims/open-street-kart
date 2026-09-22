@@ -136,6 +136,7 @@ radial_segments = 16
 rings = 8
 
 [node name="CarCustomPhysics2" type="Node3D" unique_id=1795504577]
+physics_interpolation_mode = 1
 script = ExtResource("1_1cs2y")
 
 [node name="CarVisualBody" type="Node3D" parent="." unique_id=57453456 node_paths=PackedStringArray("interface")]

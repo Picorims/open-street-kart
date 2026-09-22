@@ -11,6 +11,7 @@ class_name CarCustomPhysics2Client extends Node3D
 const KART_REMOTE_NODE_NAME = "KartRemote"
 
 @onready var _moving_item_receiver: MovingItemReceiver = $CarVisualBody/MovingItemReceiver
+@onready var _car_visual_body: Node3D = $CarVisualBody
 
 @export var kart_sync: KartSync
 
@@ -28,17 +29,17 @@ const KART_REMOTE_NODE_NAME = "KartRemote"
 @export var mode: Global.KartMode:
 	set(v):
 		mode = v
-		$CarVisualBody.mode = v
+		_car_visual_body.mode = v
 		
 @export var path: RacePath:
 	set(v):
 		path = v
-		$CarVisualBody.path = v
+		_car_visual_body.path = v
 
 @export var show_debug_arrows: bool:
 	set(v):
 		show_debug_arrows = v
-		$CarVisualBody.show_debug_arrows = v
+		_car_visual_body.show_debug_arrows = v
 
 @export var display_name: String:
 	set(v):
@@ -57,26 +58,36 @@ const KART_REMOTE_NODE_NAME = "KartRemote"
 @export var items_holder: Node3D:
 	set(v):
 		items_holder = v
-		$CarVisualBody.items_holder = v
+		_car_visual_body.items_holder = v
 
-@export var current_velocity: Vector3:
+@export var estimated_local_velocity: Vector3:
 	get():
-		return _moving_item_receiver.current_velocity
+		return _moving_item_receiver.estimated_local_velocity
+	set(v):
+		pass
+@export var server_velocity: Vector3:
+	get():
+		return _moving_item_receiver.server_velocity
 	set(v):
 		pass
 @export var current_position: Vector3:
 	get():
-		return $CarVisualBody.global_position
+		return _car_visual_body.global_position
+	set(v):
+		pass
+@export var last_server_timestamp: int:
+	get():
+		return _moving_item_receiver.last_timestamp
 	set(v):
 		pass
 @export var going_backwards: bool:
 	get():
-		return $CarVisualBody._going_backwards
+		return _car_visual_body._going_backwards
 	set(v):
 		pass
 @export var car_basis: Basis:
 	get():
-		return $CarVisualBody.global_basis
+		return _car_visual_body.global_basis
 	set(v):
 		pass
 @export var track_state: TrackStateClient
@@ -89,7 +100,7 @@ func _ready() -> void:
 	# /!\ Necessary for checkpoints to work!
 	assert(has_node("CarVisualBody"), "Car rigid body must be a direct child of the root CarCustomPhysics node.")
 
-func use_item(item: PlayerItemSlotsState.SlotItem) -> void:
+func use_item(_item: PlayerItemSlotsState.SlotItem) -> void:
 	#if item == PlayerItemSlotsState.SlotItem.SPEED_BOOST:
 		#$CarVisualBody.apply_speed_boost_seconds(2.5)
 	#if item == PlayerItemSlotsState.SlotItem.AIR_BOMB:

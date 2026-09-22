@@ -8,6 +8,9 @@
 
 class_name CarCustomPhysics2Server extends Node3D
 
+@onready var _debug_server_pos_mesh: MeshInstance3D = $DebugServerPosMesh
+@onready var _car_rigid_body: RigidBody3D = $CarRigidBody
+
 @export var track_state_server: TrackStateServer
 @export var kart_sync: KartSync
 @export var speed_multiplier: float = 1.0:
@@ -108,3 +111,7 @@ func use_item(item: PlayerItemSlotsState.SlotItem) -> void:
 	if item == PlayerItemSlotsState.SlotItem.AIR_BOMB:
 		$CarRigidBody.launch_air_bomb()
 	pass
+
+func _physics_process(_delta: float) -> void:
+	_debug_server_pos_mesh.global_position = _car_rigid_body.global_position
+	_debug_server_pos_mesh.global_rotation = _car_rigid_body.global_rotation

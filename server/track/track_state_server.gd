@@ -113,7 +113,7 @@ func _stop():
 	# by offset from the start of the track. So the lowest offset, in other
 	# words the start of the array, is last, and thus shall be inserted as
 	# last as well. Hence the need to iterate in reverse order.
-	for i in range(model.last_estimated_rankings.ids.size() - 1, -1, -1):
+q 	for i in range(model.last_estimated_rankings.ids.size() - 1, -1, -1):
 		var ids := model.ids
 		var offsets := model.car_offsets
 		var id = ids[i]

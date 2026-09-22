@@ -11,4 +11,4 @@ class_name TrackableRigidBody3D extends RigidBody3D
 ## must be manually populated.
 @export var current_velocity: Vector3
 ## must be manually populated.
-@export var current_torque: Vector3
+@export var current_angular_vel: Vector3

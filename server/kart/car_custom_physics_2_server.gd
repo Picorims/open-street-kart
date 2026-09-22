@@ -189,6 +189,7 @@ func _integrate_forces(state: PhysicsDirectBodyState3D) -> void:
 	_brain.populated_lin_vel = state.linear_velocity
 	_brain.populated_ang_vel = state.angular_velocity
 	current_velocity = state.linear_velocity
+	current_angular_vel = state.angular_velocity
 	current_position = global_position
 
 func _disable_drift() -> void:
